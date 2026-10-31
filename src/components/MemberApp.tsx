@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ExternalLink, Gift, Lock, Pencil, Plus, Search, Send, Trash2 } from "lucide-react";
+import { Check, ExternalLink, Lock, Pencil, Plus, Search, Send, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, baht, errorText, getSession, rememberGroup, setSession, type Session } from "@/lib/client/store";
 import { useT } from "@/lib/i18n";
@@ -314,22 +314,6 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
         </div>
         <GiftTag lead={t("youDrew")} name={person.name} foot={t("keepSecret")} />
       </section>
-
-      <button
-        type="button"
-        role="checkbox"
-        aria-checked={view.giftReady}
-        className="card tilt-l nudge-l flex w-[calc(100%-10px)] items-center gap-3 px-5 py-3.5 text-left"
-        onClick={() => act({ type: "giftReady", ready: !view.giftReady })}
-      >
-        <span className={cx("grid size-7 shrink-0 place-items-center rounded-full", view.giftReady ? "bg-accent text-accent-ink" : "bg-field text-ink-2")} aria-hidden>
-          {view.giftReady ? <Check size={16} {...ICON} /> : <Gift size={15} {...ICON} />}
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block font-medium">{t("giftReadyAsk")}</span>
-          <span className="block text-[14px] leading-snug text-ink-2">{t("giftReadyHint")}</span>
-        </span>
-      </button>
 
       {(person.about.likes || person.about.sizes || person.about.avoid) && (
         <Section title={t("aboutOf", { name: person.name })}>
