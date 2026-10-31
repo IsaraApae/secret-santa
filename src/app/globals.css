@@ -33,10 +33,6 @@
 :root {
   color-scheme: dark;
   --night: #170c0a;
-  /* One solid colour for the page's top and bottom edges. Phone browsers fill
-     the strips behind their status bar and toolbar with a single colour, and
-     fixed layers aren't drawn there, so the page has to meet it without a seam. */
-  --edge: #3a1511;
   --gold: #f4cb6c;
   --cream: #f3e8d2;
   --paper: #f1e6d0;
@@ -78,7 +74,7 @@ dialog.alert {
 
 /* ---------- Base ------------------------------------------------------------ */
 html {
-  background-color: var(--edge);
+  background-color: var(--night);
 }
 body {
   position: relative;
@@ -114,27 +110,16 @@ dialog:focus-visible {
   scrollbar-color: rgb(244 203 108 / 0.5) transparent;
 }
 
-/* The night: a fixed layer of blurred fairy lights behind everything. */
+/* The night: blurred fairy lights that scroll with the page. Not a fixed layer:
+   phone browsers don't draw those behind their bars, and can paint a solid
+   strip there when one touches the screen's edge. This way the page itself
+   runs underneath the status bar and toolbar. */
 .night {
-  position: fixed;
-  inset: 0;
-  /* iOS Safari paints a solid colour under its bottom bar when a fixed element
-     touches the bottom edge. Stopping short lets the page show behind the bar,
-     and .edge-strip, in the same colour, fills the gap. */
-  bottom: 6px;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    linear-gradient(var(--edge), transparent 130px),
-    linear-gradient(transparent calc(100% - 130px), var(--edge)),
-    var(--night) url("/lights.svg") center / cover no-repeat;
-}
-/* Scrolls with the page behind the lights, so the colour carries on under the bars. */
-.edge-strip {
   position: absolute;
   inset: 0;
-  z-index: -2;
-  background: var(--edge);
+  z-index: -1;
+  pointer-events: none;
+  background: var(--night) url("/lights.svg") center / cover no-repeat;
 }
 
 .tnum {
@@ -502,8 +487,7 @@ dialog.alert::backdrop {
 /* Falling snow and confetti: spans positioned inline, sharing one animation. */
 .fall {
   position: fixed;
-  inset: 0;
-  bottom: 6px;
+  inset: 6px 0;
   z-index: 40;
   overflow: hidden;
   pointer-events: none;
