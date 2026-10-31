@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Copy, MessageCircle, QrCode, Share } from "lucide-react";
+import { Check, Copy, QrCode, Share } from "lucide-react";
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 import { useT } from "@/lib/i18n";
@@ -26,11 +26,11 @@ export function ShareCard({ url, groupName }: { url: string; groupName: string }
   const t = useT();
   const { copied, copy } = useCopy();
   const [qr, setQr] = useState("");
-  const [device, setDevice] = useState({ share: false, touch: false });
+  const [canShare, setCanShare] = useState(false);
   const text = t("shareText", { name: groupName });
 
   useEffect(() => {
-    setDevice({ share: typeof navigator.share === "function", touch: navigator.maxTouchPoints > 0 });
+    setCanShare(typeof navigator.share === "function");
   }, []);
 
   async function toggleQr() {
@@ -43,12 +43,7 @@ export function ShareCard({ url, groupName }: { url: string; groupName: string }
         <p className="px-1 text-[15px] leading-snug text-ink-2">{t("shareBlurb")}</p>
         <p className="tag truncate px-4 py-3 text-[15px]">{url}</p>
         <div className="grid grid-cols-2 gap-2">
-          {device.touch && (
-            <a className="btn h-12 bg-[#0a68d6] text-white" href={`fb-messenger://share/?link=${encodeURIComponent(url)}`}>
-              <MessageCircle size={20} {...ICON} aria-hidden /> Messenger
-            </a>
-          )}
-          {device.share && (
+          {canShare && (
             <button type="button" className="btn-secondary h-12" onClick={() => navigator.share({ title: groupName, text, url }).catch(() => {})}>
               <Share size={20} {...ICON} aria-hidden /> {t("share")}
             </button>

@@ -56,7 +56,7 @@ export function PeopleEditor({
 
   return (
     <>
-      <Section title={t("sectionPeople")} action={people.length > 0 && <span className="pb-1 font-serif text-[15px] text-cream">{t("countPeople", { n: people.length })}</span>}>
+      <Section title={t("sectionPeople")} action={people.length > 0 && <span className="pb-1 font-serif text-[15px] text-ink-2">{t("countPeople", { n: people.length })}</span>}>
         <div className="card p-4">
           <form
             className="flex gap-2"
