@@ -11,27 +11,20 @@ export function cx(...c: (string | false | null | undefined)[]) {
 /** One line-icon set everywhere: 2px stroke, round caps and joins. */
 export const ICON = { strokeWidth: 2 } as const;
 
-/** Segmented control: glass capsule track, the selected segment is a brighter glass pill. */
+/** Choose one of a few views: paper tags, the chosen one lifted. */
 export function Segmented<T extends string>({
   value,
   options,
   onChange,
   label,
-  flat = false,
 }: {
   value: T;
   options: { value: T; label: ReactNode }[];
   onChange: (v: T) => void;
   label: string;
-  /** on a card: no blur */
-  flat?: boolean;
 }) {
   return (
-    <div
-      role="radiogroup"
-      aria-label={label}
-      className={cx("grid auto-cols-fr grid-flow-col gap-1 rounded-full p-1", flat ? "bg-[var(--field)]" : "glass")}
-    >
+    <div role="radiogroup" aria-label={label} className="grid auto-cols-fr grid-flow-col gap-2.5">
       {options.map((o) => {
         const on = value === o.value;
         return (
@@ -41,12 +34,7 @@ export function Segmented<T extends string>({
             role="radio"
             aria-checked={on}
             onClick={() => onChange(o.value)}
-            className={cx(
-              "press min-h-10 rounded-full px-3 text-[15px]",
-              on
-                ? "bg-[var(--glass-strong)] font-semibold text-ink shadow-[0_3px_10px_-2px_rgb(0_0_0/0.15),inset_0_0.5px_0_var(--glass-highlight)]"
-                : "font-medium text-ink-2",
-            )}
+            className="tab-tag"
           >
             {o.label}
           </button>
@@ -66,13 +54,12 @@ export function Callout({
   icon?: ReactNode;
   children: ReactNode;
 }) {
-  const bg = { info: "bg-info-soft", warn: "bg-warn-soft", error: "bg-danger-soft", success: "bg-accent-soft" }[tone];
-  const iconColor = { info: "text-info", warn: "text-warn", error: "text-danger", success: "text-accent" }[tone];
+  const sticker = { info: "bg-[#2a1713]", warn: "bg-[#a9750f]", error: "bg-[var(--santa)]", success: "bg-[var(--accent)]" }[tone];
   const Default = { info: Info, warn: AlertTriangle, error: XCircle, success: CheckCircle2 }[tone];
   return (
-    <div role={tone === "error" ? "alert" : "status"} className={cx("flex gap-3 rounded-[22px] px-4 py-3.5 text-[15px] leading-snug text-ink", bg)}>
-      <span className={cx("mt-px shrink-0", iconColor)} aria-hidden>
-        {icon ?? <Default size={20} {...ICON} />}
+    <div role={tone === "error" ? "alert" : "status"} className="card flex gap-3 px-4 py-3.5 text-[15px] leading-snug">
+      <span className={cx("mt-px grid size-8 shrink-0 place-items-center rounded-full text-[var(--paper-light)] shadow-[0_0_0_2px_#fff,0_3px_6px_rgb(0_0_0/0.3)]", sticker)} aria-hidden>
+        {icon ?? <Default size={18} {...ICON} />}
       </span>
       <div className="min-w-0 flex-1">{children}</div>
     </div>
@@ -83,8 +70,8 @@ export function Callout({
 export function Section({ title, action, children }: { title: ReactNode; action?: ReactNode; children: ReactNode }) {
   return (
     <section className="space-y-2">
-      <div className="flex min-h-8 items-end justify-between gap-2 px-5">
-        <h2 className="text-[13px] text-ink-2">{title}</h2>
+      <div className="flex min-h-8 items-end justify-between gap-2 px-1">
+        <h2 className="font-script text-[30px] leading-tight text-gold">{title}</h2>
         {action}
       </div>
       <div className="space-y-3.5">{children}</div>
@@ -154,7 +141,7 @@ export function Sheet({
       ref={ref}
       aria-labelledby={titleId}
       tabIndex={-1}
-      className="sheet panel"
+      className="sheet"
       style={dy ? { transform: `translateY(${dy}px)` } : undefined}
       onClose={() => openRef.current && onClose()}
       onCancel={(e) => {
@@ -189,10 +176,10 @@ export function Sheet({
             <X size={22} {...ICON} />
           </button>
           <div className="min-w-0 text-center">
-            <h2 id={titleId} className="truncate text-[17px] font-semibold">
+            <h2 id={titleId} className="truncate font-serif text-[19px]">
               {title}
             </h2>
-            {subtitle && <p className="truncate text-[13px] text-ink-2">{subtitle}</p>}
+            {subtitle && <p className="truncate text-[14px] text-ink-2">{subtitle}</p>}
           </div>
           {onConfirm || confirmForm ? (
             <button

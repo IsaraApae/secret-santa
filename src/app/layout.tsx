@@ -1,10 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { cookies, headers } from "next/headers";
+import { Bree_Serif, Figtree, Sarabun, Sriracha, Yellowtail } from "next/font/google";
 import { ConfirmHost } from "@/components/ConfirmHost";
 import { TopBar } from "@/components/TopBar";
-import { LangProvider, type Lang } from "@/lib/i18n";
 import { siteUrl } from "@/lib/site";
 import "./globals.css";
+
+const hand = Yellowtail({ weight: "400", subsets: ["latin"], variable: "--font-hand" });
+const display = Bree_Serif({ weight: "400", subsets: ["latin"], variable: "--font-display" });
+const body = Figtree({ subsets: ["latin"], variable: "--font-body" });
+const thaiHand = Sriracha({ weight: "400", subsets: ["thai"], variable: "--font-thai-hand", preload: false });
+const thai = Sarabun({ weight: ["400", "600"], subsets: ["thai"], variable: "--font-thai", preload: false });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -18,43 +23,24 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#170c0a",
 };
 
-// Runs before paint so there's no light/dark flash, and follows the system
-// setting unless the person picked one. Same approach as Bill Splitter.
-const themeScript = `(function(){try{
-var d=document.documentElement,mq=matchMedia('(prefers-color-scheme: dark)');
-function pref(){try{return localStorage.getItem('ss:theme')}catch(e){return null}}
-function apply(){var t=pref();d.classList.toggle('dark',t==='dark'||(t!=='light'&&mq.matches));
-var c=getComputedStyle(d).getPropertyValue('--edge-solid').trim();var m=document.querySelector('meta[name="theme-color"]');if(m&&c)m.setAttribute('content',c)}
-apply();
-mq.addEventListener('change',apply);
-addEventListener('ss-theme',apply);
-addEventListener('storage',function(e){if(e.key==='ss:theme')apply()});
-}catch(e){}})()`;
-
-async function pickLang(): Promise<Lang> {
-  const saved = (await cookies()).get("ss-lang")?.value;
-  if (saved === "th" || saved === "en") return saved;
-  return /^th\b/i.test((await headers()).get("accept-language") ?? "") ? "th" : "en";
-}
-
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const lang = await pickLang();
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang={lang} suppressHydrationWarning>
-      <head>
-        <meta name="theme-color" content="#f1eff0" />
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
+    <html lang="en" className={`${hand.variable} ${display.variable} ${body.variable} ${thaiHand.variable} ${thai.variable}`}>
       <body className="min-h-dvh font-sans">
-        <div id="strip" aria-hidden />
-        <div className="app-bg" aria-hidden />
-        <LangProvider initial={lang}>
-          <TopBar />
-          <main className="mx-auto w-full max-w-[640px] space-y-5 px-4 pt-4 pb-[max(40px,env(safe-area-inset-bottom))]">{children}</main>
-          <ConfirmHost />
-        </LangProvider>
+        <div className="night" aria-hidden />
+        {/* The rough edge of every paper note. */}
+        <svg width="0" height="0" className="absolute" aria-hidden>
+          <filter id="torn" x="-3%" y="-3%" width="106%" height="106%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="4" seed="7" />
+            <feDisplacementMap in="SourceGraphic" scale="6" />
+          </filter>
+        </svg>
+        <TopBar />
+        <main className="mx-auto w-full max-w-[640px] space-y-6 px-4 pt-2 pb-[max(48px,env(safe-area-inset-bottom))]">{children}</main>
+        <ConfirmHost />
       </body>
     </html>
   );

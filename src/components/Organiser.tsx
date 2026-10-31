@@ -1,21 +1,20 @@
 "use client";
 
-import { Bell, Check, CircleDashed, Copy, Gift, KeyRound, Pencil, RefreshCw, ShieldCheck, Trash2, Users } from "lucide-react";
+import { Bell, Check, CircleDashed, Copy, Gift, KeyRound, Pencil, RefreshCw, ShieldCheck, Trash2, User, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { askConfirm } from "@/lib/client/confirm";
-import { api, baht, errorText, forgetGroup, formatDate, organiserKey, rememberGroup } from "@/lib/client/store";
-import { useLang, useT } from "@/lib/i18n";
+import { api, errorText, forgetGroup, organiserKey, rememberGroup } from "@/lib/client/store";
+import { useT } from "@/lib/i18n";
 import type { AdminView } from "@/lib/server/groups";
-import { Countdown } from "./Festive";
+import { Countdown, GiftBox, GroupFacts } from "./Festive";
 import { detailsBody, DetailsFields, PeopleEditor, type DetailValues, type EditPerson, type Pair } from "./PeopleEditor";
 import { ShareCard, useCopy } from "./ShareCard";
 import { Callout, cx, ICON, Section, Sheet } from "./ui";
 
 export function Organiser({ id }: { id: string }) {
   const t = useT();
-  const { lang } = useLang();
   const fromUrl = useSearchParams().get("k");
   const [key, setKey] = useState<string | null>(fromUrl);
   const [view, setView] = useState<AdminView | null>(null);
@@ -100,24 +99,15 @@ export function Organiser({ id }: { id: string }) {
 
   return (
     <>
-      <header className="space-y-1 px-1 pt-3">
-        <p className="text-[13px] font-semibold text-accent-strong">{t("organiser")}</p>
-        <div className="flex items-start justify-between gap-2">
-          <h1 className="large-title min-w-0 break-words">{view.name}</h1>
-          <button type="button" className="icon-btn" aria-label={t("editDetails")} onClick={() => setSheet("details")}>
-            <Pencil size={20} {...ICON} aria-hidden />
-          </button>
-        </div>
-        <p className="text-ink-2">
-          {[view.budget !== null && t("budgetLine", { amount: baht(view.budget) }), view.date && formatDate(view.date, lang)].filter(Boolean).join(" · ")}
-        </p>
+      <header className="relative space-y-3 px-1 pt-2 text-center">
+        <h1 className="large-title px-12 break-words">{view.name}</h1>
+        <button type="button" className="icon-btn absolute top-3 right-1" aria-label={t("editDetails")} onClick={() => setSheet("details")}>
+          <Pencil size={20} {...ICON} aria-hidden />
+        </button>
+        <GroupFacts budget={view.budget} date={view.date} />
       </header>
 
-      {view.date && (
-        <div className="card p-4">
-          <Countdown date={view.date} />
-        </div>
-      )}
+      {view.date && <Countdown date={view.date} />}
 
       {error && <Callout tone="error">{error}</Callout>}
 
@@ -126,26 +116,35 @@ export function Organiser({ id }: { id: string }) {
       <Callout tone="success" icon={<ShieldCheck size={20} {...ICON} />}>
         <p className="font-semibold">{t("privateTitle")}</p>
         <p className="mt-1">{t("privateBody")}</p>
-        <Link href={`/g/${id}`} className="btn-secondary mt-3 h-11">
+        <Link href={`/g/${id}`} className="btn-green mt-3 h-12">
           <Gift size={18} {...ICON} aria-hidden />
           {t("openMine")}
         </Link>
       </Callout>
 
       <Section
-        title={`${t("statusCount", { n: opened, total: view.members.length })} · ${t("giftsCount", { n: ready, total: view.members.length })}`}
+        title={t("statusTitle")}
         action={
-          <button type="button" className="chip min-h-9 shrink-0 whitespace-nowrap" onClick={() => setSheet("people")}>
+          <button type="button" className="chip min-h-10 shrink-0 whitespace-nowrap" onClick={() => setSheet("people")}>
             <Users size={16} {...ICON} aria-hidden />
             {t("editPeople")}
           </button>
         }
       >
-        <ul className="card rows overflow-hidden">
+        <ul className="card rows taped relative tilt-r">
+          <li className="px-5 pt-4 pb-3 font-serif text-[15px]">
+            {t("statusCount", { n: opened, total: view.members.length })} · {t("giftsCount", { n: ready, total: view.members.length })}
+          </li>
           {view.members.map((m) => (
             <li key={m.id} className="flex items-center gap-3 py-2 pr-2 pl-5">
-              <span className={cx("grid size-7 shrink-0 place-items-center rounded-full", m.opened ? "bg-accent text-accent-ink" : m.claimed ? "bg-accent-soft text-accent-strong" : "bg-field text-ink-2")} aria-hidden>
-                {m.opened ? <Check size={16} {...ICON} /> : m.claimed ? <Gift size={15} {...ICON} /> : <CircleDashed size={16} {...ICON} />}
+              <span
+                className={cx(
+                  "grid size-8 shrink-0 place-items-center rounded-full",
+                  m.giftReady ? "bg-[var(--santa)] text-[var(--paper-light)]" : m.opened ? "bg-accent text-accent-ink" : m.claimed ? "bg-field text-ink" : "text-ink-3",
+                )}
+                aria-hidden
+              >
+                {m.giftReady ? <Gift size={17} {...ICON} /> : m.opened ? <Check size={17} {...ICON} /> : m.claimed ? <User size={17} {...ICON} /> : <CircleDashed size={18} {...ICON} />}
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-medium">{m.name}</span>
@@ -163,8 +162,9 @@ export function Organiser({ id }: { id: string }) {
         </ul>
       </Section>
 
-      <div className="card space-y-2 p-4">
-        <button type="button" className="btn-secondary h-12 w-full" onClick={() => reminder.copy(reminderText())}>
+      <div className="card relative tilt-l nudge-l space-y-2 p-4">
+        <GiftBox state="still" size={58} className="pin-sticker" />
+        <button type="button" className="btn-green h-12 w-full" onClick={() => reminder.copy(reminderText())}>
           {reminder.copied ? <Check size={20} {...ICON} aria-hidden /> : <Bell size={20} {...ICON} aria-hidden />}
           {reminder.copied ? t("copied") : t("copyReminder")}
         </button>
@@ -178,21 +178,18 @@ export function Organiser({ id }: { id: string }) {
             {t("drawAgain")}
           </button>
           <p className="px-1 text-[13px] leading-snug text-ink-2">{t("drawAgainHint")}</p>
-          <button type="button" className="btn-secondary h-12 w-full text-danger" onClick={deleteGroup}>
+          <button type="button" className="btn-secondary h-12 w-full !text-danger" onClick={deleteGroup}>
             <Trash2 size={20} {...ICON} aria-hidden />
             {t("deleteGroup")}
           </button>
           <p className="px-1 text-[13px] leading-snug text-ink-2">{t("deleteGroupHint")}</p>
+          <button type="button" className="btn-secondary h-12 w-full" onClick={() => copy(`${origin}/o/${id}?k=${key}`)}>
+            {copied ? <Check size={20} {...ICON} aria-hidden /> : <Copy size={20} {...ICON} aria-hidden />}
+            {copied ? t("copied") : t("saveOrganiserLink")}
+          </button>
+          <p className="px-1 text-[13px] leading-snug text-ink-2">{t("saveOrganiserHint")}</p>
         </div>
       </Section>
-
-      <div className="space-y-2 px-1 text-center">
-        <button type="button" className="btn-ghost" onClick={() => copy(`${origin}/o/${id}?k=${key}`)}>
-          {copied ? <Check size={18} {...ICON} aria-hidden /> : <Copy size={18} {...ICON} aria-hidden />}
-          {copied ? t("copied") : t("saveOrganiserLink")}
-        </button>
-        <p className="text-[13px] text-ink-2">{t("saveOrganiserHint")}</p>
-      </div>
 
       {sheet === "details" && <DetailsSheet view={view} onClose={() => setSheet(null)} onSave={(body) => send(key!, { type: "details", ...body })} />}
       {sheet === "people" && <PeopleSheet view={view} onClose={() => setSheet(null)} onSave={(people, pairs) => send(key!, { type: "people", people, pairs })} error={error} />}

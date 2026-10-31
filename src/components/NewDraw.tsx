@@ -34,7 +34,7 @@ export function NewDraw() {
 
   return (
     <>
-      <h1 className="large-title px-1 pt-3">{t("newTitle")}</h1>
+      <h1 className="large-title px-1 pt-2 text-center">{t("newTitle")}</h1>
       <Section title={t("sectionDetails")}>
         <DetailsFields value={details} onChange={setDetails} />
       </Section>
