@@ -23,13 +23,30 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#49211a",
 };
+
+function EdgeBlur({ side }: { side: "top" | "bottom" }) {
+  return (
+    <div className={`edge-blur edge-blur-${side}`} aria-hidden>
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+    </div>
+  );
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${hand.variable} ${display.variable} ${body.variable} ${thaiHand.variable} ${thai.variable}`}>
       <body className="min-h-dvh font-sans">
+        <div className="edge-strip" aria-hidden />
         <div className="night" aria-hidden />
+        <EdgeBlur side="top" />
+        <EdgeBlur side="bottom" />
         {/* The rough edge of every paper note. */}
         <svg width="0" height="0" className="absolute" aria-hidden>
           <filter id="torn" x="-3%" y="-3%" width="106%" height="106%">
@@ -38,7 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </filter>
         </svg>
         <TopBar />
-        <main className="mx-auto w-full max-w-[640px] space-y-6 px-4 pt-2 pb-[max(48px,env(safe-area-inset-bottom))]">{children}</main>
+        <main className="mx-auto w-full max-w-[640px] space-y-6 px-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+72px)]">{children}</main>
         <ConfirmHost />
       </body>
     </html>
