@@ -150,4 +150,7 @@ assert.equal((await post(`${dg}/admin`, { key: "wrong", action: { type: "delete"
 assert.equal((await post(`${dg}/admin`, { key: doomed.data.key, action: { type: "delete" } })).status, 200);
 assert.equal((await get(dg)).error, "not_found");
 
-console.log(`All smoke checks passed. Group: ${base}/g/${id}  Organiser: ${base}/o/${id}?k=${key}`);
+// Leave nothing behind
+assert.equal((await post(`${g}/admin`, { key, action: { type: "delete" } })).status, 200);
+
+console.log("All smoke checks passed.");
