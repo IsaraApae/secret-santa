@@ -7,7 +7,7 @@ import { useT } from "@/lib/i18n";
 import type { AboutMe, WishItem } from "@/lib/schema";
 import type { MeAction, MemberView, Msg, PublicGroup } from "@/lib/server/groups";
 import { parseShopPaste, safeUrl, SHOP_LABEL, shopOf, type Shop } from "@/lib/shop";
-import { Countdown, Fall, GiftBox, GroupFacts, GiftTag } from "./Festive";
+import { Countdown, Fall, GiftBox, GroupFacts, GiftTag, GuessResults } from "./Festive";
 import { Callout, cx, ICON, Section, Segmented, Sheet } from "./ui";
 
 export function MemberApp({ id, initial }: { id: string; initial: PublicGroup }) {
@@ -42,12 +42,15 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
     if (s) act(s, { type: "load" });
   }, [id, initial.name, act]);
 
-  // New messages show up without a reload.
+  // New people, the draw and new messages all show up without a reload.
   useEffect(() => {
-    if (!session) return;
-    const i = setInterval(() => !document.hidden && act(session, { type: "load" }), 20000);
+    const i = setInterval(() => {
+      if (document.hidden) return;
+      api<PublicGroup>(`/api/g/${id}`).then((r) => r.ok && setGroup(r.data));
+      if (session) act(session, { type: "load" });
+    }, 20000);
     return () => clearInterval(i);
-  }, [session, act]);
+  }, [id, session, act]);
 
   return (
     <>
@@ -58,10 +61,12 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
       {group.date && <Countdown date={group.date} />}
       {group.note && <p className="card px-5 py-4 text-[15px] leading-snug whitespace-pre-wrap">{group.note}</p>}
 
+      {(view?.guesses ?? group.guesses) && <GuessResults results={(view?.guesses ?? group.guesses)!} />}
+
       {!ready || (session && !view) ? (
         <p className="py-10 text-center text-ink-2">{t("loading")}</p>
       ) : session && view ? (
-        <Signedin view={view} act={(a) => act(session, a)} signOut={signOut} budget={group.budget} />
+        <Signedin view={view} act={(a) => act(session, a)} signOut={signOut} budget={group.budget} members={group.members} />
       ) : (
         <Picker
           id={id}
@@ -70,6 +75,7 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
             setSession(id, s);
             setSess(s);
             act(s, { type: "load" });
+            api<PublicGroup>(`/api/g/${id}`).then((r) => r.ok && setGroup(r.data));
           }}
         />
       )}
@@ -81,6 +87,10 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
 
 function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSession: (s: Session) => void }) {
   const t = useT();
+  const [newName, setNewName] = useState("");
+  const [newPin, setNewPin] = useState("");
+  const [joinError, setJoinError] = useState("");
+  const [joining, setJoining] = useState(false);
   const [picked, setPicked] = useState<PublicGroup["members"][number] | null>(null);
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
@@ -91,6 +101,15 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
   useEffect(() => {
     if (picked) pinRef.current?.focus();
   }, [picked]);
+
+  async function joinGroup() {
+    setJoining(true);
+    setJoinError("");
+    const res = await api<{ memberId: string; token: string }>(`/api/g/${id}/join`, { name: newName.trim(), pin: newPin });
+    setJoining(false);
+    if (res.ok) onSession(res.data);
+    else setJoinError(errorText(t, res));
+  }
 
   async function submit() {
     if (!picked) return;
@@ -107,7 +126,40 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
 
   return (
     <>
-      <Section title={t("whoAreYou")}>
+      {group.drawn ? (
+        <Callout tone="info">{t("closedHint")}</Callout>
+      ) : (
+        <Section title={t("joinTitle")}>
+          <form
+            className="card space-y-3 p-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              joinGroup();
+            }}
+          >
+            <p className="px-1 text-[14px] leading-snug text-ink-2">{t("joinHint")}</p>
+            <input className="input" maxLength={40} autoComplete="given-name" value={newName} placeholder={t("yourName")} aria-label={t("yourName")} onChange={(e) => setNewName(e.target.value)} />
+            <input
+              className="input tnum text-center text-[24px] tracking-[0.4em] placeholder:text-[17px] placeholder:tracking-normal"
+              type="password"
+              inputMode="numeric"
+              autoComplete="off"
+              maxLength={4}
+              value={newPin}
+              placeholder={t("pin")}
+              aria-label={t("pin")}
+              onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))}
+            />
+            {joinError && <Callout tone="error">{joinError}</Callout>}
+            <button type="submit" className="btn-primary h-14 w-full text-[20px]" disabled={!newName.trim() || newPin.length !== 4 || joining}>
+              {joining ? t("joining") : t("joinButton")}
+            </button>
+          </form>
+        </Section>
+      )}
+
+      {group.members.length > 0 && (
+      <Section title={group.drawn ? t("whoAreYou") : t("alreadyJoined")}>
         <ul className="card rows">
           <li className="px-5 py-3 font-serif text-[15px]">{t("whoAreYouSub")}</li>
           {group.members.map((m) => (
@@ -133,6 +185,7 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
           ))}
         </ul>
       </Section>
+      )}
 
       <Sheet open={Boolean(picked)} onClose={() => setPicked(null)} title={picked ? t("hiName", { name: picked.name }) : ""} subtitle={picked?.claimed ? t("enterPin") : t("choosePin")}>
         <form
@@ -167,7 +220,19 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
 
 // ---------- Signed in -------------------------------------------------------------
 
-function Signedin({ view, act, signOut, budget }: { view: MemberView; act: (a: MeAction) => Promise<boolean>; signOut: () => void; budget: number | null }) {
+function Signedin({
+  view,
+  act,
+  signOut,
+  budget,
+  members,
+}: {
+  view: MemberView;
+  act: (a: MeAction) => Promise<boolean>;
+  signOut: () => void;
+  budget: number | null;
+  members: PublicGroup["members"];
+}) {
   const t = useT();
   const [tab, setTab] = useState<"person" | "mine">("person");
   const unread = view.withSanta.at(-1)?.from === "santa";
@@ -190,7 +255,7 @@ function Signedin({ view, act, signOut, budget }: { view: MemberView; act: (a: M
           },
         ]}
       />
-      {tab === "person" ? <PersonTab view={view} act={act} budget={budget} /> : <MineTab view={view} act={act} />}
+      {tab === "person" ? <PersonTab view={view} act={act} budget={budget} /> : <MineTab view={view} act={act} members={members} />}
       <div className="text-center">
         <button type="button" className="btn-ghost text-[15px]" onClick={signOut}>
           {t("signOut", { name: view.me.name })}
@@ -204,6 +269,18 @@ function Signedin({ view, act, signOut, budget }: { view: MemberView; act: (a: M
 function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction) => Promise<boolean>; budget: number | null }) {
   const t = useT();
   const [stage, setStage] = useState<"wrapped" | "shake" | "open">("wrapped");
+
+  if (!view.person) {
+    return (
+      <div className="space-y-3 pt-4 text-center">
+        <Fall kind="snow" />
+        <GiftBox />
+        <p className="font-script text-[42px] leading-tight text-gold">{t("waitingTitle")}</p>
+        <p className="card tilt-r px-4 py-3 text-[15px] leading-snug">{t("waitingBody", { n: view.joined })}</p>
+      </div>
+    );
+  }
+  const person = view.person;
 
   function unwrap() {
     if (stage !== "wrapped") return;
@@ -235,7 +312,7 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
         <div className="pointer-events-none absolute inset-x-0 top-0">
           <GiftBox state="open" />
         </div>
-        <GiftTag lead={t("youDrew")} name={view.person.name} foot={t("keepSecret")} />
+        <GiftTag lead={t("youDrew")} name={person.name} foot={t("keepSecret")} />
       </section>
 
       <button
@@ -254,14 +331,14 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
         </span>
       </button>
 
-      {(view.person.about.likes || view.person.about.sizes || view.person.about.avoid) && (
-        <Section title={t("aboutOf", { name: view.person.name })}>
+      {(person.about.likes || person.about.sizes || person.about.avoid) && (
+        <Section title={t("aboutOf", { name: person.name })}>
           <dl className="card rows taped tilt-r nudge-r relative">
             {(
               [
-                ["likesLabel", view.person.about.likes],
-                ["sizesLabel", view.person.about.sizes],
-                ["avoidLabel", view.person.about.avoid],
+                ["likesLabel", person.about.likes],
+                ["sizesLabel", person.about.sizes],
+                ["avoidLabel", person.about.avoid],
               ] as const
             ).map(
               ([label, value]) =>
@@ -276,26 +353,26 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
         </Section>
       )}
 
-      <Section title={t("theirWishes", { name: view.person.name })}>
-        {view.person.wishes.length ? (
+      <Section title={t("theirWishes", { name: person.name })}>
+        {person.wishes.length ? (
           <ul className="card rows">
-            {view.person.wishes.map((w) => (
+            {person.wishes.map((w) => (
               <WishRow key={w.id} wish={w} />
             ))}
           </ul>
         ) : (
-          <p className="card px-5 py-4 text-[15px] text-ink-2">{t("noWishes", { name: view.person.name })}</p>
+          <p className="card px-5 py-4 text-[15px] text-ink-2">{t("noWishes", { name: person.name })}</p>
         )}
       </Section>
 
-      <GiftSearch likes={view.person.about.likes} budget={budget} />
+      <GiftSearch likes={person.about.likes} budget={budget} />
 
       <Chat
-        title={t("askTitle", { name: view.person.name })}
+        title={t("askTitle", { name: person.name })}
         hint={t("askHint")}
         messages={view.withPerson}
         mine="santa"
-        theirLabel={view.person.name}
+        theirLabel={person.name}
         placeholder={t("askPlaceholder")}
         onSend={(text) => act({ type: "ask", text })}
       />
@@ -303,7 +380,7 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
   );
 }
 
-function MineTab({ view, act }: { view: MemberView; act: (a: MeAction) => Promise<boolean> }) {
+function MineTab({ view, act, members }: { view: MemberView; act: (a: MeAction) => Promise<boolean>; members: PublicGroup["members"] }) {
   const t = useT();
   const [editing, setEditing] = useState<WishItem | "new" | null>(null);
   const wishes = view.me.wishes;
@@ -352,6 +429,8 @@ function MineTab({ view, act }: { view: MemberView; act: (a: MeAction) => Promis
         )}
       </Section>
 
+      {view.person && <GuessForm view={view} members={members} act={act} />}
+
       <AboutForm about={view.me.about} onSave={(about) => act({ type: "about", about })} />
 
       <Chat title={t("santaTitle")} hint={t("santaHint")} messages={view.withSanta} mine="person" theirLabel={t("yourSanta")} placeholder={t("replyPlaceholder")} empty={t("santaEmpty")} onSend={(text) => act({ type: "reply", text })} />
@@ -362,6 +441,52 @@ function MineTab({ view, act }: { view: MemberView; act: (a: MeAction) => Promis
 }
 
 // ---------- Getting to know your person ----------------------------------------------
+
+function GuessForm({ view, members, act }: { view: MemberView; members: PublicGroup["members"]; act: (a: MeAction) => Promise<boolean> }) {
+  const t = useT();
+  const [choice, setChoice] = useState(view.myGuess ?? "");
+  const [saved, setSaved] = useState(false);
+  const closed = view.guesses !== null;
+  const changed = choice !== (view.myGuess ?? "");
+  return (
+    <Section title={t("guessTitle")}>
+      <form
+        className="card tilt-r relative space-y-3 p-4"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          if (await act({ type: "guess", target: choice || null })) setSaved(true);
+        }}
+      >
+        <p className="px-1 text-[14px] leading-snug text-ink-2">{closed ? t("guessLocked") : t("guessHint")}</p>
+        <select
+          className="input"
+          value={choice}
+          disabled={closed}
+          aria-label={t("guessTitle")}
+          onChange={(e) => {
+            setSaved(false);
+            setChoice(e.target.value);
+          }}
+        >
+          <option value="">{t("guessPick")}</option>
+          {members
+            .filter((m) => m.id !== view.me.id)
+            .map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
+        </select>
+        {!closed && (
+          <button type="submit" className="btn-green h-12 w-full" disabled={!changed}>
+            {saved && !changed && <Check size={20} {...ICON} aria-hidden />}
+            {saved && !changed ? t("saved") : t("guessSave")}
+          </button>
+        )}
+      </form>
+    </Section>
+  );
+}
 
 function AboutForm({ about, onSave }: { about: AboutMe; onSave: (a: AboutMe) => Promise<boolean> }) {
   const t = useT();

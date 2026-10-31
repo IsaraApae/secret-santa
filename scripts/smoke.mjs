@@ -9,19 +9,54 @@ const post = async (path, body) => {
 const get = async (path) => (await fetch(base + path)).json();
 
 const names = ["Ann", "Beam", "Chai", "Dao", "Em", "Fah"];
-const people = names.map((name, i) => ({ id: `t${i}`, name }));
+const details = { budget: 500, date: "2026-12-24", note: "" };
 
-// Create, with Ann and Beam kept apart
-let r = await post("/api/g", { name: "Smoke party", budget: 500, date: "2026-12-24", note: "", people, pairs: [["t0", "t1"]] });
+// Create an empty group; bad input is refused
+assert.equal((await post("/api/g", { ...details })).status, 400);
+let r = await post("/api/g", { name: "Smoke party", ...details });
 assert.equal(r.status, 200, JSON.stringify(r.data));
 const { id, key } = r.data;
 const g = `/api/g/${id}`;
+assert.equal((await get(g)).drawn, false);
+assert.equal((await get(g)).members.length, 0);
 
-// Bad input is refused
-assert.equal((await post("/api/g", { name: "x", budget: null, date: null, note: "", people: people.slice(0, 2), pairs: [] })).status, 400);
-assert.equal((await post("/api/g", { name: "x", budget: null, date: null, note: "", people: [...people, { id: "z", name: "ANN" }], pairs: [] })).data.error, "duplicate_name");
-const impossible = [["t0", "t1"], ["t0", "t2"], ["t0", "t3"], ["t0", "t4"], ["t0", "t5"]];
-assert.equal((await post("/api/g", { name: "x", budget: null, date: null, note: "", people, pairs: impossible })).data.error, "impossible");
+// Too few people can't be drawn
+assert.equal((await post(`${g}/admin`, { key, action: { type: "draw" } })).data.error, "need_three");
+
+// People join themselves with the link
+const sessions = {};
+for (const n of names) {
+  const j = await post(`${g}/join`, { name: n, pin: "1234" });
+  assert.equal(j.status, 200, JSON.stringify(j.data));
+  sessions[n] = j.data;
+}
+assert.equal((await post(`${g}/join`, { name: "ANN", pin: "1234" })).data.error, "duplicate_name");
+assert.equal((await post(`${g}/join`, { name: "Bad", pin: "12" })).status, 400);
+
+// Before the draw: a member's page works but has no person, and game actions wait
+const early = await post(`${g}/me`, { ...sessions.Ann, action: { type: "load" } });
+assert.equal(early.status, 200);
+assert.equal(early.data.person, null);
+assert.equal((await post(`${g}/me`, { ...sessions.Ann, action: { type: "ask", text: "hi" } })).status, 200);
+assert.equal((await post(`${g}/admin`, { key, action: { type: "revealGuesses" } })).data.error, "not_drawn");
+assert.equal((await post(`${g}/admin`, { key, action: { type: "newRound" } })).data.error, "not_drawn");
+const early2 = await post(`${g}/me`, { ...sessions.Chai, action: { type: "wishes", wishes: [] } });
+assert.equal(early2.status, 200);
+
+// Exclusions set before the draw, and only the organiser can draw
+const joined = await get(g);
+const idOf = (n) => joined.members.find((m) => m.name === n).id;
+const everyone = joined.members.map(({ id, name }) => ({ id, name }));
+const setPairs = (pairs) => post(`${g}/admin`, { key, action: { type: "people", people: everyone, pairs } });
+const allAgainstAnn = names.slice(1).map((n) => [idOf("Ann"), idOf(n)]);
+assert.equal((await setPairs(allAgainstAnn)).status, 200);
+assert.equal((await post(`${g}/admin`, { key, action: { type: "draw" } })).data.error, "impossible");
+assert.equal((await get(g)).drawn, false);
+assert.equal((await setPairs([[idOf("Ann"), idOf("Beam")]])).status, 200);
+assert.equal((await post(`${g}/admin`, { key: "wrong-key", action: { type: "draw" } })).status, 403);
+assert.equal((await post(`${g}/admin`, { key, action: { type: "draw" } })).status, 200);
+assert.equal((await get(g)).drawn, true);
+assert.equal((await post(`${g}/join`, { name: "Late", pin: "1234" })).data.error, "closed");
 
 // Nothing public or organiser-facing can contain who drew whom
 const pub = await get(g);
@@ -39,7 +74,6 @@ assert.deepEqual(Object.keys(admin.data.members[0]).sort(), ["claimed", "giftRea
 assert.equal((await post(`${g}/me`, { memberId: ids.Ann, token: key, action: { type: "load" } })).status, 401);
 
 // Everyone claims, and the draw is valid
-const sessions = {};
 const claimAll = async () => {
   const views = {};
   for (const n of Object.keys(ids)) {
@@ -99,6 +133,35 @@ const withGift = await post(`${g}/admin`, { key, action: { type: "status" } });
 assert.equal(withGift.data.members.find((m) => m.name === santa).giftReady, true);
 assert.ok(!leaks(withGift.data));
 
+// Guessing: no answer before the reveal, nobody can guess themselves
+const guess = (n, target) => post(`${g}/me`, { ...sessions[n], action: { type: "guess", target } });
+const beamView = await guess("Beam", ids.Beam);
+assert.equal(beamView.data.myGuess, null);
+const beamSanta = santaOf("Beam");
+const wrongFor = (n) => names.find((x) => x !== n && x !== santaOf(n));
+const guessed = await guess("Beam", ids[beamSanta]);
+assert.equal(guessed.data.myGuess, ids[beamSanta]);
+assert.equal(guessed.data.guesses, null);
+assert.equal((await get(g)).guesses, null);
+await guess("Chai", ids[wrongFor("Chai")]);
+const counted = (await post(`${g}/admin`, { key, action: { type: "status" } })).data;
+assert.equal(counted.guessedCount, 2);
+assert.equal(counted.guesses, null);
+assert.ok(!JSON.stringify(counted).includes("myGuess"));
+
+// Only the organiser can reveal. The table says who was right, never whom they named.
+assert.equal((await post(`${g}/admin`, { key: "wrong", action: { type: "revealGuesses" } })).status, 403);
+const revealed = await post(`${g}/admin`, { key, action: { type: "revealGuesses" } });
+assert.equal(revealed.status, 200);
+const table = (await get(g)).guesses;
+assert.equal(table.find((r) => r.name === "Beam").correct, true);
+assert.equal(table.find((r) => r.name === "Chai").correct, false);
+assert.equal(table.find((r) => r.name === "Chai").guessed, true);
+assert.equal(table.find((r) => r.name === "Ann").guessed, false);
+assert.equal(table[0].name, "Beam");
+assert.deepEqual(Object.keys(table[0]).sort(), ["correct", "guessed", "name"]);
+assert.deepEqual((await guess("Ann", ids.Dao)).data.myGuess, null);
+
 // Renaming keeps the draw
 const before = (await post(`${g}/me`, { ...sessions.Em, action: { type: "load" } })).data.person.name;
 const round = names.map((n) => ({ id: ids[n], name: n === "Fah" ? "Fah S." : n }));
@@ -120,6 +183,9 @@ assert.equal(annAfter.redrawn, true);
 const chaiAfter = (await post(`${g}/me`, { ...sessions.Chai, action: { type: "load" } })).data;
 assert.equal(chaiAfter.me.wishes.length, 1);
 assert.equal(chaiAfter.withSanta.length, 0);
+// A redraw reopens guessing and forgets old guesses
+assert.equal(chaiAfter.myGuess, null);
+assert.equal(chaiAfter.guesses, null);
 
 // PIN reset cancels the old device token and is publicly visible
 const reset = await post(`${g}/admin`, { key, action: { type: "resetPin", memberId: ids.Em } });
@@ -144,7 +210,7 @@ for (let i = 0; i < 10; i++) last = await post(`${g}/claim`, { memberId: ids.Cha
 assert.equal(last.data.error, "too_many");
 
 // Only the organiser can delete, and deleting removes the group
-const doomed = await post("/api/g", { name: "Delete me", budget: null, date: null, note: "", people, pairs: [] });
+const doomed = await post("/api/g", { name: "Delete me", budget: null, date: null, note: "" });
 const dg = `/api/g/${doomed.data.id}`;
 assert.equal((await post(`${dg}/admin`, { key: "wrong", action: { type: "delete" } })).status, 403);
 assert.equal((await post(`${dg}/admin`, { key: doomed.data.key, action: { type: "delete" } })).status, 200);

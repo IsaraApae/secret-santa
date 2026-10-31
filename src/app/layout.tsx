@@ -14,7 +14,7 @@ const thai = Sarabun({ weight: ["400", "600"], subsets: ["thai"], variable: "--f
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: { default: "Secret Santa", template: "%s · Secret Santa" },
-  description: "Draw names for your gift exchange. Share one link. Nobody sees who drew whom, not even the organiser.",
+  description: "Draw names for your gift exchange. Share one link and everyone joins.",
   applicationName: "Secret Santa",
   appleWebApp: { capable: true, title: "Secret Santa", statusBarStyle: "default" },
 };

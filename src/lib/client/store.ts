@@ -51,6 +51,9 @@ export async function api<R>(path: string, body?: unknown): Promise<{ ok: true; 
 
 export function errorText(t: T, e: { error: string; name?: string }): string {
   if (e.error === "impossible") return t("errImpossible");
+  if (e.error === "closed") return t("errClosed");
+  if (e.error === "full") return t("errFull");
+  if (e.error === "need_three") return t("needThree");
   if (e.error === "duplicate_name") return t("errDuplicate", { name: e.name ?? "" });
   if (e.error === "too_many") return t("errTooMany");
   if (e.error === "not_configured") return t("errNotConfigured");

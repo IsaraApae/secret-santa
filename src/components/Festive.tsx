@@ -1,9 +1,11 @@
 "use client";
 
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Check, Minus, X } from "lucide-react";
 import { useEffect, useState, type CSSProperties } from "react";
 import { baht, formatDate } from "@/lib/client/store";
 import { useT } from "@/lib/i18n";
+import type { PublicGroup } from "@/lib/server/groups";
+import { Section } from "./ui";
 
 const rand = (min: number, max: number) => min + Math.random() * (max - min);
 
@@ -142,5 +144,35 @@ export function Countdown({ date }: { date: string }) {
         </div>
       ))}
     </div>
+  );
+}
+
+/** Who guessed their Santa. Only ever right, wrong or no guess: never who they named. */
+export function GuessResults({ results }: { results: NonNullable<PublicGroup["guesses"]> }) {
+  const t = useT();
+  const right = results.filter((r) => r.correct).length;
+  return (
+    <Section title={t("resultsTitle")}>
+      <ul className="card rows taped relative">
+        <li className="px-5 pt-4 pb-3">
+          <span className="block font-serif text-[17px]">{t("resultsCount", { n: right, total: results.length })}</span>
+          <span className="block text-[14px] leading-snug text-ink-2">{t("resultsHint")}</span>
+        </li>
+        {results.map((r) => (
+          <li key={r.name} className="flex items-center gap-3 px-5 py-2.5">
+            <span
+              className={`grid size-8 shrink-0 place-items-center rounded-full ${r.correct ? "bg-accent text-accent-ink" : r.guessed ? "bg-field text-ink" : "text-ink-3"}`}
+              aria-hidden
+            >
+              {r.correct ? <Check size={18} strokeWidth={2.5} /> : r.guessed ? <X size={17} strokeWidth={2} /> : <Minus size={17} strokeWidth={2} />}
+            </span>
+            <span className="min-w-0 flex-1 truncate font-medium">{r.name}</span>
+            <span className={`shrink-0 text-[14px] ${r.correct ? "font-semibold text-accent-strong" : "text-ink-2"}`}>
+              {r.correct ? t("resultRight") : r.guessed ? t("resultWrong") : t("resultNone")}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </Section>
   );
 }

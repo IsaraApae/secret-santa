@@ -16,6 +16,7 @@ import { kv, sealSecret } from "./kv";
  *   w:<id>    their wish list
  *   a:<id>    their answers: what they like, sizes, what to avoid
  *   g:<id>    the round in which they marked their gift as ready
+ *   q:<id>    who they guess their Santa is, and in which round
  *   r:<id>    how many times the organiser has reset their PIN
  * One list per person for the anonymous chat with whoever drew them. It's kept
  * under the receiver, so nothing stored ever says who the Santa is.
@@ -32,6 +33,10 @@ interface Meta extends DetailFields {
   adminHash: string;
   pairs: [string, string][];
   round: number;
+  /** False while people are still joining. Absent on groups made before joining by link. */
+  drawn?: boolean;
+  /** The round whose guesses have been revealed. */
+  guessesRound?: number;
 }
 export interface Msg {
   from: "santa" | "person";
@@ -66,6 +71,26 @@ const wishesOf = (g: Loaded, memberId: string): WishItem[] => JSON.parse(g.raw[`
 const aboutOf = (g: Loaded, memberId: string): AboutMe => JSON.parse(g.raw[`a:${memberId}`] ?? '{"likes":"","sizes":"","avoid":""}');
 const giftReady = (g: Loaded, memberId: string) => Number(g.raw[`g:${memberId}`] ?? 0) === g.meta.round;
 
+function guessOf(g: Loaded, memberId: string): string | null {
+  const rec: { round: number; target: string } | null = JSON.parse(g.raw[`q:${memberId}`] ?? "null");
+  return rec && rec.round === g.meta.round && g.ids.includes(rec.target) ? rec.target : null;
+}
+
+const isDrawn = (g: Loaded) => g.meta.drawn !== false;
+const guessesOpen = (g: Loaded) => g.meta.guessesRound === g.meta.round;
+
+/**
+ * After the reveal: who guessed right. Deliberately never says who anyone
+ * guessed or who their Santa is, so it can't expose a match to the group.
+ */
+function guessResults(g: Loaded) {
+  if (!guessesOpen(g)) return null;
+  const santaOf = new Map(g.ids.map((giver) => [unseal(sealSecret(), g.id, giver, g.raw[`s:${giver}`]), giver]));
+  return g.ids
+    .map((id) => ({ name: g.raw[`m:${id}`], guessed: guessOf(g, id) !== null, correct: guessOf(g, id) === santaOf.get(id) }))
+    .sort((a, b) => Number(b.correct) - Number(a.correct) || a.name.localeCompare(b.name));
+}
+
 function publicView(g: Loaded) {
   const { name, budget, date, note } = g.meta;
   return {
@@ -73,6 +98,8 @@ function publicView(g: Loaded) {
     budget,
     date,
     note,
+    drawn: isDrawn(g),
+    guesses: guessResults(g),
     members: g.ids
       .map((id) => ({
         id,
@@ -91,11 +118,8 @@ export async function getPublicGroup(id: string): Promise<PublicGroup | null> {
   return g && publicView(g);
 }
 
-/**
- * The one place names get drawn and written. Fields for the new draw go into a
- * single HSET so a failed draw changes nothing and a half-written draw can't exist.
- */
-function planPeople(id: string, input: PeopleFields, known: string[], avoid: [string, string][] = []) {
+/** Checks a list of people, giving anyone new a real id. */
+function planNames(input: PeopleFields, known: string[]) {
   const seen = new Set<string>();
   for (const p of input.people) {
     const n = p.name.toLocaleLowerCase();
@@ -103,23 +127,28 @@ function planPeople(id: string, input: PeopleFields, known: string[], avoid: [st
     seen.add(n);
   }
   const issued = new Map(input.people.map((p) => [p.id, known.includes(p.id) ? p.id : newId()]));
-  const realPairs = input.pairs
+  const pairs = input.pairs
     .filter(([a, b]) => a !== b && issued.has(a) && issued.has(b))
     .map(([a, b]) => [issued.get(a)!, issued.get(b)!] as [string, string]);
-  const ids = [...issued.values()];
-  // Avoiding repeats is a preference: small groups may have no other draw left.
-  const draw = drawNames(ids, realPairs, avoid) ?? drawNames(ids, realPairs);
-  if (!draw) return { error: "impossible" as const };
-  const fields: Record<string, string> = {};
-  for (const p of input.people) fields[`m:${issued.get(p.id)}`] = p.name;
-  for (const [g, r] of Object.entries(draw)) fields[`s:${g}`] = seal(sealSecret(), id, g, r);
-  return { fields, pairs: realPairs, ids };
+  const names: Record<string, string> = {};
+  for (const p of input.people) names[`m:${issued.get(p.id)}`] = p.name;
+  return { names, pairs, ids: [...issued.values()] };
 }
 
-export async function createGroup(input: DetailFields & PeopleFields) {
+/**
+ * The one place names get drawn. The sealed fields go into a single HSET with
+ * the rest, so a failed draw changes nothing and a half-written draw can't exist.
+ */
+function sealedDraw(id: string, ids: string[], pairs: [string, string][], avoid: [string, string][] = []) {
+  // Avoiding repeats is a preference: small groups may have no other draw left.
+  const draw = drawNames(ids, pairs, avoid) ?? drawNames(ids, pairs);
+  if (!draw) return null;
+  return Object.fromEntries(Object.entries(draw).map(([g, r]) => [`s:${g}`, seal(sealSecret(), id, g, r)]));
+}
+
+/** A group starts empty: people add themselves with the link, then the organiser draws. */
+export async function createGroup(input: DetailFields) {
   const id = newId(9);
-  const plan = planPeople(id, input, []);
-  if (plan.error) return plan;
   const key = newId(18);
   const meta: Meta = {
     name: input.name,
@@ -127,15 +156,32 @@ export async function createGroup(input: DetailFields & PeopleFields) {
     date: input.date,
     note: input.note,
     adminHash: sha256(key),
-    pairs: plan.pairs,
+    pairs: [],
     round: 1,
+    drawn: false,
   };
-  await kv().hset(groupKey(id), { meta: JSON.stringify(meta), ...plan.fields });
+  await kv().hset(groupKey(id), { meta: JSON.stringify(meta) });
   await touch(id);
   return { id, key };
 }
 
 // ---------- Members ------------------------------------------------------------
+
+const MAX_PEOPLE = 50;
+
+/** Someone adds themselves with the invite link, before the names are drawn. */
+export async function join(id: string, name: string, pin: string) {
+  const g = await load(id);
+  if (!g) return { error: "not_found" as const };
+  if (isDrawn(g)) return { error: "closed" as const };
+  if (g.ids.length >= MAX_PEOPLE) return { error: "full" as const };
+  if (g.ids.some((m) => g.raw[`m:${m}`].toLocaleLowerCase() === name.toLocaleLowerCase())) return { error: "duplicate_name" as const, name };
+  const memberId = newId();
+  const salt = newId(12);
+  await kv().hset(groupKey(id), { [`m:${memberId}`]: name, [`p:${memberId}`]: JSON.stringify({ salt, hash: hashPin(pin, salt) }) });
+  await touch(id);
+  return { memberId, token: memberToken(sealSecret(), id, memberId, salt) };
+}
 
 /** First time sets the PIN, after that it checks it. Returns a device token. */
 export async function claim(id: string, memberId: string, pin: string) {
@@ -167,14 +213,18 @@ const readThread = async (id: string, receiver: string): Promise<Msg[]> =>
   (await kv().lrange(threadKey(id, receiver))).map((m) => JSON.parse(m));
 
 async function memberView(g: Loaded, memberId: string) {
-  const receiver = unseal(sealSecret(), g.id, memberId, g.raw[`s:${memberId}`]);
-  const [withPerson, withSanta] = await Promise.all([readThread(g.id, receiver), readThread(g.id, memberId)]);
+  const receiver = isDrawn(g) ? unseal(sealSecret(), g.id, memberId, g.raw[`s:${memberId}`]) : null;
+  const [withPerson, withSanta] = await Promise.all([receiver ? readThread(g.id, receiver) : [], readThread(g.id, memberId)]);
   return {
     me: { id: memberId, name: g.raw[`m:${memberId}`], wishes: wishesOf(g, memberId), about: aboutOf(g, memberId) },
     giftReady: giftReady(g, memberId),
+    myGuess: guessOf(g, memberId),
+    guesses: guessResults(g),
     // They'd opened an earlier draw, so the name they remember is out of date.
     redrawn: Boolean(g.raw[`o:${memberId}`]) && Number(g.raw[`o:${memberId}`]) !== g.meta.round,
-    person: { name: g.raw[`m:${receiver}`], wishes: wishesOf(g, receiver), about: aboutOf(g, receiver) },
+    joined: g.ids.length,
+    // Null until the organiser draws.
+    person: receiver && { name: g.raw[`m:${receiver}`], wishes: wishesOf(g, receiver), about: aboutOf(g, receiver) },
     withPerson,
     withSanta,
   };
@@ -199,6 +249,7 @@ export type MeAction =
   | { type: "wishes"; wishes: WishItem[] }
   | { type: "about"; about: AboutMe }
   | { type: "giftReady"; ready: boolean }
+  | { type: "guess"; target: string | null }
   | { type: "ask"; text: string }
   | { type: "reply"; text: string };
 
@@ -209,10 +260,19 @@ export async function memberAction(id: string, memberId: string, token: string, 
     g.raw[name] = value;
     return kv().hset(groupKey(id), { [name]: value });
   };
+  // Nothing below depends on a draw except these, which wait for one.
+  if (!isDrawn(g) && (action.type === "open" || action.type === "guess" || action.type === "ask" || action.type === "reply" || action.type === "giftReady")) {
+    return memberView(g, memberId);
+  }
   if (action.type === "open") await field(`o:${memberId}`, String(g.meta.round));
   if (action.type === "wishes") await field(`w:${memberId}`, JSON.stringify(action.wishes));
   if (action.type === "about") await field(`a:${memberId}`, JSON.stringify(action.about));
   if (action.type === "giftReady") await field(`g:${memberId}`, action.ready ? String(g.meta.round) : "0");
+  // Closed once revealed, and no feedback before that, so guessing can't be used to find the Santa.
+  if (action.type === "guess" && !guessesOpen(g)) {
+    const valid = action.target === null || (action.target !== memberId && g.ids.includes(action.target));
+    if (valid) await field(`q:${memberId}`, action.target ? JSON.stringify({ round: g.meta.round, target: action.target }) : "null");
+  }
   if (action.type === "ask") await post(g, unseal(sealSecret(), id, memberId, g.raw[`s:${memberId}`]), "santa", action.text);
   if (action.type === "reply") await post(g, memberId, "person", action.text);
   if (action.type !== "load") await touch(id);
@@ -232,6 +292,7 @@ function adminView(g: Loaded) {
   return {
     ...pub,
     pairs: g.meta.pairs,
+    guessedCount: g.ids.filter((m) => guessOf(g, m) !== null).length,
     members: pub.members.map((m) => ({
       ...m,
       opened: Number(g.raw[`o:${m.id}`] ?? 0) === g.meta.round,
@@ -248,7 +309,9 @@ export type AdminAction =
   | ({ type: "details" } & DetailFields)
   | ({ type: "people" } & PeopleFields)
   | { type: "resetPin"; memberId: string }
+  | { type: "draw" }
   | { type: "newRound" }
+  | { type: "revealGuesses" }
   | { type: "delete" };
 
 export async function adminAction(id: string, key: string, action: AdminAction) {
@@ -276,34 +339,64 @@ export async function adminAction(id: string, key: string, action: AdminAction) 
     return reload();
   }
 
+  if (action.type === "revealGuesses") {
+    if (!isDrawn(g)) return { error: "not_drawn" as const };
+    await store.hset(groupKey(id), { meta: JSON.stringify({ ...g.meta, guessesRound: g.meta.round }) });
+    return reload();
+  }
+
   if (action.type === "delete") {
     await store.del([groupKey(id), ...g.ids.map((m) => threadKey(id, m))]);
     return { view: null };
   }
 
+  if (action.type === "draw") {
+    if (isDrawn(g)) return { view: adminView(g) };
+    if (g.ids.length < 3) return { error: "need_three" as const };
+    const sealed = sealedDraw(id, g.ids, g.meta.pairs);
+    if (!sealed) return { error: "impossible" as const };
+    await store.hset(groupKey(id), { ...sealed, meta: JSON.stringify({ ...g.meta, drawn: true }) });
+    return reload();
+  }
+
+  if (action.type === "newRound" && !isDrawn(g)) return { error: "not_drawn" as const };
+
   const people =
     action.type === "newRound"
       ? { people: g.ids.map((m) => ({ id: m, name: g.raw[`m:${m}`] })), pairs: g.meta.pairs }
       : action;
-  // Opened only inside the server, to rule out last round's matches. Never returned.
-  const lastRound = action.type === "newRound" ? g.ids.map((m): [string, string] => [m, unseal(sealSecret(), id, m, g.raw[`s:${m}`])]) : [];
-  const plan = planPeople(id, people, g.ids, lastRound);
+  const plan = planNames(people, g.ids);
   if (plan.error) return plan;
+  const removedFields = g.ids
+    .filter((m) => !plan.ids.includes(m))
+    .flatMap((m) => ["m", "s", "p", "o", "w", "r", "a", "g", "q"].map((f) => `${f}:${m}`));
+
+  if (!isDrawn(g)) {
+    // Still joining: nothing to redraw.
+    await store.hset(groupKey(id), { ...plan.names, meta: JSON.stringify({ ...g.meta, pairs: plan.pairs }) });
+    await store.hdel(groupKey(id), removedFields);
+    return reload();
+  }
+
   const samePeople = plan.ids.length === g.ids.length && plan.ids.every((m) => g.ids.includes(m));
   const pairKey = (p: [string, string][]) => p.map((x) => [...x].sort().join(">")).sort().join();
   if (action.type !== "newRound" && samePeople && pairKey(plan.pairs) === pairKey(g.meta.pairs)) {
     // Only names changed, so the draw stays as it is.
-    const renames = Object.fromEntries(Object.entries(plan.fields).filter(([f]) => f.startsWith("m:")));
-    await store.hset(groupKey(id), renames);
+    await store.hset(groupKey(id), plan.names);
     return reload();
   }
 
-  const removed = g.ids.filter((m) => !plan.ids.includes(m));
+  if (plan.ids.length < 3) return { error: "need_three" as const };
+  // Opened only inside the server, to rule out last round's matches. Never returned.
+  const lastRound = action.type === "newRound" ? g.ids.map((m): [string, string] => [m, unseal(sealSecret(), id, m, g.raw[`s:${m}`])]) : [];
+  const sealed = sealedDraw(id, plan.ids, plan.pairs, lastRound);
+  if (!sealed) return { error: "impossible" as const };
   await store.hset(groupKey(id), {
-    ...plan.fields,
+    ...plan.names,
+    ...sealed,
     meta: JSON.stringify({ ...g.meta, pairs: plan.pairs, round: g.meta.round + 1 }),
   });
-  await store.hdel(groupKey(id), removed.flatMap((m) => ["m", "s", "p", "o", "w", "r", "a", "g"].map((f) => `${f}:${m}`)));
+  await store.hdel(groupKey(id), removedFields);
   // New Santas shouldn't read the old Santas' conversations.
   await store.del([...new Set([...g.ids, ...plan.ids])].map((m) => threadKey(id, m)));
   return reload();

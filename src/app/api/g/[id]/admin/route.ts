@@ -8,7 +8,7 @@ export function POST(req: Request, { params }: { params: Promise<{ id: string }>
     if (!body.success) return jsonError(400, "invalid");
     const result = await adminAction((await params).id, body.data.key, body.data.action);
     if (result.error) {
-      const status = { forbidden: 403, not_found: 404, duplicate_name: 422, impossible: 422 }[result.error];
+      const status = { forbidden: 403, not_found: 404, not_drawn: 409, duplicate_name: 422, impossible: 422, need_three: 422 }[result.error];
       return jsonError(status, result.error, result);
     }
     return Response.json(result.view);

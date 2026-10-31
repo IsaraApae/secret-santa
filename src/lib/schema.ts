@@ -7,7 +7,7 @@ export const Person = z.object({ id: z.string().min(1).max(40), name: text(40).m
 const Pair = z.tuple([z.string().max(40), z.string().max(40)]);
 
 export const People = z.object({
-  people: z.array(Person).min(3).max(50),
+  people: z.array(Person).max(50),
   pairs: z.array(Pair).max(200),
 });
 
@@ -18,9 +18,11 @@ export const Details = z.object({
   note: text(400),
 });
 
-export const CreateBody = z.object({ ...People.shape, ...Details.shape });
+export const CreateBody = Details;
 
 export const Pin = z.string().regex(/^\d{4}$/);
+
+export const JoinBody = z.object({ name: text(40).min(1), pin: Pin });
 
 export const ClaimBody = z.object({ memberId: z.string().max(40), pin: Pin });
 
@@ -52,6 +54,8 @@ export const MeBody = z.object({
     z.object({ type: z.literal("wishes"), wishes: z.array(Wish).max(30) }),
     z.object({ type: z.literal("about"), about: About }),
     z.object({ type: z.literal("giftReady"), ready: z.boolean() }),
+    /** Who this person thinks their Santa is. */
+    z.object({ type: z.literal("guess"), target: z.string().max(40).nullable() }),
     /** Santa writing to the person they drew. */
     z.object({ type: z.literal("ask"), text: Message }),
     /** The person replying to their unknown Santa. */
@@ -67,7 +71,10 @@ export const AdminBody = z.object({
     z.object({ type: z.literal("people"), ...People.shape }),
     z.object({ type: z.literal("resetPin"), memberId: z.string().max(40) }),
     /** The same group, freshly drawn: for next year. */
+    z.object({ type: z.literal("draw") }),
     z.object({ type: z.literal("newRound") }),
+    /** Closes guessing and shows who guessed right. */
+    z.object({ type: z.literal("revealGuesses") }),
     z.object({ type: z.literal("delete") }),
   ]),
 });

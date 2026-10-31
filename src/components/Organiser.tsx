@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Check, CircleDashed, Copy, Gift, KeyRound, Pencil, RefreshCw, ShieldCheck, Trash2, User, Users } from "lucide-react";
+import { Bell, Check, HelpCircle, CircleDashed, Copy, Gift, KeyRound, Pencil, RefreshCw, ShieldCheck, Trash2, User, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -8,7 +8,7 @@ import { askConfirm } from "@/lib/client/confirm";
 import { api, errorText, forgetGroup, organiserKey, rememberGroup } from "@/lib/client/store";
 import { useT } from "@/lib/i18n";
 import type { AdminView } from "@/lib/server/groups";
-import { Countdown, GiftBox, GroupFacts } from "./Festive";
+import { Countdown, GiftBox, GroupFacts, GuessResults } from "./Festive";
 import { detailsBody, DetailsFields, PeopleEditor, type DetailValues, type EditPerson, type Pair } from "./PeopleEditor";
 import { ShareCard, useCopy } from "./ShareCard";
 import { Callout, cx, ICON, Section, Sheet } from "./ui";
@@ -60,7 +60,6 @@ export function Organiser({ id }: { id: string }) {
   }
 
   const opened = view.members.filter((m) => m.opened).length;
-  const ready = view.members.filter((m) => m.giftReady).length;
   const inviteUrl = `${origin}/g/${id}`;
 
   function reminderText() {
@@ -76,6 +75,16 @@ export function Organiser({ id }: { id: string }) {
     ]
       .filter(Boolean)
       .join("\n");
+  }
+
+  async function drawNow() {
+    const ok = await askConfirm({ title: t("drawTitle"), message: t("drawBody"), confirmLabel: t("drawNow") });
+    if (ok) send(key!, { type: "draw" });
+  }
+
+  async function revealGuesses() {
+    const ok = await askConfirm({ title: t("revealTitle"), message: t("revealBody"), confirmLabel: t("revealConfirm") });
+    if (ok) send(key!, { type: "revealGuesses" });
   }
 
   async function drawAgain() {
@@ -123,7 +132,7 @@ export function Organiser({ id }: { id: string }) {
       </Callout>
 
       <Section
-        title={t("statusTitle")}
+        title={view.drawn ? t("statusTitle") : t("joinedTitle")}
         action={
           <button type="button" className="chip min-h-10 shrink-0 whitespace-nowrap" onClick={() => setSheet("people")}>
             <Users size={16} {...ICON} aria-hidden />
@@ -133,7 +142,7 @@ export function Organiser({ id }: { id: string }) {
       >
         <ul className="card rows taped relative tilt-r">
           <li className="px-5 pt-4 pb-3 font-serif text-[15px]">
-            {t("statusCount", { n: opened, total: view.members.length })} · {t("giftsCount", { n: ready, total: view.members.length })}
+            {view.drawn ? t("statusCount", { n: opened, total: view.members.length }) : view.members.length ? t("joinedCount", { n: view.members.length }) : t("joinedNone")}
           </li>
           {view.members.map((m) => (
             <li key={m.id} className="flex items-center gap-3 py-2 pr-2 pl-5">
@@ -162,6 +171,17 @@ export function Organiser({ id }: { id: string }) {
         </ul>
       </Section>
 
+      {!view.drawn && (
+        <div className="card relative space-y-2 p-4">
+          <GiftBox state="still" size={58} className="pin-sticker" />
+          <button type="button" className="btn-primary h-14 w-full text-[20px]" disabled={view.members.length < 3} onClick={drawNow}>
+            {t("drawNow")}
+          </button>
+          <p className="px-1 text-[14px] leading-snug text-ink-2">{view.members.length < 3 ? t("needThree") : t("drawHint")}</p>
+        </div>
+      )}
+
+      {view.drawn && (
       <div className="card relative tilt-l nudge-l space-y-2 p-4">
         <GiftBox state="still" size={58} className="pin-sticker" />
         <button type="button" className="btn-green h-12 w-full" onClick={() => reminder.copy(reminderText())}>
@@ -170,14 +190,34 @@ export function Organiser({ id }: { id: string }) {
         </button>
         <p className="px-1 text-[13px] leading-snug text-ink-2">{t("reminderHint")}</p>
       </div>
+      )}
+
+      {view.guesses ? (
+        <GuessResults results={view.guesses} />
+      ) : view.drawn && (
+        <Section title={t("guessTitle")}>
+          <div className="card tilt-r nudge-r space-y-2 p-4">
+            <p className="px-1 font-serif text-[15px]">{t("guessedCount", { n: view.guessedCount, total: view.members.length })}</p>
+            <button type="button" className="btn-primary h-12 w-full" onClick={revealGuesses}>
+              <HelpCircle size={20} {...ICON} aria-hidden />
+              {t("revealGuesses")}
+            </button>
+            <p className="px-1 text-[13px] leading-snug text-ink-2">{t("revealHint")}</p>
+          </div>
+        </Section>
+      )}
 
       <Section title={t("moreActions")}>
         <div className="card space-y-3 p-4">
-          <button type="button" className="btn-secondary h-12 w-full" onClick={drawAgain}>
-            <RefreshCw size={20} {...ICON} aria-hidden />
-            {t("drawAgain")}
-          </button>
-          <p className="px-1 text-[13px] leading-snug text-ink-2">{t("drawAgainHint")}</p>
+          {view.drawn && (
+            <>
+              <button type="button" className="btn-secondary h-12 w-full" onClick={drawAgain}>
+                <RefreshCw size={20} {...ICON} aria-hidden />
+                {t("drawAgain")}
+              </button>
+              <p className="px-1 text-[13px] leading-snug text-ink-2">{t("drawAgainHint")}</p>
+            </>
+          )}
           <button type="button" className="btn-secondary h-12 w-full !text-danger" onClick={deleteGroup}>
             <Trash2 size={20} {...ICON} aria-hidden />
             {t("deleteGroup")}
@@ -229,15 +269,15 @@ function PeopleSheet({ view, onClose, onSave, error }: { view: AdminView; onClos
     const was = new Set(view.members.map((m) => m.id));
     const samePeople = people.length === was.size && people.every((p) => was.has(p.id));
     const key = (list: Pair[]) => list.map((p) => [...p].sort().join(">")).sort().join();
-    const redraw = !samePeople || key(pairs) !== key(view.pairs as Pair[]);
+    const redraw = view.drawn && (!samePeople || key(pairs) !== key(view.pairs as Pair[]));
     if (redraw && !(await askConfirm({ title: t("redrawTitle"), message: t("redrawBody"), confirmLabel: t("redrawConfirm"), destructive: true }))) return;
     if (await onSave(people.map((p) => ({ ...p, name: p.name.trim() })), pairs)) onClose();
   }
 
   return (
-    <Sheet open onClose={onClose} title={t("editPeople")} onConfirm={save} confirmDisabled={people.length < 3 || people.some((p) => !p.name.trim())}>
+    <Sheet open onClose={onClose} title={t("editPeople")} onConfirm={save} confirmDisabled={(view.drawn && people.length < 3) || people.some((p) => !p.name.trim())}>
       <div className="space-y-4">
-        <Callout tone="warn">{t("redrawWarn")}</Callout>
+        {view.drawn && <Callout tone="warn">{t("redrawWarn")}</Callout>}
         {error && <Callout tone="error">{error}</Callout>}
         <PeopleEditor
           people={people}
