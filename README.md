@@ -4,7 +4,7 @@
 
 Run a gift exchange from one link. Create a group, share the link, and everyone adds themselves. When everyone's in, draw names, and each person unwraps a gift to see who they drew. No accounts or apps needed.
 
-**Live:** https://secret-santa-virid-one.vercel.app
+**Live:** https://secretsanta-draw.vercel.app
 
 <p>
   <img src="docs/screenshots/home.jpg" alt="Home page" width="240">
