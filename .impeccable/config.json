@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "bounce-easing",
+        "value": "var(--ease-spring)",
+        "createdAt": "2026-10-31T07:11:30.709Z",
+        "reason": "Claude: --ease-spring is cubic-bezier(0.16, 1, 0.3, 1), an ease-out-expo curve with no overshoot, carried over from Bill Splitter's design tokens"
+      }
+    ]
+  }
+}
