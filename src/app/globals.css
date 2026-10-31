@@ -390,6 +390,10 @@ dialog.alert:not([open]) {
     transform: scale(0.88);
   }
 }
+/* Gold script is for the night. On a paper sheet it would vanish, so it turns red. */
+dialog h2.font-script {
+  color: var(--santa);
+}
 dialog.sheet::backdrop,
 dialog.alert::backdrop {
   background: rgb(12 6 5 / 0.65);
