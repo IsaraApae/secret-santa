@@ -68,7 +68,7 @@ assert.equal((await post(`${g}/admin`, { key: "wrong-key", action: { type: "stat
 const admin = await post(`${g}/admin`, { key, action: { type: "status" } });
 assert.equal(admin.status, 200);
 assert.ok(!leaks(admin.data));
-assert.deepEqual(Object.keys(admin.data.members[0]).sort(), ["claimed", "giftReady", "hasWishes", "id", "name", "opened", "resets"]);
+assert.deepEqual(Object.keys(admin.data.members[0]).sort(), ["claimed", "hasWishes", "id", "name", "opened", "resets"]);
 
 // The organiser key is not a member login
 assert.equal((await post(`${g}/me`, { memberId: ids.Ann, token: key, action: { type: "load" } })).status, 401);
@@ -123,15 +123,10 @@ assert.ok(!JSON.stringify(inbox.withSanta).includes(santa));
 const back = (await post(`${g}/me`, { ...sessions[santa], action: { type: "load" } })).data;
 assert.equal(back.withPerson.at(-1).text, "Pink");
 
-// Answers reach the Santa, and "gift ready" reaches the organiser without saying who it's for
+// Answers reach the Santa
 const about = { likes: "coffee, cats", sizes: "M", avoid: "nuts" };
 await post(`${g}/me`, { ...sessions.Chai, action: { type: "about", about } });
 assert.deepEqual((await post(`${g}/me`, { ...sessions[santa], action: { type: "load" } })).data.person.about, about);
-const readied = (await post(`${g}/me`, { ...sessions[santa], action: { type: "giftReady", ready: true } })).data;
-assert.equal(readied.giftReady, true);
-const withGift = await post(`${g}/admin`, { key, action: { type: "status" } });
-assert.equal(withGift.data.members.find((m) => m.name === santa).giftReady, true);
-assert.ok(!leaks(withGift.data));
 
 // Guessing: no answer before the reveal, nobody can guess themselves
 const guess = (n, target) => post(`${g}/me`, { ...sessions[n], action: { type: "guess", target } });
@@ -201,7 +196,7 @@ for (const n of ["Ann", "Beam", "Chai", "Fah"]) beforeRound[n] = (await post(`${
 const fresh = await post(`${g}/admin`, { key, action: { type: "newRound" } });
 assert.equal(fresh.status, 200);
 assert.ok(!leaks(fresh.data));
-assert.ok(fresh.data.members.every((m) => !m.opened && !m.giftReady));
+assert.ok(fresh.data.members.every((m) => !m.opened ));
 for (const n of Object.keys(beforeRound)) assert.notEqual((await post(`${g}/me`, { ...sessions[n], action: { type: "load" } })).data.person.name, beforeRound[n]);
 
 // Repeated wrong PINs lock that name for a while

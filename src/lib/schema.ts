@@ -53,7 +53,6 @@ export const MeBody = z.object({
     z.object({ type: z.literal("open") }),
     z.object({ type: z.literal("wishes"), wishes: z.array(Wish).max(30) }),
     z.object({ type: z.literal("about"), about: About }),
-    z.object({ type: z.literal("giftReady"), ready: z.boolean() }),
     /** Who this person thinks their Santa is. */
     z.object({ type: z.literal("guess"), target: z.string().max(40).nullable() }),
     /** Santa writing to the person they drew. */

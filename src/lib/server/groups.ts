@@ -15,7 +15,6 @@ import { kv, sealSecret } from "./kv";
  *   o:<id>    the round in which they last opened their gift
  *   w:<id>    their wish list
  *   a:<id>    their answers: what they like, sizes, what to avoid
- *   g:<id>    the round in which they marked their gift as ready
  *   q:<id>    who they guess their Santa is, and in which round
  *   r:<id>    how many times the organiser has reset their PIN
  * One list per person for the anonymous chat with whoever drew them. It's kept
@@ -69,7 +68,6 @@ async function touch(id: string) {
 
 const wishesOf = (g: Loaded, memberId: string): WishItem[] => JSON.parse(g.raw[`w:${memberId}`] ?? "[]");
 const aboutOf = (g: Loaded, memberId: string): AboutMe => JSON.parse(g.raw[`a:${memberId}`] ?? '{"likes":"","sizes":"","avoid":""}');
-const giftReady = (g: Loaded, memberId: string) => Number(g.raw[`g:${memberId}`] ?? 0) === g.meta.round;
 
 function guessOf(g: Loaded, memberId: string): string | null {
   const rec: { round: number; target: string } | null = JSON.parse(g.raw[`q:${memberId}`] ?? "null");
@@ -217,7 +215,6 @@ async function memberView(g: Loaded, memberId: string) {
   const [withPerson, withSanta] = await Promise.all([receiver ? readThread(g.id, receiver) : [], readThread(g.id, memberId)]);
   return {
     me: { id: memberId, name: g.raw[`m:${memberId}`], wishes: wishesOf(g, memberId), about: aboutOf(g, memberId) },
-    giftReady: giftReady(g, memberId),
     myGuess: guessOf(g, memberId),
     guesses: guessResults(g),
     // They'd opened an earlier draw, so the name they remember is out of date.
@@ -248,7 +245,6 @@ export type MeAction =
   | { type: "open" }
   | { type: "wishes"; wishes: WishItem[] }
   | { type: "about"; about: AboutMe }
-  | { type: "giftReady"; ready: boolean }
   | { type: "guess"; target: string | null }
   | { type: "ask"; text: string }
   | { type: "reply"; text: string };
@@ -261,13 +257,12 @@ export async function memberAction(id: string, memberId: string, token: string, 
     return kv().hset(groupKey(id), { [name]: value });
   };
   // Nothing below depends on a draw except these, which wait for one.
-  if (!isDrawn(g) && (action.type === "open" || action.type === "guess" || action.type === "ask" || action.type === "reply" || action.type === "giftReady")) {
+  if (!isDrawn(g) && (action.type === "open" || action.type === "guess" || action.type === "ask" || action.type === "reply")) {
     return memberView(g, memberId);
   }
   if (action.type === "open") await field(`o:${memberId}`, String(g.meta.round));
   if (action.type === "wishes") await field(`w:${memberId}`, JSON.stringify(action.wishes));
   if (action.type === "about") await field(`a:${memberId}`, JSON.stringify(action.about));
-  if (action.type === "giftReady") await field(`g:${memberId}`, action.ready ? String(g.meta.round) : "0");
   // Closed once revealed, and no feedback before that, so guessing can't be used to find the Santa.
   if (action.type === "guess" && !guessesOpen(g)) {
     const valid = action.target === null || (action.target !== memberId && g.ids.includes(action.target));
@@ -297,7 +292,6 @@ function adminView(g: Loaded) {
       ...m,
       opened: Number(g.raw[`o:${m.id}`] ?? 0) === g.meta.round,
       hasWishes: wishesOf(g, m.id).length > 0 || Object.values(aboutOf(g, m.id)).some(Boolean),
-      giftReady: giftReady(g, m.id),
     })),
   };
 }

@@ -65,12 +65,10 @@ export function Organiser({ id }: { id: string }) {
   function reminderText() {
     const names = (list: AdminView["members"]) => list.map((m) => m.name).join(", ");
     const unopened = view!.members.filter((m) => !m.opened);
-    const noGift = view!.members.filter((m) => !m.giftReady);
     return [
       t("reminderLead", { name: view!.name }),
       unopened.length ? t("reminderUnopened", { names: names(unopened) }) : "",
-      noGift.length ? t("reminderNoGift", { names: names(noGift) }) : "",
-      !unopened.length && !noGift.length ? t("reminderAllDone") : "",
+      !unopened.length ? t("reminderAllDone") : "",
       inviteUrl,
     ]
       .filter(Boolean)
@@ -149,16 +147,16 @@ export function Organiser({ id }: { id: string }) {
               <span
                 className={cx(
                   "grid size-8 shrink-0 place-items-center rounded-full",
-                  m.giftReady ? "bg-[var(--santa)] text-[var(--paper-light)]" : m.opened ? "bg-accent text-accent-ink" : m.claimed ? "bg-field text-ink" : "text-ink-3",
+                  m.opened ? "bg-accent text-accent-ink" : m.claimed ? "bg-field text-ink" : "text-ink-3",
                 )}
                 aria-hidden
               >
-                {m.giftReady ? <Gift size={17} {...ICON} /> : m.opened ? <Check size={17} {...ICON} /> : m.claimed ? <User size={17} {...ICON} /> : <CircleDashed size={18} {...ICON} />}
+                {m.opened ? <Check size={17} {...ICON} /> : m.claimed ? <User size={17} {...ICON} /> : <CircleDashed size={18} {...ICON} />}
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-medium">{m.name}</span>
                 <span className="block text-[13px] text-ink-2">
-                  {[m.opened ? t("stOpened") : m.claimed ? t("stJoined") : t("stWaiting"), m.giftReady && t("stGiftReady"), m.hasWishes && t("hasWishes"), m.resets > 0 && t("pinResetBadge", { n: m.resets })].filter(Boolean).join(" · ")}
+                  {[m.opened ? t("stOpened") : m.claimed ? t("stJoined") : t("stWaiting"), m.hasWishes && t("hasWishes"), m.resets > 0 && t("pinResetBadge", { n: m.resets })].filter(Boolean).join(" · ")}
                 </span>
               </span>
               {m.claimed && (

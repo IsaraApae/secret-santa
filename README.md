@@ -18,7 +18,7 @@ Run a gift exchange from one link. Create a group, share the link, and everyone 
 </p>
 <p>
   <img src="docs/screenshots/wishes.jpg" alt="A wish list with Shopee, Lazada and TikTok Shop links" width="240">
-  <img src="docs/screenshots/status.jpg" alt="Organiser's list of who has opened their name and bought a gift" width="240">
+  <img src="docs/screenshots/status.jpg" alt="Organiser's list of who has opened their name" width="240">
   <img src="docs/screenshots/results.jpg" alt="Table of who guessed their Santa correctly" width="240">
 </p>
 
@@ -27,13 +27,13 @@ The screenshots use a demo group with made-up names.
 ## Features
 
 **Running the draw**
-- **One invite link** for the whole group, with Copy, Share, Messenger (on phones) and a QR code. You never type a list of names.
+- **One invite link** for the whole group, with Copy, Share (on phones) and a QR code. You never type a list of names.
 - **Draw when you're ready:** see who has joined, then draw once at least 3 people are in.
 - **Exclusions:** keep couples or housemates from drawing each other.
 - **Budget, party date and a note** for everyone: a big budget field with shortcuts, the site's own calendar, and a live countdown.
 - **Change the group later:** add or remove people and everyone gets a new name. Renaming someone keeps the draw.
-- **See who's ready:** who has joined, opened their name and bought a gift, without showing who it's for.
-- **Copy a reminder:** a ready-made message for your group chat naming anyone still to open their name or buy a gift.
+- **See who's ready:** who has joined and who has opened their name.
+- **Copy a reminder:** a ready-made message for your group chat naming anyone still to open their name.
 - **Draw again:** the same group for next year, avoiding last round's matches when the group is big enough.
 - **Delete the group:** removes every name, wish list and message.
 
