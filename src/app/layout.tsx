@@ -23,13 +23,14 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#170c0a",
+  themeColor: "#3a1511",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${hand.variable} ${display.variable} ${body.variable} ${thaiHand.variable} ${thai.variable}`}>
       <body className="min-h-dvh font-sans">
+        <div className="edge-strip" aria-hidden />
         <div className="night" aria-hidden />
         {/* The rough edge of every paper note. */}
         <svg width="0" height="0" className="absolute" aria-hidden>
