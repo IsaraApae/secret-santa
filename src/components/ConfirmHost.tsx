@@ -30,7 +30,7 @@ export function ConfirmHost() {
   return (
     <dialog
       ref={ref}
-      className="alert panel"
+      className="alert"
       aria-labelledby="confirm-title"
       onCancel={(e) => {
         e.preventDefault();
@@ -39,7 +39,7 @@ export function ConfirmHost() {
     >
       {req && (
         <div className="p-6 pt-7 text-center">
-          <h2 id="confirm-title" className="text-[17px] font-semibold">
+          <h2 id="confirm-title" className="font-serif text-[20px]">
             {req.title}
           </h2>
           {req.message && <p className="mt-1.5 text-[15px] leading-snug text-ink-2">{req.message}</p>}
@@ -50,7 +50,7 @@ export function ConfirmHost() {
             <button
               type="button"
               autoFocus
-              className={cx("btn h-12 glass-flat font-semibold", req.destructive ? "text-ink" : "text-accent")}
+              className={cx("btn-primary h-12", req.destructive && "px-3")}
               onClick={() => answer(true)}
             >
               {req.confirmLabel ?? t("ok")}

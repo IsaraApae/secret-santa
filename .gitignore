@@ -50,3 +50,6 @@ next-env.d.ts
 
 # local design-hook cache: holds machine paths
 .impeccable/hook.cache.json
+
+# design review captures
+.impeccable/review/

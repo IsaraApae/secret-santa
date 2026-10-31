@@ -59,7 +59,6 @@ export function errorText(t: T, e: { error: string; name?: string }): string {
   return t("errGeneric");
 }
 
-export const formatDate = (date: string, lang: string) =>
-  new Date(`${date}T00:00:00`).toLocaleDateString(lang === "th" ? "th-TH" : "en-GB", { dateStyle: "long" });
+export const formatDate = (date: string) => new Date(`${date}T00:00:00`).toLocaleDateString("en-GB", { dateStyle: "long" });
 
 export const baht = (n: number) => `฿${n.toLocaleString("en-US")}`;

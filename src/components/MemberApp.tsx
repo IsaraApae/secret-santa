@@ -1,13 +1,13 @@
 "use client";
 
-import { Check, ExternalLink, Gift, Lock, MessageCircle, Pencil, Plus, Search, Send, Trash2 } from "lucide-react";
+import { Check, ExternalLink, Gift, Lock, Pencil, Plus, Search, Send, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { api, baht, errorText, formatDate, getSession, rememberGroup, setSession, type Session } from "@/lib/client/store";
-import { useLang, useT } from "@/lib/i18n";
+import { api, baht, errorText, getSession, rememberGroup, setSession, type Session } from "@/lib/client/store";
+import { useT } from "@/lib/i18n";
 import type { AboutMe, WishItem } from "@/lib/schema";
 import type { MeAction, MemberView, Msg, PublicGroup } from "@/lib/server/groups";
 import { parseShopPaste, safeUrl, SHOP_LABEL, shopOf, type Shop } from "@/lib/shop";
-import { Countdown, Fall, GiftBox } from "./Festive";
+import { Countdown, Fall, GiftBox, GroupFacts, GiftTag } from "./Festive";
 import { Callout, cx, ICON, Section, Segmented, Sheet } from "./ui";
 
 export function MemberApp({ id, initial }: { id: string; initial: PublicGroup }) {
@@ -51,16 +51,11 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
 
   return (
     <>
-      <header className="space-y-1 px-1 pt-3 text-center">
+      <header className="space-y-3 px-1 pt-2 text-center">
         <h1 className="large-title break-words">{group.name}</h1>
-        {group.budget !== null && <p className="font-semibold text-accent-strong">{t("budgetLine", { amount: baht(group.budget) })}</p>}
-        <GroupDate date={group.date} />
+        <GroupFacts budget={group.budget} date={group.date} />
       </header>
-      {group.date && (
-        <div className="card p-4">
-          <Countdown date={group.date} />
-        </div>
-      )}
+      {group.date && <Countdown date={group.date} />}
       {group.note && <p className="card px-5 py-4 text-[15px] leading-snug whitespace-pre-wrap">{group.note}</p>}
 
       {!ready || (session && !view) ? (
@@ -80,12 +75,6 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
       )}
     </>
   );
-}
-
-function GroupDate({ date }: { date: string | null }) {
-  const { lang } = useLang();
-  if (!date) return null;
-  return <p className="text-ink-2">{formatDate(date, lang)}</p>;
 }
 
 // ---------- Picking your name ----------------------------------------------------
@@ -118,8 +107,9 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
 
   return (
     <>
-      <Section title={`${t("whoAreYou")} ${t("whoAreYouSub")}`}>
-        <ul className="card rows overflow-hidden">
+      <Section title={t("whoAreYou")}>
+        <ul className="card rows">
+          <li className="px-5 py-3 font-serif text-[15px]">{t("whoAreYouSub")}</li>
           {group.members.map((m) => (
             <li key={m.id}>
               <button
@@ -132,7 +122,7 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
                 }}
               >
                 <span className="min-w-0 flex-1 truncate font-medium">{m.name}</span>
-                {m.resets > 0 && <span className="shrink-0 rounded-full bg-warn-soft px-2.5 py-0.5 text-[13px] text-warn">{t("pinResetBadge", { n: m.resets })}</span>}
+                {m.resets > 0 && <span className="shrink-0 rounded-md bg-warn-soft px-2.5 py-0.5 text-[13px] text-warn">{t("pinResetBadge", { n: m.resets })}</span>}
                 {m.claimed && (
                   <span className="flex shrink-0 items-center gap-1 text-[13px] text-ink-2">
                     <Lock size={14} {...ICON} aria-hidden /> {t("pinTaken")}
@@ -227,11 +217,11 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
       <>
         <Fall kind="snow" />
         {view.redrawn && <Callout tone="warn">{t("redrawn")}</Callout>}
-        <button type="button" className="card block w-full space-y-5 px-6 pt-14 pb-8 text-center" onClick={unwrap}>
+        <button type="button" className="block w-full space-y-3 px-6 pt-4 pb-2 text-center" onClick={unwrap}>
           <GiftBox state={stage === "shake" ? "shake" : "idle"} />
           <span className="block">
-            <span className="block text-[22px] font-bold">{t("tapToUnwrap")}</span>
-            <span className="mt-1 block text-[15px] text-ink-2">{t("unwrapHint")}</span>
+            <span className="block font-script text-[42px] leading-tight text-gold">{t("tapToUnwrap")}</span>
+            <span className="card tilt-r mt-3 block px-4 py-2.5 text-[15px]">{t("unwrapHint")}</span>
           </span>
         </button>
       </>
@@ -241,22 +231,18 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
   return (
     <>
       <Fall kind="confetti" />
-      <section className="card relative px-6 py-10 text-center">
-        <div className="pointer-events-none absolute inset-x-0 top-3">
+      <section className="relative pt-4 pb-2">
+        <div className="pointer-events-none absolute inset-x-0 top-0">
           <GiftBox state="open" />
         </div>
-        <div className="reveal-name">
-          <p className="text-ink-2">{t("youDrew")}</p>
-          <p className="my-2 text-[44px] leading-[1.1] font-bold tracking-tight break-words text-santa">{view.person.name}</p>
-          <p className="text-[15px] text-ink-2">{t("keepSecret")}</p>
-        </div>
+        <GiftTag lead={t("youDrew")} name={view.person.name} foot={t("keepSecret")} />
       </section>
 
       <button
         type="button"
         role="checkbox"
         aria-checked={view.giftReady}
-        className="card flex w-full items-center gap-3 px-5 py-3.5 text-left"
+        className="card tilt-l nudge-l flex w-[calc(100%-10px)] items-center gap-3 px-5 py-3.5 text-left"
         onClick={() => act({ type: "giftReady", ready: !view.giftReady })}
       >
         <span className={cx("grid size-7 shrink-0 place-items-center rounded-full", view.giftReady ? "bg-accent text-accent-ink" : "bg-field text-ink-2")} aria-hidden>
@@ -264,13 +250,13 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
         </span>
         <span className="min-w-0 flex-1">
           <span className="block font-medium">{t("giftReadyAsk")}</span>
-          <span className="block text-[13px] leading-snug text-ink-2">{t("giftReadyHint")}</span>
+          <span className="block text-[14px] leading-snug text-ink-2">{t("giftReadyHint")}</span>
         </span>
       </button>
 
       {(view.person.about.likes || view.person.about.sizes || view.person.about.avoid) && (
         <Section title={t("aboutOf", { name: view.person.name })}>
-          <dl className="card rows overflow-hidden">
+          <dl className="card rows taped tilt-r nudge-r relative">
             {(
               [
                 ["likesLabel", view.person.about.likes],
@@ -292,7 +278,7 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
 
       <Section title={t("theirWishes", { name: view.person.name })}>
         {view.person.wishes.length ? (
-          <ul className="card rows overflow-hidden">
+          <ul className="card rows">
             {view.person.wishes.map((w) => (
               <WishRow key={w.id} wish={w} />
             ))}
@@ -331,7 +317,7 @@ function MineTab({ view, act }: { view: MemberView; act: (a: MeAction) => Promis
   return (
     <>
       <Section
-        title={t("myWishesHint")}
+        title={t("myWishesTitle")}
         action={
           <button type="button" className="chip min-h-9 shrink-0 whitespace-nowrap" disabled={wishes.length >= 30} onClick={() => setEditing("new")}>
             <Plus size={16} {...ICON} aria-hidden />
@@ -340,7 +326,8 @@ function MineTab({ view, act }: { view: MemberView; act: (a: MeAction) => Promis
         }
       >
         {wishes.length ? (
-          <ul className="card rows overflow-hidden">
+          <ul className="card rows taped relative">
+            <li className="px-5 pt-4 pb-3 text-[14px] text-ink-2">{t("myWishesHint")}</li>
             {wishes.map((w) => (
               <WishRow
                 key={w.id}
@@ -359,7 +346,9 @@ function MineTab({ view, act }: { view: MemberView; act: (a: MeAction) => Promis
             ))}
           </ul>
         ) : (
-          <p className="card px-5 py-4 text-[15px] text-ink-2">{t("noMyWishes")}</p>
+          <p className="card px-5 py-4 text-[15px] text-ink-2">
+            {t("myWishesHint")} {t("noMyWishes")}
+          </p>
         )}
       </Section>
 
@@ -395,7 +384,7 @@ function AboutForm({ about, onSave }: { about: AboutMe; onSave: (a: AboutMe) => 
   return (
     <Section title={t("aboutTitle")}>
       <form
-        className="card space-y-3 p-4"
+        className="card tilt-l space-y-3 p-4"
         onSubmit={async (e) => {
           e.preventDefault();
           if (await onSave({ likes: value.likes.trim(), sizes: value.sizes.trim(), avoid: value.avoid.trim() })) setSaved(true);
@@ -417,7 +406,7 @@ function AboutForm({ about, onSave }: { about: AboutMe; onSave: (a: AboutMe) => 
 /** Opens each shop's own search, starting from the first thing the person says they like. */
 function GiftSearch({ likes, budget }: { likes: string; budget: number | null }) {
   const t = useT();
-  const [query, setQuery] = useState(likes.split(/[,،、\n]/)[0].trim() || t("giftWord"));
+  const [query, setQuery] = useState(likes.split(/[,\n]/)[0].trim() || t("giftWord"));
   const q = encodeURIComponent(query.trim());
   const shops: [Shop, string][] = [
     ["shopee", `https://shopee.co.th/search?keyword=${q}`],
@@ -426,7 +415,7 @@ function GiftSearch({ likes, budget }: { likes: string; budget: number | null })
   ];
   return (
     <Section title={t("findGift")}>
-      <div className="card space-y-3 p-4">
+      <div className="card tilt-r nudge-r space-y-3 p-4">
         <p className="px-1 text-[13px] text-ink-2">{budget !== null ? t("findGiftHint", { budget: baht(budget) }) : t("findGiftHintNoBudget")}</p>
         <input className="input" maxLength={60} value={query} aria-label={t("searchWord")} onChange={(e) => setQuery(e.target.value)} />
         <div className="grid grid-cols-3 gap-2">
@@ -451,7 +440,7 @@ const SHOP_STYLE: Record<Shop, string> = {
 };
 
 function ShopBadge({ shop }: { shop: Shop }) {
-  return <span className={cx("inline-block shrink-0 rounded-full px-2.5 py-0.5 text-[13px] font-semibold", SHOP_STYLE[shop])}>{SHOP_LABEL[shop]}</span>;
+  return <span className={cx("inline-block shrink-0 rounded-md px-2.5 py-0.5 text-[13px] font-semibold", SHOP_STYLE[shop])}>{SHOP_LABEL[shop]}</span>;
 }
 
 function WishRow({ wish, actions }: { wish: WishItem; actions?: React.ReactNode }) {
@@ -565,22 +554,18 @@ function Chat({
 
   return (
     <Section
-      title={
-        <span className="inline-flex items-center gap-1.5">
-          <MessageCircle size={14} {...ICON} aria-hidden />
-          {title}
-        </span>
-      }
+      title={title}
     >
-      <div className="card space-y-3 p-4">
-        <p className="px-1 text-[13px] leading-snug text-ink-2">{hint}</p>
+      <div className="card relative space-y-3 p-4">
+        <GiftBox state="still" size={54} className="pin-sticker" />
+        <p className="px-1 pr-12 text-[14px] leading-snug text-ink-2">{hint}</p>
         {messages.length === 0 && empty && <p className="px-1 text-[15px] text-ink-2">{empty}</p>}
         {messages.length > 0 && (
           <ul className="space-y-2">
             {messages.map((m, i) => (
               <li key={i} className={cx("flex flex-col", m.from === mine ? "items-end" : "items-start")}>
                 <span className="px-3 pb-0.5 text-[13px] text-ink-2">{m.from === mine ? t("you") : theirLabel}</span>
-                <span className={cx("max-w-[85%] rounded-[20px] px-4 py-2 leading-snug break-words whitespace-pre-wrap", m.from === mine ? "bg-accent text-accent-ink" : "bg-field text-ink")}>{m.text}</span>
+                <span className={cx("max-w-[85%] rounded-xl px-4 py-2 leading-snug break-words whitespace-pre-wrap", m.from === mine ? "bg-accent text-accent-ink" : "tag text-ink")}>{m.text}</span>
               </li>
             ))}
           </ul>
@@ -593,7 +578,7 @@ function Chat({
           }}
         >
           <input className="input" maxLength={500} value={text} placeholder={placeholder} aria-label={placeholder} onChange={(e) => setText(e.target.value)} />
-          <button type="submit" className="press grid size-12 shrink-0 place-items-center rounded-full bg-accent text-accent-ink disabled:opacity-40" aria-label={t("send")} disabled={busy || !text.trim()}>
+          <button type="submit" className="press grid size-12 shrink-0 place-items-center rounded-xl bg-accent text-accent-ink disabled:opacity-40" aria-label={t("send")} disabled={busy || !text.trim()}>
             <Send size={20} {...ICON} aria-hidden />
           </button>
         </form>

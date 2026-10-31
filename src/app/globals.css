@@ -1,9 +1,10 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 @theme inline {
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Thonburi", "Noto Sans Thai", system-ui, sans-serif;
+  /* People type names and wishes in Thai too, so each face has a loaded Thai partner. */
+  --font-sans: var(--font-body), var(--font-thai), system-ui, sans-serif;
+  --font-serif: var(--font-display), var(--font-thai), Georgia, serif;
+  --font-script: var(--font-hand), var(--font-thai-hand), "Brush Script MT", cursive;
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
   --color-ink-3: var(--ink-3);
@@ -11,152 +12,70 @@
   --color-accent-ink: var(--accent-ink);
   --color-accent-soft: var(--accent-soft);
   --color-accent-strong: var(--accent-strong);
-  --color-positive: var(--positive);
-  --color-warn: var(--warn);
-  --color-warn-soft: var(--warn-soft);
   --color-santa: var(--santa);
+  --color-gold: var(--gold);
+  --color-cream: var(--cream);
+  --color-positive: var(--accent);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
   --color-info: var(--info);
   --color-info-soft: var(--info-soft);
   --color-field: var(--field);
   --color-line: var(--line);
-  --color-card: var(--card);
-  /* One easing for every motion in the app. */
   --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ---------- Tokens --------------------------------------------------------
-   Two layers: content cards (opaque-ish, never blurred) and a control layer of
-   frosted glass (navigation, toolbars, buttons, chips, sheets).
-   All text tokens meet 4.5:1 on cards and on glass over the glow wash. */
+   Text tokens change with the surface: on the night they're cream, and on
+   paper (.on-paper, cards, sheets) they switch to dark ink. */
 :root {
-  color-scheme: light;
-  --bg: #f5f3f7;
-  /* One solid colour for the page's top and bottom edges: the average of the
-     background's top edge (--bg under the first glow). iPhone in-app browsers
-     (LINE, Facebook…) fill the strips behind the status bar and their toolbar
-     with a single solid colour, and fixed layers aren't drawn there. */
-  --edge-solid: #f1eff0;
-  /* The soft green wash the glass blurs (emerald, teal, mint, lime). */
-  --blob-1: rgb(52 211 153 / 0.22);
-  --blob-2: rgb(225 72 72 / 0.15);
-  --blob-3: rgb(94 234 212 / 0.18);
-  --blob-4: rgb(240 120 90 / 0.14);
-
-  --ink: #1c1c1e;
-  --ink-2: #636366;
-  --ink-3: #5e5e63; /* 4.5:1 even as placeholder on a field */
-  --accent: #047857;
-  --accent-ink: #ffffff;
-  --accent-soft: rgb(4 120 87 / 0.12);
-  --accent-strong: #065f46; /* accent text on accent-soft */
-  --positive: #35805a;
-  --santa: #c8322f; /* the festive red: gifts and the reveal, never errors */
-  --ribbon: #e9b949;
-  --danger: #c24a44;
-  --danger-soft: rgb(194 74 68 / 0.1);
-  --warn: #8a5a12;
-  --warn-soft: rgb(232 172 114 / 0.2);
-  --info: #3a6a94;
-  --info-soft: rgb(134 178 222 / 0.2);
-
-  --card: rgb(255 255 255 / 0.75);
-  --card-shadow: 0 1px 2px rgb(0 0 0 / 0.03), 0 8px 24px -14px rgb(0 0 0 / 0.14);
-  --line: rgb(60 60 67 / 0.22);
-  --field: rgb(118 118 128 / 0.12);
-  --hover: rgb(118 118 128 / 0.1);
-
-  /* Glass material (controls). */
-  --glass: rgb(255 255 255 / 0.55);
-  --glass-strong: rgb(255 255 255 / 0.85); /* selected segment */
-  --glass-blur: blur(22px) saturate(190%);
-  --glass-border: rgb(255 255 255 / 0.7);
-  --glass-highlight: rgb(255 255 255 / 0.9);
-  --glass-highlight-bottom: rgb(255 255 255 / 0.35);
-  --glass-shadow: 0 10px 30px -6px rgb(0 0 0 / 0.15), 0 2px 6px rgb(0 0 0 / 0.06);
-  /* Large panels (sheets, dialogs). */
-  --panel: rgb(245 243 247 / 0.8);
-  --panel-blur: blur(40px) saturate(200%);
-  --glass-solid: #ffffff;
-  --scrim: rgb(0 0 0 / 0.28);
-}
-
-.dark {
   color-scheme: dark;
-  --bg: #000000;
-  --edge-solid: #0b0808;
-  --blob-1: rgb(52 211 153 / 0.32);
-  --blob-2: rgb(225 72 72 / 0.24);
-  --blob-3: rgb(94 234 212 / 0.2);
-  --blob-4: rgb(240 120 90 / 0.18);
-
-  --ink: #f2f2f7;
-  --ink-2: #a1a1a8;
-  --ink-3: #98989e;
-  --accent: #34d399;
-  --accent-ink: #032419;
-  --accent-soft: rgb(52 211 153 / 0.16);
-  --accent-strong: #6ee7b7;
-  --positive: #8fd3a0;
-  --santa: #e5534f;
+  --night: #170c0a;
+  --gold: #f4cb6c;
+  --cream: #f3e8d2;
+  --paper: #f1e6d0;
+  --paper-light: #fbf5e7;
+  --santa: #b52a2a;
+  --santa-deep: #8f1f20;
   --ribbon: #f0c75e;
-  --danger: #f0958e;
-  --danger-soft: rgb(240 149 142 / 0.14);
-  --warn: #e8ac72;
-  --warn-soft: rgb(232 172 114 / 0.14);
-  --info: #86b2de;
-  --info-soft: rgb(134 178 222 / 0.14);
+  --accent: #1d6b47;
+  --accent-ink: #fbf5e7;
+  --accent-soft: #d5e6d3;
+  --accent-strong: #14523a;
+  --danger: #a4231f;
+  --danger-soft: #f6d3ca;
+  --warn: #7c5208;
+  --warn-soft: #f6e2ae;
+  --info: #2f5a7c;
+  --info-soft: #d7e3ea;
 
-  --card: rgb(28 28 30 / 0.75);
-  --card-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -14px rgb(0 0 0 / 0.6);
-  --line: rgb(84 84 88 / 0.6);
-  --field: rgb(118 118 128 / 0.24);
-  --hover: rgb(118 118 128 / 0.18);
-
-  --glass: rgb(58 58 60 / 0.5);
-  --glass-strong: rgb(99 99 102 / 0.6);
-  --glass-border: rgb(255 255 255 / 0.14);
-  --glass-highlight: rgb(255 255 255 / 0.18);
-  --glass-highlight-bottom: rgb(255 255 255 / 0.06);
-  --glass-shadow: 0 10px 30px -6px rgb(0 0 0 / 0.5), 0 2px 6px rgb(0 0 0 / 0.3);
-  --panel: rgb(0 0 0 / 0.8);
-  --glass-solid: #2c2c2e;
-  --scrim: rgb(0 0 0 / 0.5);
+  --ink: #f3e8d2;
+  --ink-2: #dccdb3;
+  --ink-3: #bfae93;
+  --line: rgb(243 232 210 / 0.25);
+  --field: rgb(243 232 210 / 0.12);
+  --hover: rgb(243 232 210 / 0.1);
 }
 
-/* Solid fallbacks: no backdrop-filter support, reduced transparency, or more contrast. */
-@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-  :root,
-  .dark {
-    --glass: var(--glass-solid);
-    --panel: var(--glass-solid);
-  }
-}
-@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-  :root,
-  .dark {
-    --glass: var(--glass-solid);
-    --panel: var(--glass-solid);
-    --card: var(--glass-solid);
-    --glass-blur: none;
-    --panel-blur: none;
-    /* No glow wash here, so the edges are just the background. */
-    --edge-solid: var(--bg);
-  }
-  .app-bg {
-    display: none;
-  }
+.on-paper,
+dialog.sheet,
+dialog.alert {
+  color-scheme: light;
+  --ink: #2a1713;
+  --ink-2: #5d463b;
+  --ink-3: #6f584c;
+  --line: rgb(42 23 19 / 0.22);
+  --field: rgb(42 23 19 / 0.07);
+  --hover: rgb(42 23 19 / 0.06);
+  color: var(--ink);
 }
 
 /* ---------- Base ------------------------------------------------------------ */
-/* Only the root gets the solid colour: an opaque <body> would paint over the
-   fixed glow layer (z-index -1) below it. It's the edge colour, which in-app
-   browsers use for the strips behind the status bar and toolbar. */
 html {
-  background-color: var(--edge-solid);
+  background-color: var(--night);
 }
-
 body {
   position: relative;
   min-height: 100vh;
@@ -168,60 +87,36 @@ body {
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
 }
-
 ::selection {
-  background: var(--accent-soft);
-  color: var(--ink);
+  background: var(--gold);
+  color: #2a1713;
 }
 input,
 textarea {
-  caret-color: var(--accent);
+  caret-color: var(--santa);
 }
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
-/* Sheets take focus themselves on open; no ring around the whole panel. */
+.on-paper :focus-visible,
+dialog :focus-visible {
+  outline-color: var(--santa);
+}
 dialog:focus-visible {
   outline: none;
 }
-
-/* Scrolls with the page behind the fixed wash, in the edge colour: where an
-   in-app browser doesn't draw fixed layers (behind the status bar and its
-   toolbar) this shows instead, so the colour carries on while scrolling. */
-#strip {
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  background: var(--edge-solid);
+* {
+  scrollbar-color: rgb(244 203 108 / 0.5) transparent;
 }
 
-/* Fixed soft wash of four large green glows behind everything. It starts and
-   ends in the edge colour so the page meets those strips without a seam. */
-.app-bg {
+/* The night: a fixed layer of blurred fairy lights behind everything. */
+.night {
   position: fixed;
   inset: 0;
-  /* iOS 26 Safari paints a solid colour under its bottom bar when a fixed
-     element touches the bottom edge (within 3px, 80%+ wide); stopping short
-     lets the page scroll visibly behind the bar. #strip, in the same colour,
-     shows in the gap. */
-  bottom: 6px;
   z-index: -1;
   pointer-events: none;
-  background:
-    linear-gradient(var(--edge-solid), transparent 120px),
-    linear-gradient(transparent calc(100% - 120px), var(--edge-solid)),
-    radial-gradient(48% 38% at 10% 4%, var(--blob-1), transparent 72%),
-    radial-gradient(44% 36% at 95% 22%, var(--blob-2), transparent 72%),
-    radial-gradient(52% 40% at 82% 92%, var(--blob-3), transparent 74%),
-    radial-gradient(46% 36% at 6% 76%, var(--blob-4), transparent 72%),
-    var(--bg);
-}
-
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+  background: var(--night) url("/lights.svg") center / cover no-repeat;
 }
 
 .tnum {
@@ -229,7 +124,7 @@ input[type="number"]::-webkit-outer-spin-button {
   font-feature-settings: "tnum" 1;
 }
 
-/* Half-pixel hairline between rows, inset from both sides of the card. */
+/* Hairline between rows, inset from both sides of the note. */
 .rows > * + * {
   position: relative;
 }
@@ -241,108 +136,218 @@ input[type="number"]::-webkit-outer-spin-button {
   right: 20px;
   height: 1px;
   background: var(--line);
-  transform: scaleY(0.5);
-  transform-origin: top;
 }
 
 /* ---------- Materials ------------------------------------------------------- */
 
-/* Frosted glass for floating controls (nav, toolbars, step tabs). */
-@utility glass {
-  background-color: var(--glass);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
-  border: 0.5px solid var(--glass-border);
-  box-shadow:
-    inset 0 1px 0 var(--glass-highlight),
-    inset 0 -1px 0 var(--glass-highlight-bottom),
-    var(--glass-shadow);
-}
-/* Same look without the blur, for controls sitting on a card (blurring a flat
-   card adds nothing and stacks blurs). */
-@utility glass-flat {
-  background-color: var(--glass);
-  border: 0.5px solid var(--glass-border);
-  box-shadow:
-    inset 0 1px 0 var(--glass-highlight),
-    inset 0 -1px 0 var(--glass-highlight-bottom),
-    0 4px 12px -6px rgb(0 0 0 / 0.12);
-}
-/* Large panels: sheets and dialogs. */
-@utility panel {
-  background-color: var(--panel);
-  -webkit-backdrop-filter: var(--panel-blur);
-  backdrop-filter: var(--panel-blur);
-  border: 0.5px solid var(--glass-border);
-  box-shadow:
-    inset 0 1px 0 var(--glass-highlight),
-    0 24px 60px -12px rgb(0 0 0 / 0.35);
-}
-/* Content layer: slightly see-through, never glass. */
+/* A torn paper note. The paper is its own layer so the rough edge never
+   touches the text; without SVG filter support it's a clean rectangle. */
 @utility card {
-  background-color: var(--card);
-  border-radius: 26px;
-  box-shadow: var(--card-shadow);
+  position: relative;
+  isolation: isolate;
+  border-radius: 6px;
+  --ink: #2a1713;
+  --ink-2: #5d463b;
+  --ink-3: #6f584c;
+  --line: rgb(42 23 19 / 0.22);
+  --field: rgb(42 23 19 / 0.07);
+  --hover: rgb(42 23 19 / 0.06);
+  color-scheme: light;
+  color: var(--ink);
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: 6px;
+    background-color: var(--paper);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .15 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+    filter: url(#torn) drop-shadow(0 10px 18px rgb(0 0 0 / 0.42));
+  }
 }
 
-/* ---------- Controls (all capsules or circles) ------------------------------ */
+/* A ticket: punched half-circles on both short edges, a stitched inner line. */
+@utility ticket {
+  background-color: var(--santa);
+  color: var(--paper-light);
+  border-radius: 8px;
+  outline: 1.5px dashed rgb(251 245 231 / 0.45);
+  outline-offset: -6px;
+  -webkit-mask:
+    radial-gradient(circle 9px at 0 50%, #0000 97%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle 9px at 100% 50%, #0000 97%, #000) right / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle 9px at 0 50%, #0000 97%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle 9px at 100% 50%, #0000 97%, #000) right / 51% 100% no-repeat;
+}
+
+/* ---------- Controls --------------------------------------------------------- */
 @utility press {
-  transition: transform 0.2s var(--ease-spring);
+  transition: transform 0.2s var(--ease-spring), background-color 0.15s ease;
   &:active {
-    transform: scale(0.94);
+    transform: scale(0.96);
   }
 }
 @utility btn {
-  @apply press inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-[17px] font-semibold select-none disabled:pointer-events-none disabled:opacity-40;
+  @apply press inline-flex min-h-12 items-center justify-center gap-2 px-6 font-serif text-[17px] select-none disabled:pointer-events-none disabled:opacity-45;
+  border-radius: 10px;
 }
 @utility btn-primary {
-  @apply btn bg-accent text-accent-ink shadow-[0_8px_20px_-8px_rgb(4_120_87/0.45)];
+  @apply btn ticket;
+  padding-inline: 28px;
+  &:hover {
+    background-color: var(--santa-deep);
+  }
+  &:focus-visible {
+    outline: 2.5px solid var(--gold);
+    outline-offset: -6px;
+  }
 }
+/* The green ticket: positive actions that aren't the page's one main action. */
+@utility btn-green {
+  @apply btn ticket;
+  background-color: var(--accent);
+  padding-inline: 20px;
+  &:hover {
+    background-color: var(--accent-strong);
+  }
+  &:focus-visible {
+    outline: 2.5px solid var(--gold);
+    outline-offset: -6px;
+  }
+}
+/* The cream ticket: every neutral action. */
 @utility btn-secondary {
-  @apply btn glass-flat text-ink;
+  @apply btn ticket;
+  background-color: var(--paper-light);
+  color: #2a1713;
+  outline-color: rgb(42 23 19 / 0.5);
+  padding-inline: 22px;
+  &:hover {
+    background-color: #fff;
+  }
+  &:focus-visible {
+    outline: 2.5px solid var(--santa);
+    outline-offset: -6px;
+  }
 }
 @utility btn-ghost {
-  @apply btn text-accent hover:bg-[var(--hover)];
+  @apply btn;
+  color: var(--gold);
+  &:hover {
+    background-color: rgb(244 203 108 / 0.12);
+  }
 }
-/* 44px glass circle with a 22px line icon (floating toolbars). */
+/* Round die-cut sticker holding an icon. */
 @utility icon-btn {
-  @apply press glass inline-grid size-11 shrink-0 place-items-center rounded-full text-ink;
+  @apply press inline-grid size-11 shrink-0 place-items-center rounded-full;
+  background-color: var(--paper-light);
+  color: #2a1713;
+  box-shadow: 0 0 0 2.5px #fff, 0 6px 14px rgb(0 0 0 / 0.4);
 }
-/* 44px plain circle for actions inside a card row. */
 @utility icon-plain {
   @apply press inline-grid size-11 shrink-0 place-items-center rounded-full text-ink-2 hover:bg-[var(--hover)];
 }
 @utility chip {
-  @apply press glass-flat inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-[15px] font-medium text-ink;
+  @apply press inline-flex min-h-11 items-center gap-2 px-4 font-serif text-[15px];
+  border-radius: 10px;
+  background-color: var(--paper-light);
+  color: #2a1713;
+  border: 1.5px solid rgb(42 23 19 / 0.35);
 }
-/* Selected chip: solid text colour with inverted text. */
-@utility chip-on {
-  @apply press inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-4 text-[15px] font-semibold text-[var(--bg)];
-}
-/* Selected chip, accent-tinted (assigning people). */
-@utility chip-accent {
-  @apply press inline-flex min-h-11 items-center gap-2 rounded-full bg-accent-soft px-4 text-[15px] font-semibold text-accent-strong shadow-[inset_0_0_0_1px_rgb(4_120_87/0.25)];
+/* A name on a small paper tag. */
+@utility tag {
+  background-color: var(--paper-light);
+  border: 1.5px solid rgb(42 23 19 / 0.3);
+  border-radius: 8px;
 }
 @utility input {
-  @apply min-h-12 w-full rounded-full bg-field px-5 text-[17px] text-ink outline-none placeholder:text-ink-3 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-accent;
+  @apply min-h-12 w-full px-4 text-[17px] text-ink outline-none placeholder:text-ink-3;
+  border-radius: 10px;
+  background-color: var(--paper-light);
+  border: 1.5px solid rgb(42 23 19 / 0.3);
+  &:focus-visible {
+    border-color: var(--santa);
+    outline: 2px solid var(--santa);
+    outline-offset: 0;
+  }
 }
 @utility label {
-  @apply text-[13px] text-ink-2;
+  @apply text-[14px] text-ink-2;
 }
 @utility large-title {
-  @apply text-[32px] leading-[1.15] font-bold tracking-[-0.02em] text-ink;
+  @apply font-script text-[56px] leading-[1.05] text-gold;
+}
+
+/* Collage: notes that sit a little off true. Small enough to read and tap. */
+.tilt-l {
+  rotate: -0.7deg;
+}
+.tilt-r {
+  rotate: 0.6deg;
+}
+.nudge-l {
+  margin-right: 10px;
+}
+.nudge-r {
+  margin-left: 10px;
+}
+/* A strip of washi tape holding a note to the page. */
+.taped::after {
+  content: "";
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  width: 92px;
+  height: 22px;
+  translate: -50% 0;
+  rotate: -3deg;
+  background: rgb(240 199 94 / 0.82);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.25);
+  pointer-events: none;
+}
+/* A small die-cut sticker pinned to a note's corner. */
+.gift.pin-sticker {
+  position: absolute;
+  z-index: 2;
+  top: -34px;
+  right: -6px;
+  rotate: 9deg;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 4px rgb(0 0 0 / 0.35));
+}
+/* Two tags for switching view: the chosen one lifts off the page. */
+.tab-tag {
+  min-height: 46px;
+  border-radius: 8px;
+  padding-inline: 10px;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  color: var(--cream);
+  border: 1.5px dashed rgb(244 203 108 / 0.55);
+  transition: transform 0.25s var(--ease-spring);
+}
+.tab-tag[aria-checked="true"] {
+  color: #2a1713;
+  background: var(--paper-light);
+  border: 1.5px solid #fff;
+  box-shadow: 0 8px 16px rgb(0 0 0 / 0.45);
+  transform: translateY(-2px) rotate(-1.2deg);
 }
 
 /* ---------- Sheets and dialogs (native <dialog>) ----------------------------- */
+dialog.sheet,
+dialog.alert {
+  background-color: var(--paper);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 0.6);
+}
 dialog.sheet {
-  /* Inset 8px from the screen edges so the corners sit concentric with the device. */
   margin: auto 8px max(8px, env(safe-area-inset-bottom));
   width: calc(100% - 16px);
   max-width: 640px;
   max-height: min(90dvh, 900px);
   padding: 0;
-  border-radius: 36px;
-  color: var(--ink);
+  border-radius: 18px;
   transform: translateY(0);
   transition:
     transform 0.45s var(--ease-spring),
@@ -362,13 +367,11 @@ dialog.sheet:not([open]) {
     margin: auto auto 24px;
   }
 }
-
 dialog.alert {
   margin: auto;
-  width: min(320px, calc(100% - 48px));
+  width: min(330px, calc(100% - 48px));
   padding: 0;
-  border-radius: 34px;
-  color: var(--ink);
+  border-radius: 18px;
   opacity: 1;
   transform: scale(1);
   transition:
@@ -387,89 +390,24 @@ dialog.alert:not([open]) {
     transform: scale(0.88);
   }
 }
-
 dialog.sheet::backdrop,
 dialog.alert::backdrop {
-  background: var(--scrim);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    transition: none !important;
-    animation: none !important;
-    scroll-behavior: auto !important;
-  }
+  background: rgb(12 6 5 / 0.65);
 }
 
 /* ---------- The gift ---------------------------------------------------------- */
 .gift {
-  position: relative;
-  width: 168px;
-  height: 168px;
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 16px 22px rgb(0 0 0 / 0.5));
 }
-.gift-box,
-.gift-lid {
-  position: absolute;
-  background: var(--santa);
-  box-shadow: inset 0 -10px 18px rgb(0 0 0 / 0.14), 0 18px 34px -16px rgb(120 20 20 / 0.6);
-}
-.gift-box {
-  left: 14px;
-  right: 14px;
-  top: 62px;
-  bottom: 0;
-  border-radius: 8px 8px 24px 24px;
-}
-.gift-lid {
-  left: 0;
-  right: 0;
-  top: 36px;
-  height: 36px;
-  border-radius: 14px;
-  transform-origin: 90% 100%;
-}
-/* The ribbon: one upright band each on box and lid, and a bow from two loops. */
-.gift-box::after,
-.gift-lid::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: calc(50% - 13px);
-  width: 26px;
-  background: var(--ribbon);
-}
-.gift-bow {
-  position: absolute;
-  left: 50%;
-  bottom: 100%;
-  width: 0;
-  height: 0;
-}
-.gift-bow::before,
-.gift-bow::after {
-  content: "";
-  position: absolute;
-  bottom: -3px;
-  width: 40px;
-  height: 28px;
-  border: 8px solid var(--ribbon);
-  border-radius: 50%;
-}
-.gift-bow::before {
-  right: -2px;
-  transform: rotate(22deg);
-  transform-origin: 100% 100%;
-}
-.gift-bow::after {
-  left: -2px;
-  transform: rotate(-22deg);
-  transform-origin: 0 100%;
+.gift-lid,
+.gift-body {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
 }
 .gift-idle {
-  animation: gift-bob 2.4s ease-in-out infinite;
+  animation: gift-bob 2.6s ease-in-out infinite;
 }
 .gift-shake {
   animation: gift-shake 0.65s ease-in-out;
@@ -477,23 +415,13 @@ dialog.alert::backdrop {
 .gift-open .gift-lid {
   animation: lid-off 0.7s var(--ease-spring) both;
 }
-.gift-open .gift-box {
+.gift-open .gift-body {
   animation: box-away 0.6s ease-in 0.15s both;
 }
+/* The tag swings out of the box from its string. */
 .reveal-name {
-  animation: reveal-rise 0.8s var(--ease-spring) 0.35s both;
-}
-@keyframes lid-off {
-  to {
-    transform: translate(46px, -96px) rotate(32deg);
-    opacity: 0;
-  }
-}
-@keyframes box-away {
-  to {
-    transform: translateY(56px) scale(0.92);
-    opacity: 0;
-  }
+  transform-origin: 50% -40px;
+  animation: tag-swing 1.2s var(--ease-spring) 0.35s both;
 }
 @keyframes gift-bob {
   50% {
@@ -514,10 +442,38 @@ dialog.alert::backdrop {
     transform: rotate(4deg);
   }
 }
-@keyframes reveal-rise {
+@keyframes lid-off {
+  to {
+    transform: translate(46px, -110px) rotate(32deg);
+    opacity: 0;
+  }
+}
+@keyframes box-away {
+  to {
+    transform: translateY(56px) scale(0.92);
+    opacity: 0;
+  }
+}
+@keyframes tag-swing {
   from {
     opacity: 0;
-    transform: translateY(26px) scale(0.86);
+    transform: translateY(60px) rotate(-9deg) scale(0.85);
+  }
+  55% {
+    transform: translateY(0) rotate(3deg) scale(1);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-1.5deg);
+  }
+}
+.twinkle {
+  animation: twinkle 3.2s ease-in-out infinite;
+}
+@keyframes twinkle {
+  50% {
+    opacity: 0.35;
+    transform: scale(0.8) rotate(12deg);
   }
 }
 
@@ -539,7 +495,15 @@ dialog.alert::backdrop {
     transform: translate(var(--drift), 108vh) rotate(var(--spin));
   }
 }
+
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
   .fall,
   .gift-open {
     display: none;
