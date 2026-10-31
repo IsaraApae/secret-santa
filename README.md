@@ -12,7 +12,11 @@ Run a gift exchange from one link. Create a group, share the link, and everyone 
   <img src="docs/screenshots/join.jpg" alt="Joining a group with a name and PIN" width="240">
 </p>
 <p>
+  <img src="docs/screenshots/invite.jpg" alt="Organiser page with the invite link" width="240">
   <img src="docs/screenshots/lobby.jpg" alt="Organiser's list of who has joined, with the Draw names button" width="240">
+  <img src="docs/screenshots/edit-people.jpg" alt="Edit people sheet with names and exclusions" width="240">
+</p>
+<p>
   <img src="docs/screenshots/unwrap.jpg" alt="A wrapped gift waiting to be tapped" width="240">
   <img src="docs/screenshots/reveal.jpg" alt="The name you drew, on a gift tag" width="240">
 </p>

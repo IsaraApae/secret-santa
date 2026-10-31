@@ -46,8 +46,8 @@ const en = {
   needThree: "You need at least 3 people to draw names.",
   threeWarn: "With exactly 3 people, your name tells you the whole circle. 4 or more keeps it a real secret.",
   noExclusions: "Couples or housemates can be kept apart. This works both ways.",
-  personA: "Choose a person",
-  personB: "and a person",
+  personA: "Person 1",
+  personB: "Person 2",
   drawNames: "Draw names",
   drawing: "Drawing…",
 
