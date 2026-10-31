@@ -33,6 +33,11 @@
 :root {
   color-scheme: dark;
   --night: #170c0a;
+  /* The lights' average colour along the top and bottom of the screen. Phone
+     browsers fill the strips behind their bars with one solid colour, so the
+     page fades into these to meet them without a seam. */
+  --edge-top: #49211a;
+  --edge-bottom: #2b3424;
   --gold: #f4cb6c;
   --cream: #f3e8d2;
   --paper: #f1e6d0;
@@ -74,7 +79,7 @@ dialog.alert {
 
 /* ---------- Base ------------------------------------------------------------ */
 html {
-  background-color: var(--night);
+  background-color: var(--edge-top);
 }
 body {
   position: relative;
@@ -110,16 +115,88 @@ dialog:focus-visible {
   scrollbar-color: rgb(244 203 108 / 0.5) transparent;
 }
 
-/* The night: blurred fairy lights that scroll with the page. Not a fixed layer:
-   phone browsers don't draw those behind their bars, and can paint a solid
-   strip there when one touches the screen's edge. This way the page itself
-   runs underneath the status bar and toolbar. */
+/* The night: a fixed layer of blurred fairy lights. It stops just short of the
+   bottom because iOS Safari paints a solid colour under its toolbar when a fixed
+   layer touches that edge. Stopping short lets the page show behind the bar. */
 .night {
-  position: absolute;
+  position: fixed;
   inset: 0;
+  bottom: 6px;
   z-index: -1;
   pointer-events: none;
-  background: var(--night) url("/lights.svg") center / cover no-repeat;
+  background:
+    linear-gradient(var(--edge-top), transparent 90px),
+    linear-gradient(transparent calc(100% - 90px), var(--edge-bottom)),
+    var(--night) url("/lights.svg") center / cover no-repeat;
+}
+/* Scrolls with the page behind the lights, for browsers that don't draw fixed
+   layers under their bars, so the colour carries on there while scrolling. */
+.edge-strip {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: linear-gradient(var(--edge-top), var(--edge-bottom));
+}
+
+/* Content blurs as it slides under the top and bottom of the screen. Built from
+   stacked layers, each shorter and stronger, because iOS ignores a
+   backdrop-filter that also has a mask. */
+.edge-blur {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  pointer-events: none;
+  transform: translateZ(0);
+}
+.edge-blur-top {
+  top: 0;
+  height: max(14px, env(safe-area-inset-top));
+}
+.edge-blur-bottom {
+  bottom: 0;
+  height: calc(env(safe-area-inset-bottom) + 64px);
+}
+.edge-blur > span {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+.edge-blur-top > span {
+  top: 0;
+}
+.edge-blur-bottom > span {
+  bottom: 0;
+}
+.edge-blur > span:nth-child(1) {
+  height: 100%;
+  -webkit-backdrop-filter: blur(0.5px);
+  backdrop-filter: blur(0.5px);
+}
+.edge-blur > span:nth-child(2) {
+  height: 80%;
+  -webkit-backdrop-filter: blur(1px);
+  backdrop-filter: blur(1px);
+}
+.edge-blur > span:nth-child(3) {
+  height: 62%;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+.edge-blur > span:nth-child(4) {
+  height: 45%;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+.edge-blur > span:nth-child(5) {
+  height: 30%;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.edge-blur > span:nth-child(6) {
+  height: 16%;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
 }
 
 .tnum {

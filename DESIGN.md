@@ -150,7 +150,7 @@ The style is inspired by the Cultural Fest 2027 Instagram posters. That is a nam
 There is one dark theme and no switch. Paper surfaces use dark ink because they are objects on the night, not a light mode. The interface is English only, while names and wishes people type can be Thai.
 
 **Key Characteristics:**
-- A night of blurred lights behind every screen, scrolling with the page so it runs under the phone browser's bars.
+- A fixed night of blurred lights behind every screen, fading into its own top and bottom colours, with content blurring as it slides under those edges.
 - Content on torn, slightly tilted paper notes.
 - Actions on tickets with punched edges and a stitched inner line.
 - Phone first, one 640px column, with a wider poster hero on large screens.
@@ -257,7 +257,7 @@ An original die-cut present that bobs, shakes when tapped, then loses its lid wh
 ### Do:
 - **Do** put lists, forms and long text on a paper note or sheet, with short script headings and labels on the night.
 - **Do** keep tilts small on things people read: notes at 0.7deg or less, tickets at 1deg. Decorative stickers can go up to 9deg.
-- **Do** draw new artwork as original SVG, and keep the lights backdrop on every page. Keep it scrolling, and set no browser theme colour, so no solid bar appears at the screen's edges.
+- **Do** draw new artwork as original SVG, and keep the lights backdrop on every page, stopping 6px short of the bottom so iOS Safari doesn't paint a solid bar there.
 - **Do** keep shop and app badges in their own brand colours, as those are the only colours from outside this palette.
 
 ### Don't:
