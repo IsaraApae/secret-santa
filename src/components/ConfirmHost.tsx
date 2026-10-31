@@ -7,7 +7,7 @@ import { cx } from "./ui";
 
 type Pending = ConfirmRequest & { resolve: (ok: boolean) => void };
 
-/** Compact centred glass dialog for confirmations; scales in from 88%. */
+/** Compact centred paper dialog for confirmations; scales in from 88%. */
 export function ConfirmHost() {
   const t = useT();
   const [req, setReq] = useState<Pending | null>(null);

@@ -1,0 +1,532 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-31T08:20:49.076Z",
+  "title": "Design System: Secret Santa",
+  "extensions": {
+    "colorMeta": {
+      "night": {
+        "role": "neutral",
+        "displayName": "Night",
+        "canonical": "#170c0a",
+        "tonalRamp": [
+          "oklch(15% 0.020 29.9)",
+          "oklch(26% 0.020 29.9)",
+          "oklch(37% 0.020 29.9)",
+          "oklch(48% 0.020 29.9)",
+          "oklch(59% 0.020 29.9)",
+          "oklch(70% 0.020 29.9)",
+          "oklch(82% 0.020 29.9)",
+          "oklch(95% 0.020 29.9)"
+        ]
+      },
+      "gold": {
+        "role": "tertiary",
+        "displayName": "Fair Gold",
+        "canonical": "#f4cb6c",
+        "tonalRamp": [
+          "oklch(15% 0.123 84.4)",
+          "oklch(26% 0.123 84.4)",
+          "oklch(37% 0.123 84.4)",
+          "oklch(48% 0.123 84.4)",
+          "oklch(59% 0.123 84.4)",
+          "oklch(70% 0.123 84.4)",
+          "oklch(82% 0.123 84.4)",
+          "oklch(95% 0.123 84.4)"
+        ]
+      },
+      "ribbon": {
+        "role": "tertiary",
+        "displayName": "Ribbon Gold",
+        "canonical": "#f0c75e",
+        "tonalRamp": [
+          "oklch(15% 0.131 86.0)",
+          "oklch(26% 0.131 86.0)",
+          "oklch(37% 0.131 86.0)",
+          "oklch(48% 0.131 86.0)",
+          "oklch(59% 0.131 86.0)",
+          "oklch(70% 0.131 86.0)",
+          "oklch(82% 0.131 86.0)",
+          "oklch(95% 0.131 86.0)"
+        ]
+      },
+      "santa": {
+        "role": "primary",
+        "displayName": "Santa Red",
+        "canonical": "#b52a2a",
+        "tonalRamp": [
+          "oklch(15% 0.180 25.5)",
+          "oklch(26% 0.180 25.5)",
+          "oklch(37% 0.180 25.5)",
+          "oklch(48% 0.180 25.5)",
+          "oklch(59% 0.180 25.5)",
+          "oklch(70% 0.180 25.5)",
+          "oklch(82% 0.180 25.5)",
+          "oklch(95% 0.180 25.5)"
+        ]
+      },
+      "santa-deep": {
+        "role": "primary",
+        "displayName": "Santa Red Deep",
+        "canonical": "#8f1f20",
+        "tonalRamp": [
+          "oklch(15% 0.151 25.1)",
+          "oklch(26% 0.151 25.1)",
+          "oklch(37% 0.151 25.1)",
+          "oklch(48% 0.151 25.1)",
+          "oklch(59% 0.151 25.1)",
+          "oklch(70% 0.151 25.1)",
+          "oklch(82% 0.151 25.1)",
+          "oklch(95% 0.151 25.1)"
+        ]
+      },
+      "accent": {
+        "role": "secondary",
+        "displayName": "Evergreen",
+        "canonical": "#1d6b47",
+        "tonalRamp": [
+          "oklch(15% 0.095 158.8)",
+          "oklch(26% 0.095 158.8)",
+          "oklch(37% 0.095 158.8)",
+          "oklch(48% 0.095 158.8)",
+          "oklch(59% 0.095 158.8)",
+          "oklch(70% 0.095 158.8)",
+          "oklch(82% 0.095 158.8)",
+          "oklch(95% 0.095 158.8)"
+        ]
+      },
+      "accent-strong": {
+        "role": "secondary",
+        "displayName": "Evergreen Deep",
+        "canonical": "#14523a",
+        "tonalRamp": [
+          "oklch(15% 0.075 163.0)",
+          "oklch(26% 0.075 163.0)",
+          "oklch(37% 0.075 163.0)",
+          "oklch(48% 0.075 163.0)",
+          "oklch(59% 0.075 163.0)",
+          "oklch(70% 0.075 163.0)",
+          "oklch(82% 0.075 163.0)",
+          "oklch(95% 0.075 163.0)"
+        ]
+      },
+      "accent-ink": {
+        "role": "secondary",
+        "displayName": "Evergreen Ink",
+        "canonical": "#fbf5e7",
+        "tonalRamp": [
+          "oklch(15% 0.020 85.6)",
+          "oklch(26% 0.020 85.6)",
+          "oklch(37% 0.020 85.6)",
+          "oklch(48% 0.020 85.6)",
+          "oklch(59% 0.020 85.6)",
+          "oklch(70% 0.020 85.6)",
+          "oklch(82% 0.020 85.6)",
+          "oklch(95% 0.020 85.6)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#f1e6d0",
+        "tonalRamp": [
+          "oklch(15% 0.032 82.7)",
+          "oklch(26% 0.032 82.7)",
+          "oklch(37% 0.032 82.7)",
+          "oklch(48% 0.032 82.7)",
+          "oklch(59% 0.032 82.7)",
+          "oklch(70% 0.032 82.7)",
+          "oklch(82% 0.032 82.7)",
+          "oklch(95% 0.032 82.7)"
+        ]
+      },
+      "paper-light": {
+        "role": "neutral",
+        "displayName": "Bright Paper",
+        "canonical": "#fbf5e7",
+        "tonalRamp": [
+          "oklch(15% 0.020 85.6)",
+          "oklch(26% 0.020 85.6)",
+          "oklch(37% 0.020 85.6)",
+          "oklch(48% 0.020 85.6)",
+          "oklch(59% 0.020 85.6)",
+          "oklch(70% 0.020 85.6)",
+          "oklch(82% 0.020 85.6)",
+          "oklch(95% 0.020 85.6)"
+        ]
+      },
+      "cream": {
+        "role": "neutral",
+        "displayName": "Cream",
+        "canonical": "#f3e8d2",
+        "tonalRamp": [
+          "oklch(15% 0.032 82.7)",
+          "oklch(26% 0.032 82.7)",
+          "oklch(37% 0.032 82.7)",
+          "oklch(48% 0.032 82.7)",
+          "oklch(59% 0.032 82.7)",
+          "oklch(70% 0.032 82.7)",
+          "oklch(82% 0.032 82.7)",
+          "oklch(95% 0.032 82.7)"
+        ]
+      },
+      "ink-2-night": {
+        "role": "neutral",
+        "displayName": "Cream Secondary",
+        "canonical": "#dccdb3",
+        "tonalRamp": [
+          "oklch(15% 0.039 79.5)",
+          "oklch(26% 0.039 79.5)",
+          "oklch(37% 0.039 79.5)",
+          "oklch(48% 0.039 79.5)",
+          "oklch(59% 0.039 79.5)",
+          "oklch(70% 0.039 79.5)",
+          "oklch(82% 0.039 79.5)",
+          "oklch(95% 0.039 79.5)"
+        ]
+      },
+      "ink-3-night": {
+        "role": "neutral",
+        "displayName": "Cream Tertiary",
+        "canonical": "#bfae93",
+        "tonalRamp": [
+          "oklch(15% 0.042 77.4)",
+          "oklch(26% 0.042 77.4)",
+          "oklch(37% 0.042 77.4)",
+          "oklch(48% 0.042 77.4)",
+          "oklch(59% 0.042 77.4)",
+          "oklch(70% 0.042 77.4)",
+          "oklch(82% 0.042 77.4)",
+          "oklch(95% 0.042 77.4)"
+        ]
+      },
+      "line-night": {
+        "role": "neutral",
+        "displayName": "Night Line",
+        "canonical": "rgb(243 232 210 / 0.25)"
+      },
+      "ink-paper": {
+        "role": "neutral",
+        "displayName": "Paper Ink",
+        "canonical": "#2a1713",
+        "tonalRamp": [
+          "oklch(15% 0.033 31.7)",
+          "oklch(26% 0.033 31.7)",
+          "oklch(37% 0.033 31.7)",
+          "oklch(48% 0.033 31.7)",
+          "oklch(59% 0.033 31.7)",
+          "oklch(70% 0.033 31.7)",
+          "oklch(82% 0.033 31.7)",
+          "oklch(95% 0.033 31.7)"
+        ]
+      },
+      "ink-2-paper": {
+        "role": "neutral",
+        "displayName": "Paper Ink Secondary",
+        "canonical": "#5d463b",
+        "tonalRamp": [
+          "oklch(15% 0.037 45.5)",
+          "oklch(26% 0.037 45.5)",
+          "oklch(37% 0.037 45.5)",
+          "oklch(48% 0.037 45.5)",
+          "oklch(59% 0.037 45.5)",
+          "oklch(70% 0.037 45.5)",
+          "oklch(82% 0.037 45.5)",
+          "oklch(95% 0.037 45.5)"
+        ]
+      },
+      "ink-3-paper": {
+        "role": "neutral",
+        "displayName": "Paper Ink Tertiary",
+        "canonical": "#6f584c",
+        "tonalRamp": [
+          "oklch(15% 0.037 47.6)",
+          "oklch(26% 0.037 47.6)",
+          "oklch(37% 0.037 47.6)",
+          "oklch(48% 0.037 47.6)",
+          "oklch(59% 0.037 47.6)",
+          "oklch(70% 0.037 47.6)",
+          "oklch(82% 0.037 47.6)",
+          "oklch(95% 0.037 47.6)"
+        ]
+      },
+      "line-paper": {
+        "role": "neutral",
+        "displayName": "Paper Line",
+        "canonical": "rgb(42 23 19 / 0.22)"
+      },
+      "danger": {
+        "role": "neutral",
+        "displayName": "Alert Red",
+        "canonical": "#a4231f",
+        "tonalRamp": [
+          "oklch(15% 0.169 27.0)",
+          "oklch(26% 0.169 27.0)",
+          "oklch(37% 0.169 27.0)",
+          "oklch(48% 0.169 27.0)",
+          "oklch(59% 0.169 27.0)",
+          "oklch(70% 0.169 27.0)",
+          "oklch(82% 0.169 27.0)",
+          "oklch(95% 0.169 27.0)"
+        ]
+      },
+      "warn": {
+        "role": "neutral",
+        "displayName": "Warning Brown",
+        "canonical": "#7c5208",
+        "tonalRamp": [
+          "oklch(15% 0.098 71.8)",
+          "oklch(26% 0.098 71.8)",
+          "oklch(37% 0.098 71.8)",
+          "oklch(48% 0.098 71.8)",
+          "oklch(59% 0.098 71.8)",
+          "oklch(70% 0.098 71.8)",
+          "oklch(82% 0.098 71.8)",
+          "oklch(95% 0.098 71.8)"
+        ]
+      },
+      "warn-soft": {
+        "role": "neutral",
+        "displayName": "Warning Pill",
+        "canonical": "#f6e2ae",
+        "tonalRamp": [
+          "oklch(15% 0.071 87.6)",
+          "oklch(26% 0.071 87.6)",
+          "oklch(37% 0.071 87.6)",
+          "oklch(48% 0.071 87.6)",
+          "oklch(59% 0.071 87.6)",
+          "oklch(70% 0.071 87.6)",
+          "oklch(82% 0.071 87.6)",
+          "oklch(95% 0.071 87.6)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The home page's Secret Santa."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page titles and group names."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Section headings above notes."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Every button."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Chips, tabs, tickets and sticker labels."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Reading text."
+      },
+      "body-small": {
+        "displayName": "Body Small",
+        "purpose": "Notes and callouts."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Fine print."
+      }
+    },
+    "shadows": [
+      {
+        "name": "note",
+        "value": "drop-shadow(0 10px 18px rgb(0 0 0 / 0.42))",
+        "purpose": "Filter on every paper note."
+      },
+      {
+        "name": "sticker",
+        "value": "0 0 0 2.5px #fff, 0 6px 14px rgb(0 0 0 / 0.4)",
+        "purpose": "Round sticker buttons."
+      },
+      {
+        "name": "lifted-tag",
+        "value": "0 8px 16px rgb(0 0 0 / 0.45)",
+        "purpose": "The chosen tab."
+      },
+      {
+        "name": "sheet",
+        "value": "0 24px 60px rgb(0 0 0 / 0.6)",
+        "purpose": "Sheets and alerts."
+      },
+      {
+        "name": "gift",
+        "value": "drop-shadow(0 16px 22px rgb(0 0 0 / 0.5))",
+        "purpose": "The gift artwork."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-spring",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Press, tabs, sheets, alerts and the gift reveal."
+      },
+      {
+        "name": "press",
+        "value": "transform 0.2s",
+        "purpose": "Controls scale to 0.96 when pressed."
+      },
+      {
+        "name": "sheet",
+        "value": "0.45s",
+        "purpose": "Sheet slides up."
+      },
+      {
+        "name": "alert",
+        "value": "0.35s",
+        "purpose": "Alert scales in from 0.88."
+      },
+      {
+        "name": "gift-bob",
+        "value": "2.6s ease-in-out infinite",
+        "purpose": "The idle gift."
+      },
+      {
+        "name": "tag-swing",
+        "value": "1.2s, delayed 0.35s",
+        "purpose": "The name tag swinging out of the box."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sheet",
+        "value": "656px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Red Ticket",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The view's main action.",
+      "html": "<button class=\"ds-btn-primary\">Start a draw</button>",
+      "css": ".ds-btn-primary{display:inline-flex;min-height:48px;align-items:center;justify-content:center;gap:8px;padding-inline:28px;font:17px var(--font-display),var(--font-thai),Georgia,serif;background-color:var(--santa);color:var(--paper-light);border:0;border-radius:8px;outline:1.5px dashed rgb(251 245 231 / 0.45);outline-offset:-6px;-webkit-mask:radial-gradient(circle 9px at 0 50%,#0000 97%,#000) left/51% 100% no-repeat,radial-gradient(circle 9px at 100% 50%,#0000 97%,#000) right/51% 100% no-repeat;mask:radial-gradient(circle 9px at 0 50%,#0000 97%,#000) left/51% 100% no-repeat,radial-gradient(circle 9px at 100% 50%,#0000 97%,#000) right/51% 100% no-repeat;transition:transform .2s cubic-bezier(.16,1,.3,1),background-color .15s ease}.ds-btn-primary:hover{background-color:var(--santa-deep)}.ds-btn-primary:focus-visible{outline:2.5px solid var(--gold);outline-offset:-6px}.ds-btn-primary:active{transform:scale(.96)}"
+    },
+    {
+      "name": "Green Ticket",
+      "kind": "button",
+      "refersTo": "button-green",
+      "description": "A positive action that is not the main one.",
+      "html": "<button class=\"ds-btn-green\">Save</button>",
+      "css": ".ds-btn-green{display:inline-flex;min-height:48px;align-items:center;justify-content:center;gap:8px;padding-inline:20px;font:17px var(--font-display),var(--font-thai),Georgia,serif;background-color:var(--accent);color:var(--paper-light);border:0;border-radius:8px;outline:1.5px dashed rgb(251 245 231 / 0.45);outline-offset:-6px;-webkit-mask:radial-gradient(circle 9px at 0 50%,#0000 97%,#000) left/51% 100% no-repeat,radial-gradient(circle 9px at 100% 50%,#0000 97%,#000) right/51% 100% no-repeat;mask:radial-gradient(circle 9px at 0 50%,#0000 97%,#000) left/51% 100% no-repeat,radial-gradient(circle 9px at 100% 50%,#0000 97%,#000) right/51% 100% no-repeat;transition:transform .2s cubic-bezier(.16,1,.3,1),background-color .15s ease}.ds-btn-green:hover{background-color:var(--accent-strong)}.ds-btn-green:focus-visible{outline:2.5px solid var(--gold);outline-offset:-6px}.ds-btn-green:active{transform:scale(.96)}"
+    },
+    {
+      "name": "Cream Ticket",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Every neutral action.",
+      "html": "<button class=\"ds-btn-secondary\">Copy link</button>",
+      "css": ".ds-btn-secondary{display:inline-flex;min-height:48px;align-items:center;justify-content:center;gap:8px;padding-inline:22px;font:17px var(--font-display),var(--font-thai),Georgia,serif;background-color:var(--paper-light);color:#2a1713;border:0;border-radius:8px;outline:1.5px dashed rgb(42 23 19 / 0.5);outline-offset:-6px;-webkit-mask:radial-gradient(circle 9px at 0 50%,#0000 97%,#000) left/51% 100% no-repeat,radial-gradient(circle 9px at 100% 50%,#0000 97%,#000) right/51% 100% no-repeat;mask:radial-gradient(circle 9px at 0 50%,#0000 97%,#000) left/51% 100% no-repeat,radial-gradient(circle 9px at 100% 50%,#0000 97%,#000) right/51% 100% no-repeat;transition:transform .2s cubic-bezier(.16,1,.3,1),background-color .15s ease}.ds-btn-secondary:hover{background-color:#fff}.ds-btn-secondary:focus-visible{outline:2.5px solid var(--santa);outline-offset:-6px}.ds-btn-secondary:active{transform:scale(.96)}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "A quiet gold action on the night.",
+      "html": "<button class=\"ds-btn-ghost\">Sign out</button>",
+      "css": ".ds-btn-ghost{display:inline-flex;min-height:48px;align-items:center;padding-inline:24px;font:15px var(--font-display),var(--font-thai),Georgia,serif;color:var(--gold);background:none;border:0;border-radius:10px;transition:transform .2s cubic-bezier(.16,1,.3,1),background-color .15s ease}.ds-btn-ghost:hover{background-color:rgb(244 203 108 / .12)}.ds-btn-ghost:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.ds-btn-ghost:active{transform:scale(.96)}"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Bright paper field on a note or sheet.",
+      "html": "<input class=\"ds-input\" placeholder=\"Name\" aria-label=\"Name\">",
+      "css": ".ds-input{min-height:48px;width:100%;padding-inline:16px;font:17px var(--font-body),var(--font-thai),system-ui,sans-serif;color:#2a1713;background:var(--paper-light);border:1.5px solid rgb(42 23 19 / .3);border-radius:10px;caret-color:var(--santa);outline:none}.ds-input::placeholder{color:#6f584c}.ds-input:focus-visible{border-color:var(--santa);outline:2px solid var(--santa)}"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "A small paper action in a row.",
+      "html": "<a class=\"ds-chip\" href=\"#\">Manage</a>",
+      "css": ".ds-chip{display:inline-flex;min-height:44px;align-items:center;gap:8px;padding-inline:16px;font:15px var(--font-display),var(--font-thai),Georgia,serif;color:#2a1713;text-decoration:none;background:var(--paper-light);border:1.5px solid rgb(42 23 19 / .35);border-radius:10px;transition:transform .2s cubic-bezier(.16,1,.3,1)}.ds-chip:focus-visible{outline:2px solid var(--santa);outline-offset:2px}.ds-chip:active{transform:scale(.96)}"
+    },
+    {
+      "name": "Paper Note",
+      "kind": "card",
+      "refersTo": "note",
+      "description": "Carries content. The torn edge comes from an inline SVG filter in the app, so this preview shows the clean fallback.",
+      "html": "<div class=\"ds-note\">Set up a gift exchange in a minute.</div>",
+      "css": ".ds-note{padding:16px 20px;font:17px/1.45 var(--font-body),var(--font-thai),system-ui,sans-serif;color:#2a1713;background:var(--paper);border-radius:6px;filter:drop-shadow(0 10px 18px rgb(0 0 0 / .42));rotate:-.7deg}"
+    },
+    {
+      "name": "Sticker Button",
+      "kind": "custom",
+      "refersTo": "sticker-button",
+      "description": "A round die-cut holding a line icon.",
+      "html": "<button class=\"ds-sticker\" aria-label=\"Close\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M18 6 6 18M6 6l12 12\"/></svg></button>",
+      "css": ".ds-sticker{display:inline-grid;width:44px;height:44px;place-items:center;color:#2a1713;background:var(--paper-light);border:0;border-radius:9999px;box-shadow:0 0 0 2.5px #fff,0 6px 14px rgb(0 0 0 / .4);transition:transform .2s cubic-bezier(.16,1,.3,1)}.ds-sticker:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.ds-sticker:active{transform:scale(.96)}"
+    },
+    {
+      "name": "Tab Tag",
+      "kind": "custom",
+      "refersTo": "chip",
+      "description": "Switches view; the chosen tag lifts off the page.",
+      "html": "<div class=\"ds-tabs\"><button class=\"ds-tab ds-tab-on\">Status</button><button class=\"ds-tab\">Messages</button></div>",
+      "css": ".ds-tabs{display:flex;gap:10px}.ds-tab{flex:1;min-height:46px;padding-inline:10px;font:15px var(--font-display),var(--font-thai),Georgia,serif;color:var(--cream);background:none;border:1.5px dashed rgb(244 203 108 / .55);border-radius:8px;transition:transform .25s cubic-bezier(.16,1,.3,1)}.ds-tab-on{color:#2a1713;background:var(--paper-light);border:1.5px solid #fff;box-shadow:0 8px 16px rgb(0 0 0 / .45);transform:translateY(-2px) rotate(-1.2deg)}.ds-tab:focus-visible{outline:2px solid var(--gold);outline-offset:2px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Christmas Fair Poster",
+    "overview": "A gift exchange should feel like the poster for a Christmas fair, not a tidy app. Gold script sits on a night of blurred red, green and gold lights, and everything you read or touch is a physical scrap laid on top: torn paper notes, punched tickets, gift tags, die-cut stickers and calendar pages.\n\nThe style is inspired by the Cultural Fest 2027 Instagram posters. That is a named inspiration only. All artwork here is original, and that page's logo, photos and wording are never reused.\n\nThere is one dark theme and no switch. Paper surfaces use dark ink because they are objects on the night, not a light mode. The interface is English only, while names and wishes people type can be Thai.",
+    "keyCharacteristics": [
+      "A fixed night of blurred lights behind every screen.",
+      "Content on torn, slightly tilted paper notes.",
+      "Actions on tickets with punched edges and a stitched inner line.",
+      "Phone first, one 640px column, with a wider poster hero on large screens."
+    ],
+    "rules": [
+      {
+        "name": "The Surface Ink Rule",
+        "body": "Text colour follows the surface: cream on the night, dark ink on paper. Gold text belongs on the night or on red, never on paper.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ticket Colour Rule",
+        "body": "Red is the view's main action, green a positive action that is not the main one, and cream every neutral action.",
+        "section": "colors"
+      },
+      {
+        "name": "The Script Heading Rule",
+        "body": "Headings use Yellowtail. Sheet and alert titles (Bree Serif, 19-20px) and the not-found heading (Figtree bold, 22px) do not follow it yet, and are drift rather than a pattern to copy.",
+        "section": "typography"
+      },
+      {
+        "name": "The Thai Partner Rule",
+        "body": "Every face keeps its Thai partner in the stack, because any name or wish can be Thai. Headings use Sriracha. Labels and body use Sarabun.",
+        "section": "typography"
+      },
+      {
+        "name": "The Die-Cut Rule",
+        "body": "A sticker has a solid white edge with its soft shadow beneath. That edge marks it as cut out, so paper notes and tickets do not get one.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do put lists, forms and long text on a paper note or sheet, with short script headings and labels on the night.",
+      "Do keep tilts small on things people read: notes at 0.7deg or less, tickets at 1deg. Decorative stickers can go up to 9deg.",
+      "Do draw new artwork as original SVG, and keep the fixed lights backdrop on every page.",
+      "Do keep shop and app badges in their own brand colours, as those are the only colours from outside this palette."
+    ],
+    "donts": [
+      "Don't reuse the logo, photos or wording of Cultural Fest 2027.",
+      "Don't add a light theme or a theme switch.",
+      "Don't translate the interface into Thai, or remove a Thai font from a stack.",
+      "Don't set reading text in Yellowtail, or set body copy in Bree Serif.",
+      "Don't add fixed top bars, tab bars or floating buttons.",
+      "Don't add new motion without a reduced-motion path."
+    ]
+  }
+}

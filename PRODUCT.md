@@ -16,7 +16,7 @@ Draw names for a gift exchange from one shared link. Success: everyone gets thei
 
 ## Positioning
 
-The organiser never receives the results. Each person picks their own name, sets a PIN and unwraps who they drew, and Santa and their person can message anonymously.
+The organiser never receives the results and never types a list of names. Each person joins from one link with their name and a PIN, the organiser draws once everyone is in, and each person unwraps who they drew. Santa and their person can message anonymously, and people can guess their Santa before a reveal that shows only who was right.
 
 ## Operating Context
 

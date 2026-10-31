@@ -66,7 +66,7 @@ export function Callout({
   );
 }
 
-/** A 13px secondary label sitting above a card, with an optional action on the right. */
+/** A gold script heading above a note, with an optional action on the right. */
 export function Section({ title, action, children }: { title: ReactNode; action?: ReactNode; children: ReactNode }) {
   return (
     <section className="space-y-2">
@@ -82,7 +82,7 @@ export function Section({ title, action, children }: { title: ReactNode; action?
 // ---------- Bottom sheet ------------------------------------------------------
 
 /**
- * Glass sheet on a native <dialog> (focus trap, Esc, inert background for
+ * Paper sheet on a native <dialog> (focus trap, Esc, inert background for
  * free). Slides up; close circle at top left, optional filled confirm circle
  * at top right. Swipe the handle down or tap outside to close.
  */

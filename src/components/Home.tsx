@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, ShieldCheck } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { myGroups, type SavedGroup } from "@/lib/client/store";
@@ -77,10 +77,6 @@ export function Home() {
         </ol>
       </Section>
 
-      <p className="flex items-center justify-center gap-2 px-4 text-center font-serif text-[15px] text-gold">
-        <ShieldCheck size={18} {...ICON} aria-hidden className="shrink-0" />
-        {t("privateHome")}
-      </p>
     </>
   );
 }
