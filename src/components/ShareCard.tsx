@@ -1,7 +1,6 @@
 "use client";
 
 import { Check, Copy, QrCode, Share } from "lucide-react";
-import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 import { useT } from "@/lib/i18n";
 import { ICON, Section } from "./ui";
@@ -34,7 +33,10 @@ export function ShareCard({ url, groupName }: { url: string; groupName: string }
   }, []);
 
   async function toggleQr() {
-    setQr(qr ? "" : await QRCode.toDataURL(url, { width: 560, margin: 1 }));
+    if (qr) return setQr("");
+    // Loaded on first use: most visits never open the QR code.
+    const { toDataURL } = await import("qrcode");
+    setQr(await toDataURL(url, { width: 560, margin: 1 }));
   }
 
   return (
