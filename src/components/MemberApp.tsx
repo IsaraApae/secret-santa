@@ -521,15 +521,18 @@ function GiftSearch({ likes, budget }: { likes: string; budget: number | null })
     ["shopee", `https://shopee.co.th/search?keyword=${q}`],
     ["lazada", `https://www.lazada.co.th/catalog/?q=${q}`],
     ["tiktok", `https://www.tiktok.com/search?q=${q}`],
+    ["taobao", `https://s.taobao.com/search?q=${q}`],
+    ["aliexpress", `https://www.aliexpress.com/wholesale?SearchText=${q}`],
+    ["temu", `https://www.temu.com/search_result.html?search_key=${q}`],
   ];
   return (
     <Section title={t("findGift")}>
       <div className="card tilt-r nudge-r space-y-3 p-4">
         <p className="px-1 text-[13px] text-ink-2">{budget !== null ? t("findGiftHint", { budget: baht(budget) }) : t("findGiftHintNoBudget")}</p>
         <input className="input" maxLength={60} value={query} aria-label={t("searchWord")} onChange={(e) => setQuery(e.target.value)} />
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {shops.map(([shop, url]) => (
-            <a key={shop} href={url} target="_blank" rel="noreferrer noopener" className="btn-secondary h-11 gap-1.5 px-2 text-[13px]">
+            <a key={shop} href={url} target="_blank" rel="noreferrer noopener" className="btn-secondary h-11 gap-1.5 !px-3 text-[15px]">
               <Search size={15} {...ICON} aria-hidden className="shrink-0" />
               <span className="truncate">{SHOP_LABEL[shop]}</span>
             </a>
@@ -546,6 +549,15 @@ const SHOP_STYLE: Record<Shop, string> = {
   shopee: "bg-[#ee4d2d] text-white",
   lazada: "bg-[#1a1a7a] text-white",
   tiktok: "bg-[#111] text-white ring-1 ring-white/20",
+  taobao: "bg-[#c94f00] text-white",
+  tmall: "bg-[#c8102e] text-white",
+  jd: "bg-[#c8161d] text-white",
+  aliexpress: "bg-[#c9360f] text-white",
+  temu: "bg-[#c2500c] text-white",
+  shein: "bg-[#111] text-white",
+  amazon: "bg-[#232f3e] text-white",
+  ebay: "bg-[#0654ba] text-white",
+  etsy: "bg-[#b84a12] text-white",
 };
 
 function ShopBadge({ shop }: { shop: Shop }) {

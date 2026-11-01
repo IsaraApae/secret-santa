@@ -1,6 +1,19 @@
-export type Shop = "shopee" | "lazada" | "tiktok";
+export type Shop = "shopee" | "lazada" | "tiktok" | "taobao" | "tmall" | "jd" | "aliexpress" | "temu" | "shein" | "amazon" | "ebay" | "etsy";
 
-export const SHOP_LABEL: Record<Shop, string> = { shopee: "Shopee", lazada: "Lazada", tiktok: "TikTok Shop" };
+export const SHOP_LABEL: Record<Shop, string> = {
+  shopee: "Shopee",
+  lazada: "Lazada",
+  tiktok: "TikTok Shop",
+  taobao: "Taobao",
+  tmall: "Tmall",
+  jd: "JD",
+  aliexpress: "AliExpress",
+  temu: "Temu",
+  shein: "SHEIN",
+  amazon: "Amazon",
+  ebay: "eBay",
+  etsy: "Etsy",
+};
 
 // Country endings only (.co.th, .com.my, .sg): `shopee.co.th.evil.example` must not match.
 const COUNTRY = String.raw`(com|(co|com)\.[a-z]{2}|[a-z]{2})`;
@@ -8,6 +21,15 @@ const HOSTS: [RegExp, Shop][] = [
   [new RegExp(String.raw`(^|\.)(shopee\.${COUNTRY}|shp\.ee|shope\.ee)$`), "shopee"],
   [new RegExp(String.raw`(^|\.)(lazada\.${COUNTRY}|lzd\.co)$`), "lazada"],
   [/(^|\.)tiktok\.com$/, "tiktok"],
+  [/(^|\.)(taobao\.com|tb\.cn)$/, "taobao"],
+  [/(^|\.)tmall\.(com|hk)$/, "tmall"],
+  [/(^|\.)(jd\.com|3\.cn)$/, "jd"],
+  [new RegExp(String.raw`(^|\.)aliexpress\.(us|${COUNTRY})$`), "aliexpress"],
+  [new RegExp(String.raw`(^|\.)temu\.${COUNTRY}$`), "temu"],
+  [new RegExp(String.raw`(^|\.)(shein\.${COUNTRY}|shein\.top)$`), "shein"],
+  [new RegExp(String.raw`(^|\.)(amazon\.${COUNTRY}|amzn\.(to|asia|eu)|a\.co)$`), "amazon"],
+  [new RegExp(String.raw`(^|\.)(ebay\.${COUNTRY}|ebay\.to)$`), "ebay"],
+  [/(^|\.)(etsy\.com|etsy\.me)$/, "etsy"],
 ];
 
 /** Only http(s) links, so a pasted `javascript:` link can never reach an href. */
@@ -35,7 +57,8 @@ function nameFromPath(url: string): string {
     const last = new URL(url).pathname.split("/").filter(Boolean).pop() ?? "";
     const name = decodeURIComponent(last)
       .replace(/\.html$/, "")
-      .replace(/-i\.?\d+[.-]s?\d+.*$/, "");
+      .replace(/-i\.?\d+[.-]s?\d+.*$/, "")
+      .replace(/-[gp]-\d+$/, "");
     return name === last || !/\D/.test(name) ? "" : name.replace(/[-_]+/g, " ").trim();
   } catch {
     return "";
@@ -48,7 +71,8 @@ function nameFromPath(url: string): string {
  * pages, so the title comes from the pasted text and the person can edit it.
  */
 export function parseShopPaste(text: string): { url: string; title: string; shop: Shop | null } | null {
-  const raw = text.match(/https?:\/\/[^\s<>"']+/)?.[0];
+  // Stops at Chinese text and punctuation, which Taobao's share text runs straight into its link.
+  const raw = text.match(/https?:\/\/[^\s<>"'\u3000-\u303f\u4e00-\u9fff\uff00-\uffef]+/)?.[0];
   const url = raw && safeUrl(raw);
   if (!url) return null;
   const sentence = text.replace(raw, " ").replace(/\s+/g, " ").trim();

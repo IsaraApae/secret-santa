@@ -24,7 +24,7 @@ Set up in a minute, shared in a group chat, then opened repeatedly in the weeks 
 
 ## Capabilities and Constraints
 
-English only. Budgets are in baht. Wish lists recognise Shopee, Lazada and TikTok Shop links, but shops block fetching product details. Names and wishes people type can be in any language, including Thai.
+English only. Budgets are in baht. Wish lists accept any shop link and recognise Shopee, Lazada, TikTok Shop, Taobao, Tmall, JD, AliExpress, Temu, SHEIN, Amazon, eBay and Etsy, but shops block fetching product details. Names and wishes people type can be in any language, including Thai.
 
 ## Brand Commitments
 

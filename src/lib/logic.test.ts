@@ -95,6 +95,31 @@ test("shop links", () => {
   assert.equal(shared?.title, "ดูแก้วน้ำใบนี้สิ ราคา ฿199 ที่ Shopee!");
   assert.equal(shared?.shop, "shopee");
 
+  for (const [url, shop] of [
+    ["https://item.taobao.com/item.htm?id=1", "taobao"],
+    ["https://m.tb.cn/h.abc", "taobao"],
+    ["https://detail.tmall.com/item.htm?id=1", "tmall"],
+    ["https://item.jd.com/1.html", "jd"],
+    ["https://th.aliexpress.com/item/1.html", "aliexpress"],
+    ["https://a.aliexpress.com/_abc", "aliexpress"],
+    ["https://www.temu.com/th/x-g-601.html", "temu"],
+    ["https://th.shein.com/x-p-1.html", "shein"],
+    ["https://www.amazon.co.jp/dp/B01", "amazon"],
+    ["https://www.amazon.com/dp/B01", "amazon"],
+    ["https://amzn.to/abc", "amazon"],
+    ["https://www.ebay.com/itm/1", "ebay"],
+    ["https://www.etsy.com/listing/1/x", "etsy"],
+  ] as const) assert.equal(shopOf(url), shop, url);
+  assert.equal(shopOf("https://taobao.com.evil.example/x"), null);
+  assert.equal(shopOf("https://nottaobao.com/x"), null);
+  assert.equal(shopOf("https://amazon.co.th.evil.example/x"), null);
+  assert.equal(parseShopPaste("https://www.temu.com/th/pink-mug-g-601.html")?.title, "pink mug");
+  assert.equal(parseShopPaste("https://www.amazon.com/dp/B01")?.title, "");
+  const tb = parseShopPaste("【淘宝】https://m.tb.cn/h.abc?tk=xY1「粉色杯子」点击链接");
+  assert.equal(tb?.url, "https://m.tb.cn/h.abc?tk=xY1");
+  assert.equal(tb?.shop, "taobao");
+  assert.equal(tb?.title, "【淘宝】 「粉色杯子」点击链接");
+
   assert.equal(parseShopPaste("no link here"), null);
   assert.equal(safeUrl("javascript:alert(1)"), null);
   assert.equal(parseShopPaste("javascript:alert(1)"), null);
