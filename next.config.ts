@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   async headers() {
     return [
+      { source: "/lights.webp", headers: [{ key: "Cache-Control", value: "public, max-age=604800" }] },
       {
         source: "/:path*",
         headers: [
