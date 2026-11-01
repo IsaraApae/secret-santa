@@ -44,9 +44,9 @@ The screenshots use a demo group with made-up names.
 **Taking part**
 - **Join with your name and a 4-digit PIN.** The PIN opens your page on another phone.
 - **Unwrap a gift** to see who you drew, with falling snow and confetti. It wraps itself again on each visit, so the name is never on screen by surprise.
-- **Wish lists:** paste a link from Shopee, Lazada or TikTok Shop. The site recognises the shop and fills in the product name when the link includes one.
+- **Wish lists:** paste a link from any shop. The site recognises Shopee, Lazada, TikTok Shop, Taobao, Tmall, JD, AliExpress, Temu, SHEIN, Amazon, eBay and Etsy, and fills in the product name when the link includes one.
 - **A few things about you:** likes, sizes and "please no", for people without links to add.
-- **Gift search:** search the three shops, starting from what your person likes.
+- **Gift search:** search Shopee, Lazada, TikTok, Taobao, AliExpress and Temu, starting from what your person likes.
 - **Anonymous messages:** ask your person a question. They see "Your Santa" and can reply without learning who asked.
 - **Guess your Santa:** pick who you think drew you, and change your mind until the organiser shows the results. The table shows only who was right, not who they named.
 
