@@ -38,8 +38,10 @@
   --night: #2c2825;
   /* One solid colour for the page's top and bottom edges. Phone browsers fill
      the strips behind their status bar and toolbar with a single colour, and
-     fixed layers aren't drawn there, so the page has to meet it without a seam. */
-  --edge: #2c2825;
+     fixed layers aren't drawn there, so the page has to meet it without a seam.
+     It's the maroon along the top of the lights under their tint, so the
+     header and footer read as the same night as the rest of the page. */
+  --edge: #451f19;
   /* Cultural Fest CI: #E2D3BC cards, #AB2828 red, #126E29 green, #E2C75C gold
      for text on the background, #FAF9F6 sticker outlines, #2C2825 text. */
   --gold: #e2c75c;
