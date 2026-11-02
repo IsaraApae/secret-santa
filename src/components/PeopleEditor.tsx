@@ -29,7 +29,12 @@ export function PeopleEditor({
   const [a, setA] = useState("");
   const [b, setB] = useState("");
   const nameOf = (id: string) => people.find((p) => p.id === id)?.name ?? "";
-  const byName = [...people].sort((x, y) => x.name.localeCompare(y.name, ["en", "th"], { sensitivity: "base", numeric: true }));
+  const cmp = (x: string, y: string) => x.localeCompare(y, ["en", "th"], { sensitivity: "base", numeric: true });
+  const byName = [...people].sort((x, y) => cmp(x.name, y.name));
+  // Each pair shown A to Z inside (it works both ways), then the pairs A to Z by first name, then second.
+  const sortedPairs = pairs
+    .map((pair) => ({ pair, names: [nameOf(pair[0]), nameOf(pair[1])].sort(cmp) }))
+    .sort((x, y) => cmp(x.names[0], y.names[0]) || cmp(x.names[1], y.names[1]));
 
   function addNames() {
     const added = name
@@ -136,11 +141,11 @@ export function PeopleEditor({
             </div>
             {pairs.length > 0 && (
               <ul className="flex flex-wrap gap-2">
-                {pairs.map((pair) => (
+                {sortedPairs.map(({ pair, names }) => (
                   <li key={pair.join()} className="inline-flex min-h-11 items-center gap-1 rounded-lg bg-warn-soft pr-1 pl-3 text-[15px] font-medium">
-                    <span>{nameOf(pair[0])}</span>
+                    <span>{names[0]}</span>
                     <Ban size={15} {...ICON} aria-hidden className="text-warn" />
-                    <span>{nameOf(pair[1])}</span>
+                    <span>{names[1]}</span>
                     <button type="button" className="press grid size-9 place-items-center rounded-full text-ink-2" aria-label={t("remove")} onClick={() => onChange(people, pairs.filter((p) => p !== pair))}>
                       <X size={18} {...ICON} aria-hidden />
                     </button>
