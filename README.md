@@ -40,7 +40,7 @@ The screenshots use a demo group with made-up names.
 - **Exclusions:** keep couples or housemates from drawing each other.
 - **Budget, party date and a note** for everyone: a big budget field with shortcuts, the site's own calendar, and a live countdown.
 - **Change the group later:** add or remove people and everyone gets a new name. Renaming someone keeps the draw.
-- **See who's ready:** who has joined and who has opened their name.
+- **See who's ready:** who has joined and who has opened their name, updating by itself every few seconds.
 - **Copy a reminder:** a ready-made message for your group chat naming anyone still to open their name.
 - **Draw again:** the same group for next year, avoiding last round's matches when the group is big enough.
 - **Delete the group:** removes every name, wish list and message.

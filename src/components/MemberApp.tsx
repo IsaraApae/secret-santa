@@ -42,14 +42,19 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
     if (s) act(s, { type: "load" });
   }, [id, initial.name, act]);
 
-  // New people, the draw and new messages all show up without a reload.
+  // Every few seconds while on screen, and straight away on coming back to the page.
   useEffect(() => {
-    const i = setInterval(() => {
+    const refresh = () => {
       if (document.hidden) return;
       api<PublicGroup>(`/api/g/${id}`).then((r) => r.ok && setGroup(r.data));
       if (session) act(session, { type: "load" });
-    }, 20000);
-    return () => clearInterval(i);
+    };
+    const i = setInterval(refresh, 5000);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      clearInterval(i);
+      document.removeEventListener("visibilitychange", refresh);
+    };
   }, [id, session, act]);
 
   return (

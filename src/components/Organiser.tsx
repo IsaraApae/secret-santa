@@ -49,9 +49,15 @@ export function Organiser({ id }: { id: string }) {
       return;
     }
     send(k, { type: "status" });
-    // Keeps the opened list current while the organiser watches.
-    const i = setInterval(() => !document.hidden && send(k, { type: "status" }), 20000);
-    return () => clearInterval(i);
+    // Keeps the lists current while the organiser watches, and catches up the
+    // moment they come back to the page.
+    const refresh = () => !document.hidden && send(k, { type: "status" });
+    const i = setInterval(refresh, 5000);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      clearInterval(i);
+      document.removeEventListener("visibilitychange", refresh);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, fromUrl]);
 
