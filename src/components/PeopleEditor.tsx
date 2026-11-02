@@ -29,6 +29,7 @@ export function PeopleEditor({
   const [a, setA] = useState("");
   const [b, setB] = useState("");
   const nameOf = (id: string) => people.find((p) => p.id === id)?.name ?? "";
+  const byName = [...people].sort((x, y) => x.name.localeCompare(y.name, ["en", "th"], { sensitivity: "base", numeric: true }));
 
   function addNames() {
     const added = name
@@ -115,7 +116,7 @@ export function PeopleEditor({
             <div className="grid grid-cols-[1fr_1fr_auto] items-center gap-2">
               <select className="input min-w-0 pr-2 pl-4 text-[15px]" value={a} onChange={(e) => setA(e.target.value)} aria-label={t("personA")}>
                 <option value="">{t("personA")}</option>
-                {people.map((p) => (
+                {byName.map((p) => (
                   <option key={p.id} value={p.id} disabled={p.id === b}>
                     {p.name}
                   </option>
@@ -123,7 +124,7 @@ export function PeopleEditor({
               </select>
               <select className="input min-w-0 pr-2 pl-4 text-[15px]" value={b} onChange={(e) => setB(e.target.value)} aria-label={t("personB")}>
                 <option value="">{t("personB")}</option>
-                {people.map((p) => (
+                {byName.map((p) => (
                   <option key={p.id} value={p.id} disabled={p.id === a}>
                     {p.name}
                   </option>
