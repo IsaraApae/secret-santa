@@ -21,7 +21,7 @@ export function Home() {
         <Sparkle size={16} className="twinkle absolute top-3 left-4" style={{ animationDelay: "1.1s" }} />
                 <div className="grid items-center gap-5 md:grid-cols-[1.15fr_0.85fr] md:gap-10">
           <div className="space-y-5 text-center md:text-left">
-            <h1 className="font-script text-[clamp(84px,25vw,168px)] leading-[0.95] text-gold">
+            <h1 className="font-script text-[clamp(100px,29vw,196px)] leading-[0.9] text-gold">
               Secret
               <br />
               Santa
@@ -30,10 +30,10 @@ export function Home() {
           </div>
           <div className="relative">
             <GiftBox size={190} className="md:h-[320px] md:w-[320px]" />
-            <span className="absolute top-2 left-[6%] rotate-[-9deg] rounded-md bg-[var(--accent)] px-3 py-1 font-serif text-[14px] text-[var(--paper-light)] shadow-[0_0_0_2.5px_#fff,0_6px_12px_rgb(0_0_0/0.4)] md:left-0">
+            <span className="absolute top-2 left-[6%] rotate-[-9deg] rounded-md bg-[var(--accent)] px-3 py-1 font-serif text-[14px] text-[var(--paper-light)] shadow-[0_0_0_2.5px_var(--sticker),0_6px_12px_rgb(0_0_0/0.4)] md:left-0">
               {t("noSignUp")}
             </span>
-            <span className="absolute right-[6%] bottom-3 rotate-[7deg] rounded-md bg-[var(--paper-light)] px-3 py-1 font-serif text-[14px] text-[#2a1713] shadow-[0_0_0_2.5px_#fff,0_6px_12px_rgb(0_0_0/0.4)] md:right-0">
+            <span className="absolute right-[6%] bottom-3 rotate-[7deg] rounded-md bg-[var(--paper-light)] px-3 py-1 font-serif text-[14px] text-[#2c2825] shadow-[0_0_0_2.5px_var(--sticker),0_6px_12px_rgb(0_0_0/0.4)] md:right-0">
               {t("oneLink")}
             </span>
           </div>

@@ -43,6 +43,12 @@ export function ShareCard({ url, groupName }: { url: string; groupName: string }
     <Section title={t("shareLink")}>
       <div className="card space-y-3 p-4">
         <p className="px-1 text-[15px] leading-snug text-ink-2">{t("shareBlurb")}</p>
+        {/* The link preview from g/[id]/opengraph-image, so the organiser sees what everyone gets. */}
+        <figure className="space-y-1.5">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={`${url}/opengraph-image`} alt={t("previewAlt")} width={1200} height={630} loading="lazy" decoding="async" className="aspect-[1200/630] w-full rounded-lg bg-[var(--night)] shadow-[0_6px_14px_rgb(0_0_0/0.3)]" />
+          <figcaption className="px-1 text-[13px] text-ink-2">{t("previewCaption")}</figcaption>
+        </figure>
         <p className="tag truncate px-4 py-3 text-[15px]">{url}</p>
         <div className="grid grid-cols-2 gap-2">
           {canShare && (

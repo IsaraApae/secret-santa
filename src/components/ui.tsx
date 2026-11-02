@@ -54,11 +54,11 @@ export function Callout({
   icon?: ReactNode;
   children: ReactNode;
 }) {
-  const sticker = { info: "bg-[#2a1713]", warn: "bg-[#a9750f]", error: "bg-[var(--santa)]", success: "bg-[var(--accent)]" }[tone];
+  const sticker = { info: "bg-[#2c2825]", warn: "bg-[#a9750f]", error: "bg-[var(--santa)]", success: "bg-[var(--accent)]" }[tone];
   const Default = { info: Info, warn: AlertTriangle, error: XCircle, success: CheckCircle2 }[tone];
   return (
     <div role={tone === "error" ? "alert" : "status"} className="card flex gap-3 px-4 py-3.5 text-[15px] leading-snug">
-      <span className={cx("mt-px grid size-8 shrink-0 place-items-center rounded-full text-[var(--paper-light)] shadow-[0_0_0_2px_#fff,0_3px_6px_rgb(0_0_0/0.3)]", sticker)} aria-hidden>
+      <span className={cx("mt-px grid size-8 shrink-0 place-items-center rounded-full text-[var(--paper-light)] shadow-[0_0_0_2px_var(--sticker),0_3px_6px_rgb(0_0_0/0.3)]", sticker)} aria-hidden>
         {icon ?? <Default size={18} {...ICON} />}
       </span>
       <div className="min-w-0 flex-1">{children}</div>
@@ -71,7 +71,7 @@ export function Section({ title, action, children }: { title: ReactNode; action?
   return (
     <section className="space-y-2">
       <div className="flex min-h-8 items-end justify-between gap-2 px-1">
-        <h2 className="font-script text-[30px] leading-tight text-gold">{title}</h2>
+        <h2 className="font-script text-[38px] leading-tight text-gold">{title}</h2>
         {action}
       </div>
       <div className="space-y-3.5">{children}</div>

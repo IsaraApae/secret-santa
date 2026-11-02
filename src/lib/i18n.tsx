@@ -72,6 +72,8 @@ const en = {
   showQr: "QR code",
   qrAlt: "QR code for the invite link",
   scanToJoin: "Scan to join",
+  previewAlt: "The invite card",
+  previewCaption: "Chats show this card when you send the link.",
   saveOrganiserLink: "Copy your organiser link",
   saveOrganiserHint: "Keep this private. It's the only way back to this page from another device.",
   privateTitle: "You can't see who drew whom",

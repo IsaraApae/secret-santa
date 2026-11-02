@@ -13,7 +13,7 @@ const rand = (min: number, max: number) => min + Math.random() * (max - min);
 export function Fall({ kind }: { kind: "snow" | "confetti" }) {
   const [pieces, setPieces] = useState<CSSProperties[]>([]);
   useEffect(() => {
-    const colours = ["#c8322f", "#2f9a62", "var(--gold)", "var(--paper-light)"];
+    const colours = ["#bf3330", "#1f8a3a", "var(--gold)", "var(--paper-light)"];
     setPieces(
       Array.from({ length: kind === "snow" ? 22 : 70 }, (_, i) => {
         const size = kind === "snow" ? rand(3, 7) : rand(7, 12);
@@ -22,7 +22,7 @@ export function Fall({ kind }: { kind: "snow" | "confetti" }) {
           width: size,
           height: kind === "snow" ? size : size * 0.5,
           borderRadius: kind === "snow" ? "50%" : 2,
-          background: kind === "snow" ? "#fff8e8" : colours[i % 4],
+          background: kind === "snow" ? "#faf9f6" : colours[i % 4],
           opacity: kind === "snow" ? rand(0.35, 0.8) : 1,
           animationDuration: `${kind === "snow" ? rand(9, 18) : rand(1.8, 3.4)}s`,
           animationDelay: `${kind === "snow" ? -rand(0, 18) : rand(0, 0.5)}s`,
@@ -57,23 +57,23 @@ export function GiftBox({ state = "idle", size = 176, className = "" }: { state?
   return (
     <svg viewBox="0 0 200 200" width={size} height={size} aria-hidden className={`gift mx-auto ${motion} ${className}`}>
       <g className="gift-body">
-        <rect x="26" y="84" width="148" height="104" rx="10" fill="#fff" stroke="#fff" strokeWidth="12" />
-        <rect x="26" y="84" width="148" height="104" rx="8" fill="#b52a2a" />
-        <g fill="#8f1f20">
+        <rect x="26" y="84" width="148" height="104" rx="10" fill="#faf9f6" stroke="#faf9f6" strokeWidth="12" />
+        <rect x="26" y="84" width="148" height="104" rx="8" fill="#ab2828" />
+        <g fill="#8a1f1f">
           {[[48, 108], [76, 134], [48, 160], [136, 108], [160, 134], [136, 160], [160, 172], [76, 176]].map(([x, y]) => (
             <path key={`${x}-${y}`} d={`M${x} ${y - 7}c.6 4.200 2.400 6 7 7-4.600 1-6.400 2.800-7 7-.6-4.200-2.400-6-7-7 4.600-1 6.400-2.800 7-7z`} />
           ))}
         </g>
-        <rect x="87" y="84" width="26" height="104" fill="#f0c75e" />
+        <rect x="87" y="84" width="26" height="104" fill="#e2c75c" />
         <rect x="26" y="84" width="148" height="10" fill="#6d1718" opacity=".35" />
       </g>
       <g className="gift-lid">
-        <rect x="14" y="56" width="172" height="36" rx="8" fill="#fff" stroke="#fff" strokeWidth="12" />
-        <rect x="14" y="56" width="172" height="36" rx="7" fill="#c8322f" />
-        <rect x="87" y="56" width="26" height="36" fill="#f0c75e" />
-        <path d="M100 56C84 18 40 12 46 36c3 13 30 20 54 20zm0 0c16-38 60-44 54-20-3 13-30 20-54 20z" fill="#f0c75e" stroke="#fff" strokeWidth="7" paintOrder="stroke" strokeLinejoin="round" />
-        <path d="M100 56C88 34 62 26 62 36c0 7 20 17 38 20zm0 0c12-22 38-30 38-20 0 7-20 17-38 20z" fill="#b5842a" />
-        <rect x="89" y="46" width="22" height="16" rx="5" fill="#d9a93f" />
+        <rect x="14" y="56" width="172" height="36" rx="8" fill="#faf9f6" stroke="#faf9f6" strokeWidth="12" />
+        <rect x="14" y="56" width="172" height="36" rx="7" fill="#bf3330" />
+        <rect x="87" y="56" width="26" height="36" fill="#e2c75c" />
+        <path d="M100 56C84 18 40 12 46 36c3 13 30 20 54 20zm0 0c16-38 60-44 54-20-3 13-30 20-54 20z" fill="#e2c75c" stroke="#faf9f6" strokeWidth="7" paintOrder="stroke" strokeLinejoin="round" />
+        <path d="M100 56C88 34 62 26 62 36c0 7 20 17 38 20zm0 0c12-22 38-30 38-20 0 7-20 17-38 20z" fill="#a98a2e" />
+        <rect x="89" y="46" width="22" height="16" rx="5" fill="#c9ab45" />
       </g>
     </svg>
   );
@@ -87,9 +87,9 @@ export function GiftTag({ lead, name, foot }: { lead: string; name: string; foot
         <path d="M20 2c-7 10 7 18 0 40" />
       </svg>
       <div className="card px-6 pt-12 pb-8 text-center">
-        <span className="absolute top-3.5 left-1/2 size-5 -translate-x-1/2 rounded-full bg-[#2a1713] ring-[3px] ring-[var(--ribbon)]" aria-hidden />
+        <span className="absolute top-3.5 left-1/2 size-5 -translate-x-1/2 rounded-full bg-[#2c2825] ring-[3px] ring-[var(--ribbon)]" aria-hidden />
         <p className="font-serif text-[17px] text-ink-2">{lead}</p>
-        <p className="my-1 font-script text-[68px] leading-[1.1] break-words text-santa">{name}</p>
+        <p className="my-1 font-script text-[84px] leading-[1.1] break-words text-santa">{name}</p>
         <p className="font-serif text-[15px] text-ink-2">{foot}</p>
       </div>
     </div>
@@ -104,7 +104,7 @@ export function GroupFacts({ budget, date }: { budget: number | null; date: stri
     <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 font-serif text-[16px]">
       {budget !== null && <span className="ticket px-5 py-2">{t("budgetLine", { amount: baht(budget) })}</span>}
       {date && (
-        <span className="tag inline-flex items-center gap-1.5 px-3 py-2 text-[#2a1713]">
+        <span className="tag inline-flex items-center gap-1.5 px-3 py-2 text-[#2c2825]">
           <CalendarDays size={17} strokeWidth={2} aria-hidden className="text-[var(--santa)]" />
           {formatDate(date)}
         </span>
@@ -127,7 +127,7 @@ export function Countdown({ date }: { date: string }) {
   const left = target - now;
   // Over the whole of the party day, then gone once it has passed.
   if (left <= -86_400_000) return null;
-  if (left <= 0) return <p className="py-2 text-center font-script text-[40px] text-gold">{t("today")}</p>;
+  if (left <= 0) return <p className="py-2 text-center font-script text-[50px] text-gold">{t("today")}</p>;
   const s = Math.floor(left / 1000);
   const tiles: [number, string][] = [
     [Math.floor(s / 86400), t("days")],
@@ -139,8 +139,8 @@ export function Countdown({ date }: { date: string }) {
     <div className="grid grid-cols-4 gap-2.5" role="timer">
       {tiles.map(([n, label]) => (
         <div key={label} className="overflow-hidden rounded-lg text-center shadow-[0_8px_16px_rgb(0_0_0/0.4)]">
-          <div className="bg-[var(--santa)] py-1 font-serif text-[13px] text-[var(--paper-light)]">{label}</div>
-          <div className="tnum bg-[var(--paper-light)] py-1.5 text-[30px] leading-tight font-bold text-[#2a1713]">{n}</div>
+          <div className="bg-[var(--santa)] py-1 font-calendar text-[14px] text-[var(--paper-light)]">{label}</div>
+          <div className="tnum bg-[var(--paper-light)] py-1.5 font-calendar text-[32px] leading-tight text-[#2c2825]">{n}</div>
         </div>
       ))}
     </div>

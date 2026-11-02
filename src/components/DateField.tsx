@@ -28,7 +28,7 @@ export function DateField({ value, onChange, label }: { value: string; onChange:
         <CalendarDays size={24} {...ICON} aria-hidden className="shrink-0 text-santa" />
         <span className="min-w-0 flex-1">
           <span className="block text-[13px] leading-tight text-ink-2">{label}</span>
-          <span className={cx("block font-serif text-[18px] leading-snug", value ? "text-[#2a1713]" : "text-ink-3")}>{value ? formatDate(value) : t("chooseDate")}</span>
+          <span className={cx("block font-serif text-[18px] leading-snug", value ? "text-[#2c2825]" : "text-ink-3")}>{value ? formatDate(value) : t("chooseDate")}</span>
         </span>
         <ChevronRight size={20} {...ICON} aria-hidden className="shrink-0 text-ink-3" />
       </button>
@@ -38,14 +38,14 @@ export function DateField({ value, onChange, label }: { value: string; onChange:
           <button type="button" className="icon-plain" aria-label={t("prevMonth")} onClick={() => month(-1)}>
             <ChevronLeft size={24} {...ICON} />
           </button>
-          <b className="font-serif text-[18px] font-normal">{new Date(view.y, view.m, 1).toLocaleDateString("en-GB", { month: "long", year: "numeric" })}</b>
+          <b className="font-calendar text-[20px] font-normal">{new Date(view.y, view.m, 1).toLocaleDateString("en-GB", { month: "long", year: "numeric" })}</b>
           <button type="button" className="icon-plain" aria-label={t("nextMonth")} onClick={() => month(1)}>
             <ChevronRight size={24} {...ICON} />
           </button>
         </div>
         <div className="grid grid-cols-7 gap-y-1 text-center">
           {WEEKDAYS.map((d, i) => (
-            <span key={i} className="pb-1 text-[13px] text-ink-2" aria-hidden>
+            <span key={i} className="pb-1 font-calendar text-[14px] text-ink-2" aria-hidden>
               {d}
             </span>
           ))}
@@ -63,7 +63,7 @@ export function DateField({ value, onChange, label }: { value: string; onChange:
                 aria-label={formatDate(iso)}
                 aria-pressed={selected}
                 className={cx(
-                  "tnum press mx-auto grid size-11 place-items-center rounded-full text-[16px] disabled:opacity-30",
+                  "tnum press mx-auto grid size-11 place-items-center rounded-full font-calendar text-[17px] disabled:opacity-30",
                   selected ? "bg-[var(--santa)] font-semibold text-[var(--paper-light)]" : iso === today ? "font-semibold ring-2 ring-[var(--santa)]" : "hover:bg-[var(--hover)]",
                 )}
                 onClick={() => {

@@ -11,7 +11,10 @@ const loadGroup = cache(getPublicGroup);
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const group = await loadGroup((await params).id);
-  return { title: group?.name ?? "Not found", robots: { index: false } };
+  if (!group) return { title: "Not found", robots: { index: false } };
+  // Printed beside the invite card when the link is sent in a chat.
+  const description = group.drawn ? "Names are drawn. Open the link to unwrap yours." : "You're invited. Add your name, then see who you draw.";
+  return { title: group.name, description, openGraph: { description }, twitter: { description }, robots: { index: false } };
 }
 
 export default async function Page({ params }: Props) {
