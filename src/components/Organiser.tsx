@@ -106,12 +106,14 @@ export function Organiser({ id }: { id: string }) {
 
   return (
     <>
-      <header className="relative space-y-3 px-1 pt-2 text-center">
-        <h1 className="large-title px-12 break-words">{view.name}</h1>
-        <button type="button" className="icon-btn absolute top-3 right-1" aria-label={t("editDetails")} onClick={() => setSheet("details")}>
-          <Pencil size={20} {...ICON} aria-hidden />
-        </button>
+      <header className="space-y-3 px-1 pt-2 text-center">
+        <h1 className="large-title break-words">{view.name}</h1>
         <GroupFacts budget={view.budget} date={view.date} />
+        {/* Below the facts, not on the title: script names swash past their box. */}
+        <button type="button" className="chip min-h-10" onClick={() => setSheet("details")}>
+          <Pencil size={16} {...ICON} aria-hidden />
+          {t("editDetails")}
+        </button>
       </header>
 
       {view.date && <Countdown date={view.date} />}
@@ -140,7 +142,7 @@ export function Organiser({ id }: { id: string }) {
       >
         <ul className="card rows taped relative tilt-r">
           <li className="px-5 pt-4 pb-3 font-serif text-[15px]">
-            {view.drawn ? t("statusCount", { n: opened, total: view.members.length }) : view.members.length ? t("joinedCount", { n: view.members.length }) : t("joinedNone")}
+            {view.drawn ? t("statusCount", { n: opened, total: view.members.length }) : view.members.length ? t(view.members.length === 1 ? "joinedOne" : "joinedCount", { n: view.members.length }) : t("joinedNone")}
           </li>
           {view.members.map((m) => (
             <li key={m.id} className="flex items-center gap-3 py-2 pr-2 pl-5">

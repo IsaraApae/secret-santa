@@ -123,7 +123,9 @@ dialog:focus-visible {
 }
 
 /* The night: a fixed layer of blurred fairy lights behind everything, with
-   the CI's film grain over it. */
+   the CI's film grain over it. The edge fades sit above the grain, so the
+   layer's first and last rows are exactly --edge and meet the phone's bars
+   without a line. They ease out over 180px so they don't read as a band. */
 .night {
   position: fixed;
   inset: 0;
@@ -134,9 +136,9 @@ dialog:focus-visible {
   z-index: -1;
   pointer-events: none;
   background:
+    linear-gradient(var(--edge), color-mix(in srgb, var(--edge) 80%, transparent) 40px, color-mix(in srgb, var(--edge) 35%, transparent) 110px, transparent 180px),
+    linear-gradient(to top, var(--edge), color-mix(in srgb, var(--edge) 80%, transparent) 40px, color-mix(in srgb, var(--edge) 35%, transparent) 110px, transparent 180px),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .95 0 0 0 0 .88 0 0 0 .11 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"),
-    linear-gradient(var(--edge), transparent 130px),
-    linear-gradient(transparent calc(100% - 130px), var(--edge)),
     linear-gradient(rgb(44 40 37 / 0.28), rgb(44 40 37 / 0.28)),
     var(--night) url("/lights.webp") center / cover no-repeat;
 }
