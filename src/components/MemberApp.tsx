@@ -275,7 +275,7 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
       <div className="space-y-3 pt-4 text-center">
         <Fall kind="snow" />
         <GiftBox />
-        <p className="font-script text-[42px] leading-tight text-gold">{t("waitingTitle")}</p>
+        <p className="font-script text-[52px] leading-tight text-gold">{t("waitingTitle")}</p>
         <p className="card tilt-r px-4 py-3 text-[15px] leading-snug">{t("waitingBody", { n: view.joined })}</p>
       </div>
     );
@@ -297,7 +297,7 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
         <button type="button" className="block w-full space-y-3 px-6 pt-4 pb-2 text-center" onClick={unwrap}>
           <GiftBox state={stage === "shake" ? "shake" : "idle"} />
           <span className="block">
-            <span className="block font-script text-[42px] leading-tight text-gold">{t("tapToUnwrap")}</span>
+            <span className="block font-script text-[52px] leading-tight text-gold">{t("tapToUnwrap")}</span>
             <span className="card tilt-r mt-3 block px-4 py-2.5 text-[15px]">{t("unwrapHint")}</span>
           </span>
         </button>

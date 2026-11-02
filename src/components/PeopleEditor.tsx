@@ -171,7 +171,7 @@ function BudgetField({ value, onChange }: { value: string; onChange: (v: string)
     <div className="tag px-4 pt-2 pb-3">
       <label className="block text-center">
         <span className="block text-[13px] text-ink-2">{t("budget")}</span>
-        <span className="flex items-baseline justify-center gap-1 font-bold text-[#2a1713]">
+        <span className="flex items-baseline justify-center gap-1 font-bold text-[#2c2825]">
           <span className="text-[24px] text-ink-2">฿</span>
           <input
             className="tnum bg-transparent text-center text-[44px] leading-tight outline-none placeholder:text-ink-3/50"
@@ -190,7 +190,7 @@ function BudgetField({ value, onChange }: { value: string; onChange: (v: string)
             key={n}
             type="button"
             aria-pressed={value === String(n)}
-            className={`tnum press min-h-10 rounded-lg px-3 font-serif text-[15px] ${value === String(n) ? "bg-[var(--santa)] text-[var(--paper-light)]" : "bg-field text-[#2a1713]"}`}
+            className={`tnum press min-h-10 rounded-lg px-3 font-serif text-[15px] ${value === String(n) ? "bg-[var(--santa)] text-[var(--paper-light)]" : "bg-field text-[#2c2825]"}`}
             onClick={() => onChange(value === String(n) ? "" : String(n))}
           >
             ฿{n.toLocaleString("en-US")}

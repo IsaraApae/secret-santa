@@ -5,6 +5,9 @@
   --font-sans: var(--font-body), var(--font-thai), system-ui, sans-serif;
   --font-serif: var(--font-display), var(--font-thai), Georgia, serif;
   --font-script: var(--font-hand), var(--font-thai-hand), "Brush Script MT", cursive;
+  --font-calendar: var(--font-cal), var(--font-thai), Georgia, serif;
+  /* Fraunces made soft and heavy, standing in for the CI's Roca One. */
+  --font-serif--font-variation-settings: "SOFT" 100, "wght" 560;
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
   --color-ink-3: var(--ink-3);
@@ -32,22 +35,25 @@
    paper (.on-paper, cards, sheets) they switch to dark ink. */
 :root {
   color-scheme: dark;
-  --night: #170c0a;
+  --night: #2c2825;
   /* One solid colour for the page's top and bottom edges. Phone browsers fill
      the strips behind their status bar and toolbar with a single colour, and
      fixed layers aren't drawn there, so the page has to meet it without a seam. */
-  --edge: #3a1511;
-  --gold: #f4cb6c;
-  --cream: #f3e8d2;
-  --paper: #f1e6d0;
-  --paper-light: #fbf5e7;
-  --santa: #b52a2a;
-  --santa-deep: #8f1f20;
-  --ribbon: #f0c75e;
-  --accent: #1d6b47;
-  --accent-ink: #fbf5e7;
-  --accent-soft: #d5e6d3;
-  --accent-strong: #14523a;
+  --edge: #2c2825;
+  /* Cultural Fest CI: #E2D3BC cards, #AB2828 red, #126E29 green, #E2C75C gold
+     for text on the background, #FAF9F6 sticker outlines, #2C2825 text. */
+  --gold: #e2c75c;
+  --cream: #f5eee2;
+  --paper: #e2d3bc;
+  --paper-light: #f3ebdd;
+  --sticker: #faf9f6;
+  --santa: #ab2828;
+  --santa-deep: #8a1f1f;
+  --ribbon: #e2c75c;
+  --accent: #126e29;
+  --accent-ink: #faf9f6;
+  --accent-soft: #d3e5d3;
+  --accent-strong: #0c5520;
   --danger: #a4231f;
   --danger-soft: #f6d3ca;
   --warn: #7c5208;
@@ -55,24 +61,24 @@
   --info: #2f5a7c;
   --info-soft: #d7e3ea;
 
-  --ink: #f3e8d2;
-  --ink-2: #dccdb3;
-  --ink-3: #bfae93;
-  --line: rgb(243 232 210 / 0.25);
-  --field: rgb(243 232 210 / 0.12);
-  --hover: rgb(243 232 210 / 0.1);
+  --ink: #f5eee2;
+  --ink-2: #ddd2c0;
+  --ink-3: #c0b4a1;
+  --line: rgb(245 238 226 / 0.25);
+  --field: rgb(245 238 226 / 0.12);
+  --hover: rgb(245 238 226 / 0.1);
 }
 
 .on-paper,
 dialog.sheet,
 dialog.alert {
   color-scheme: light;
-  --ink: #2a1713;
-  --ink-2: #5d463b;
-  --ink-3: #6f584c;
-  --line: rgb(42 23 19 / 0.22);
-  --field: rgb(42 23 19 / 0.07);
-  --hover: rgb(42 23 19 / 0.06);
+  --ink: #2c2825;
+  --ink-2: #554a42;
+  --ink-3: #62564c;
+  --line: rgb(44 40 37 / 0.22);
+  --field: rgb(44 40 37 / 0.07);
+  --hover: rgb(44 40 37 / 0.06);
   color: var(--ink);
 }
 
@@ -93,7 +99,7 @@ body {
 }
 ::selection {
   background: var(--gold);
-  color: #2a1713;
+  color: #2c2825;
 }
 input,
 textarea {
@@ -111,10 +117,11 @@ dialog:focus-visible {
   outline: none;
 }
 * {
-  scrollbar-color: rgb(244 203 108 / 0.5) transparent;
+  scrollbar-color: rgb(226 199 92 / 0.5) transparent;
 }
 
-/* The night: a fixed layer of blurred fairy lights behind everything. */
+/* The night: a fixed layer of blurred fairy lights behind everything, with
+   the CI's film grain over it. */
 .night {
   position: fixed;
   inset: 0;
@@ -125,8 +132,10 @@ dialog:focus-visible {
   z-index: -1;
   pointer-events: none;
   background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .95 0 0 0 0 .88 0 0 0 .11 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"),
     linear-gradient(var(--edge), transparent 130px),
     linear-gradient(transparent calc(100% - 130px), var(--edge)),
+    linear-gradient(rgb(44 40 37 / 0.28), rgb(44 40 37 / 0.28)),
     var(--night) url("/lights.webp") center / cover no-repeat;
 }
 /* Scrolls with the page behind the lights, so the colour carries on under the bars. */
@@ -158,18 +167,18 @@ dialog:focus-visible {
 
 /* ---------- Materials ------------------------------------------------------- */
 
-/* A torn paper note. The paper is its own layer so the rough edge never
-   touches the text; without SVG filter support it's a clean rectangle. */
+/* A cream card with perforated stamp edges, from the CI. The paper is its own
+   layer: a border-image draws the perforated edge around a flat padding box,
+   so the shadow follows the bites and never touches the text. */
 @utility card {
   position: relative;
   isolation: isolate;
-  border-radius: 6px;
-  --ink: #2a1713;
-  --ink-2: #5d463b;
-  --ink-3: #6f584c;
-  --line: rgb(42 23 19 / 0.22);
-  --field: rgb(42 23 19 / 0.07);
-  --hover: rgb(42 23 19 / 0.06);
+  --ink: #2c2825;
+  --ink-2: #554a42;
+  --ink-3: #62564c;
+  --line: rgb(44 40 37 / 0.22);
+  --field: rgb(44 40 37 / 0.07);
+  --hover: rgb(44 40 37 / 0.06);
   color-scheme: light;
   color: var(--ink);
   &::before {
@@ -177,11 +186,12 @@ dialog:focus-visible {
     position: absolute;
     inset: 0;
     z-index: -1;
-    border-radius: 6px;
-    background-color: var(--paper);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .15 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
-    filter: url(#torn) drop-shadow(0 10px 18px rgb(0 0 0 / 0.42));
-    /* Its own layer, so scrolling doesn't redraw the torn edge. */
+    border: 12px solid transparent;
+    border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36'%3E%3Cmask id='m'%3E%3Crect width='36' height='36' fill='%23fff'/%3E%3Cg%3E%3Ccircle cx='6' cy='0' r='3.6'/%3E%3Ccircle cx='18' cy='0' r='3.6'/%3E%3Ccircle cx='30' cy='0' r='3.6'/%3E%3Ccircle cx='6' cy='36' r='3.6'/%3E%3Ccircle cx='18' cy='36' r='3.6'/%3E%3Ccircle cx='30' cy='36' r='3.6'/%3E%3Ccircle cx='0' cy='6' r='3.6'/%3E%3Ccircle cx='0' cy='18' r='3.6'/%3E%3Ccircle cx='0' cy='30' r='3.6'/%3E%3Ccircle cx='36' cy='6' r='3.6'/%3E%3Ccircle cx='36' cy='18' r='3.6'/%3E%3Ccircle cx='36' cy='30' r='3.6'/%3E%3C/g%3E%3C/mask%3E%3Crect width='36' height='36' fill='%23e2d3bc' mask='url(%23m)'/%3E%3C/svg%3E") 12 round;
+    /* Tucked 2px under the edge so no hairline shows where the two meet. */
+    background: linear-gradient(var(--paper), var(--paper)) center / calc(100% - 20px) calc(100% - 20px) no-repeat border-box;
+    filter: drop-shadow(0 10px 18px rgb(0 0 0 / 0.42));
+    /* Its own layer, so scrolling doesn't redraw the shadow. */
     transform: translateZ(0);
   }
 }
@@ -191,7 +201,7 @@ dialog:focus-visible {
   background-color: var(--santa);
   color: var(--paper-light);
   border-radius: 8px;
-  outline: 1.5px dashed rgb(251 245 231 / 0.45);
+  outline: 1.5px dashed rgb(250 249 246 / 0.45);
   outline-offset: -6px;
   -webkit-mask:
     radial-gradient(circle 9px at 0 50%, #0000 97%, #000) left / 51% 100% no-repeat,
@@ -240,11 +250,11 @@ dialog:focus-visible {
 @utility btn-secondary {
   @apply btn ticket;
   background-color: var(--paper-light);
-  color: #2a1713;
-  outline-color: rgb(42 23 19 / 0.5);
+  color: #2c2825;
+  outline-color: rgb(44 40 37 / 0.5);
   padding-inline: 22px;
   &:hover {
-    background-color: #fff;
+    background-color: var(--sticker);
   }
   &:focus-visible {
     outline: 2.5px solid var(--santa);
@@ -255,15 +265,15 @@ dialog:focus-visible {
   @apply btn;
   color: var(--gold);
   &:hover {
-    background-color: rgb(244 203 108 / 0.12);
+    background-color: rgb(226 199 92 / 0.12);
   }
 }
 /* Round die-cut sticker holding an icon. */
 @utility icon-btn {
   @apply press inline-grid size-11 shrink-0 place-items-center rounded-full;
   background-color: var(--paper-light);
-  color: #2a1713;
-  box-shadow: 0 0 0 2.5px #fff, 0 6px 14px rgb(0 0 0 / 0.4);
+  color: #2c2825;
+  box-shadow: 0 0 0 2.5px var(--sticker), 0 6px 14px rgb(0 0 0 / 0.4);
 }
 @utility icon-plain {
   @apply press inline-grid size-11 shrink-0 place-items-center rounded-full text-ink-2 hover:bg-[var(--hover)];
@@ -272,20 +282,20 @@ dialog:focus-visible {
   @apply press inline-flex min-h-11 items-center gap-2 px-4 font-serif text-[15px];
   border-radius: 10px;
   background-color: var(--paper-light);
-  color: #2a1713;
-  border: 1.5px solid rgb(42 23 19 / 0.35);
+  color: #2c2825;
+  border: 1.5px solid rgb(44 40 37 / 0.35);
 }
 /* A name on a small paper tag. */
 @utility tag {
   background-color: var(--paper-light);
-  border: 1.5px solid rgb(42 23 19 / 0.3);
+  border: 1.5px solid rgb(44 40 37 / 0.3);
   border-radius: 8px;
 }
 @utility input {
   @apply min-h-12 w-full px-4 text-[17px] text-ink outline-none placeholder:text-ink-3;
   border-radius: 10px;
   background-color: var(--paper-light);
-  border: 1.5px solid rgb(42 23 19 / 0.3);
+  border: 1.5px solid rgb(44 40 37 / 0.3);
   &:focus-visible {
     border-color: var(--santa);
     outline: 2px solid var(--santa);
@@ -296,7 +306,7 @@ dialog:focus-visible {
   @apply text-[14px] text-ink-2;
 }
 @utility large-title {
-  @apply font-script text-[56px] leading-[1.05] text-gold;
+  @apply font-script text-[66px] leading-[1.05] text-gold;
 }
 
 /* Collage: notes that sit a little off true. Small enough to read and tap. */
@@ -322,7 +332,7 @@ dialog:focus-visible {
   height: 22px;
   translate: -50% 0;
   rotate: -3deg;
-  background: rgb(240 199 94 / 0.82);
+  background: rgb(226 199 92 / 0.82);
   box-shadow: 0 2px 4px rgb(0 0 0 / 0.25);
   pointer-events: none;
 }
@@ -342,15 +352,16 @@ dialog:focus-visible {
   border-radius: 8px;
   padding-inline: 10px;
   font-family: var(--font-serif);
+  font-variation-settings: "SOFT" 100, "wght" 560;
   font-size: 15px;
   color: var(--cream);
-  border: 1.5px dashed rgb(244 203 108 / 0.55);
+  border: 1.5px dashed rgb(226 199 92 / 0.55);
   transition: transform 0.25s var(--ease-spring);
 }
 .tab-tag[aria-checked="true"] {
-  color: #2a1713;
+  color: #2c2825;
   background: var(--paper-light);
-  border: 1.5px solid #fff;
+  border: 1.5px solid var(--sticker);
   box-shadow: 0 8px 16px rgb(0 0 0 / 0.45);
   transform: translateY(-2px) rotate(-1.2deg);
 }
@@ -416,7 +427,7 @@ dialog h2.font-script {
 }
 dialog.sheet::backdrop,
 dialog.alert::backdrop {
-  background: rgb(12 6 5 / 0.65);
+  background: rgb(20 18 16 / 0.65);
 }
 
 /* ---------- The gift ---------------------------------------------------------- */

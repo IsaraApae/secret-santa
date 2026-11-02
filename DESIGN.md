@@ -1,68 +1,72 @@
 ---
 name: Secret Santa
-description: A gift-exchange draw styled as a Christmas fair poster, a paper collage over a night of lights.
+description: A gift-exchange draw in the Cultural Fest 2027 CI, stamp-edged cards and stickers over a grainy night of lights.
 colors:
-  night: "#170c0a"
-  gold: "#f4cb6c"
-  ribbon: "#f0c75e"
-  santa: "#b52a2a"
-  santa-deep: "#8f1f20"
-  accent: "#1d6b47"
-  accent-strong: "#14523a"
-  accent-ink: "#fbf5e7"
-  paper: "#f1e6d0"
-  paper-light: "#fbf5e7"
-  cream: "#f3e8d2"
-  ink-2-night: "#dccdb3"
-  ink-3-night: "#bfae93"
-  line-night: "rgb(243 232 210 / 0.25)"
-  ink-paper: "#2a1713"
-  ink-2-paper: "#5d463b"
-  ink-3-paper: "#6f584c"
-  line-paper: "rgb(42 23 19 / 0.22)"
+  night: "#2c2825"
+  gold: "#e2c75c"
+  ribbon: "#e2c75c"
+  santa: "#ab2828"
+  santa-deep: "#8a1f1f"
+  accent: "#126e29"
+  accent-strong: "#0c5520"
+  accent-ink: "#faf9f6"
+  paper: "#e2d3bc"
+  paper-light: "#f3ebdd"
+  sticker: "#faf9f6"
+  cream: "#f5eee2"
+  ink-2-night: "#ddd2c0"
+  ink-3-night: "#c0b4a1"
+  line-night: "rgb(245 238 226 / 0.25)"
+  ink-paper: "#2c2825"
+  ink-2-paper: "#554a42"
+  ink-3-paper: "#62564c"
+  line-paper: "rgb(44 40 37 / 0.22)"
   danger: "#a4231f"
   warn: "#7c5208"
   warn-soft: "#f6e2ae"
 typography:
   display:
-    fontFamily: "Yellowtail, Sriracha, Brush Script MT, cursive"
-    fontSize: "clamp(84px, 25vw, 168px)"
+    fontFamily: "Allura, Sriracha, Brush Script MT, cursive"
+    fontSize: "clamp(100px, 29vw, 196px)"
     fontWeight: 400
-    lineHeight: 0.95
+    lineHeight: 0.9
   headline:
-    fontFamily: "Yellowtail, Sriracha, Brush Script MT, cursive"
-    fontSize: "56px"
+    fontFamily: "Allura, Sriracha, Brush Script MT, cursive"
+    fontSize: "66px"
     fontWeight: 400
     lineHeight: 1.05
   title:
-    fontFamily: "Yellowtail, Sriracha, Brush Script MT, cursive"
-    fontSize: "30px"
+    fontFamily: "Allura, Sriracha, Brush Script MT, cursive"
+    fontSize: "38px"
     fontWeight: 400
     lineHeight: 1.25
   button:
-    fontFamily: "Bree Serif, Sarabun, Georgia, serif"
+    fontFamily: "Fraunces (SOFT 100, wght 560), Sarabun, Georgia, serif"
     fontSize: "17px"
     fontWeight: 400
   label:
-    fontFamily: "Bree Serif, Sarabun, Georgia, serif"
+    fontFamily: "Fraunces (SOFT 100, wght 560), Sarabun, Georgia, serif"
     fontSize: "15px"
     fontWeight: 400
   body:
-    fontFamily: "Figtree, Sarabun, system-ui, sans-serif"
+    fontFamily: "Source Serif 4, Sarabun, system-ui, sans-serif"
     fontSize: "17px"
     fontWeight: 400
     lineHeight: 1.45
   body-small:
-    fontFamily: "Figtree, Sarabun, system-ui, sans-serif"
+    fontFamily: "Source Serif 4, Sarabun, system-ui, sans-serif"
     fontSize: "15px"
     fontWeight: 400
     lineHeight: 1.375
+  calendar:
+    fontFamily: "Salsa, Sarabun, Georgia, serif"
+    fontSize: "32px"
+    fontWeight: 400
   caption:
-    fontFamily: "Figtree, Sarabun, system-ui, sans-serif"
+    fontFamily: "Source Serif 4, Sarabun, system-ui, sans-serif"
     fontSize: "13px"
     fontWeight: 400
 rounded:
-  note: "6px"
   ticket: "8px"
   control: "10px"
   bubble: "12px"
@@ -124,7 +128,7 @@ components:
   note:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink-paper}"
-    rounded: "{rounded.note}"
+    edge: "perforated stamp, 3.6px bites every 12px"
     padding: "{spacing.note}"
   sticker-button:
     backgroundColor: "{colors.paper-light}"
@@ -141,23 +145,23 @@ components:
 
 ## Overview
 
-**Creative North Star: "The Christmas Fair Poster"**
+**Creative North Star: "The Christmas Market Stamp Book"**
 
-A gift exchange should feel like the poster for a Christmas fair, not a tidy app. Gold script sits on a night of blurred red, green and gold lights, and everything you read or touch is a physical scrap laid on top: torn paper notes, punched tickets, gift tags, die-cut stickers and calendar pages.
+A gift exchange should feel like the Cultural Fest 2027 Christmas Market, not a tidy app. Gold script sits on a grainy night of blurred red, green and gold lights, and everything you read or touch is a physical scrap laid on top: cream cards with perforated stamp edges, punched tickets, gift tags, die-cut stickers and calendar pages.
 
-The style is inspired by the Cultural Fest 2027 Instagram posters. That is a named inspiration only. All artwork here is original, and that page's logo, photos and wording are never reused.
+The palette, faces and shapes follow the CI section of the Cultural Fest 2027 Figma file. The festival's logo, photos and wording are never reused, and all artwork here is original.
 
 There is one dark theme and no switch. Paper surfaces use dark ink because they are objects on the night, not a light mode. The interface is English only, while names and wishes people type can be Thai.
 
 **Key Characteristics:**
 - A fixed night of blurred lights behind every screen.
-- Content on torn, slightly tilted paper notes.
+- Content on cream cards with perforated stamp edges, slightly tilted.
 - Actions on tickets with punched edges and a stitched inner line.
 - Phone first, one 640px column, with a wider poster hero on large screens.
 
 ## Colors
 
-Warm night, cream paper and three festive inks: gold, Santa red and evergreen.
+The CI's warm charcoal, cream card stock and three festive inks: gold, Santa red and evergreen. The CI values are #2C2825 text and night, #E2D3BC cards, #AB2828 red, #126E29 green, #E2C75C gold and #FAF9F6 sticker outlines.
 
 ### Primary
 - **Santa Red** (`santa`, hover `santa-deep`): main-action tickets, the promise ticket, step numbers, calendar page headers and the drawn name on the gift tag.
@@ -170,9 +174,10 @@ Warm night, cream paper and three festive inks: gold, Santa red and evergreen.
 - **Ribbon Gold** (`ribbon`): washi tape and the gift's ribbon.
 
 ### Neutral
-- **Night** (`night`): the page behind the lights.
+- **Night** (`night`): the page behind the lights, under a fine film grain.
 - **Cream** (`cream`, `ink-2-night`, `ink-3-night`, `line-night`): text and lines on the night.
-- **Paper** (`paper`, `paper-light`): notes and sheets, then the brighter tickets, tags, inputs and stickers on them.
+- **Paper** (`paper`, `paper-light`): cards and sheets, then the brighter tickets, tags, inputs and stickers on them.
+- **Sticker** (`sticker`): the die-cut outline of stickers and the gift. The CI keeps it off cards.
 - **Paper Ink** (`ink-paper`, `ink-2-paper`, `ink-3-paper`, `line-paper`): text and lines on paper.
 - **Alerts** (`danger`, `warn`, `warn-soft`): destructive text, warning icons and warning pills.
 
@@ -183,21 +188,23 @@ Warm night, cream paper and three festive inks: gold, Santa red and evergreen.
 
 ## Typography
 
-**Display Font:** Yellowtail (Thai falls back to Sriracha)
-**Label Font:** Bree Serif (Thai falls back to Sarabun)
-**Body Font:** Figtree (Thai falls back to Sarabun)
+**Display Font:** Allura, standing in for the CI's Vintage Goods (Thai falls back to Sriracha)
+**Label Font:** Fraunces at SOFT 100 and weight 560, standing in for Roca One (Thai falls back to Sarabun)
+**Body Font:** Source Serif 4, standing in for Times New Roman MT Condensed (Thai falls back to Sarabun)
+**Calendar Font:** Salsa, used only on calendars, as the CI asks
 
-**Character:** A loose signwriter's script over a sturdy, friendly slab, with a clean sans doing the reading.
+**Character:** A flowing market-stall script over a soft, chunky serif, with a bookish serif doing the reading. The CI's own faces are paid fonts, so these free Google Fonts stand in for them.
 
 ### Hierarchy
 - **Display:** the home page's Secret Santa, in gold.
 - **Headline:** page titles and group names, in gold.
-- **Title:** section headings above notes, in gold. The script also carries the top-bar signature (26px), the drawn name (68px) and short gift moments (40-42px).
+- **Title:** section headings above cards, in gold. The script also carries the top-bar signature (34px), the drawn name (84px) and short gift moments (50-52px).
+- **Calendar:** the countdown pages and the date picker.
 - **Button and Label:** every button, chip, tab, ticket and sticker label.
 - **Body, Body Small and Caption:** reading text, notes and fine print. Counters use tabular figures.
 
 ### Named Rules
-**The Script Heading Rule.** Headings use Yellowtail. Sheet and alert titles (Bree Serif, 19-20px) and the not-found heading (Figtree bold, 22px) do not follow it yet, and are drift rather than a pattern to copy.
+**The Script Heading Rule.** Headings use Allura. Sheet and alert titles (Fraunces, 19-20px) do not follow it yet, and are drift rather than a pattern to copy.
 
 **The Thai Partner Rule.** Every face keeps its Thai partner in the stack, because any name or wish can be Thai. Headings use Sriracha. Labels and body use Sarabun.
 
@@ -210,17 +217,17 @@ One centred column, 640px at most, with 16px gutters and 24px between sections. 
 Depth is a paper pile under one soft light from above. Shadows are soft and black, and they lift scraps off the night. Tickets stay flat, as if printed.
 
 ### Shadow Vocabulary
-- **Note** (`drop-shadow(0 10px 18px rgb(0 0 0 / 0.42))`): every paper note.
-- **Sticker** (`0 0 0 2.5px #fff, 0 6px 14px rgb(0 0 0 / 0.4)`): round sticker buttons. Hero stickers use 12px of blur.
+- **Card** (`drop-shadow(0 10px 18px rgb(0 0 0 / 0.42))`): every stamp card, following its perforations.
+- **Sticker** (`0 0 0 2.5px #faf9f6, 0 6px 14px rgb(0 0 0 / 0.4)`): round sticker buttons. Hero stickers use 12px of blur.
 - **Lifted tag** (`0 8px 16px rgb(0 0 0 / 0.45)`): the chosen tab, and calendar pages at 0.4.
 - **Sheet** (`0 24px 60px rgb(0 0 0 / 0.6)`): sheets and alerts, over a `rgb(12 6 5 / 0.65)` backdrop.
 
 ### Named Rules
-**The Die-Cut Rule.** A sticker has a solid white edge with its soft shadow beneath. That edge marks it as cut out, so paper notes and tickets do not get one.
+**The Die-Cut Rule.** A sticker has a solid #FAF9F6 edge with its soft shadow beneath. That edge marks it as cut out, so cards and tickets do not get one.
 
 ## Shapes
 
-Corners are small and handmade: 6px on notes, 8px on tickets and tags, 10px on controls. Sheets and alerts use 18px, the poster frame 22px, and only stickers and number badges are round. Each ticket has a 9px half-circle punched from both short edges and a dashed line inset 6px. Each note has a rough torn edge on its paper layer only, so text is never distorted, and it falls back to a clean rectangle without SVG filter support.
+Cards have no corners to speak of: their edge is a row of perforations, like a postage stamp. Tickets and tags use 8px and controls 10px. Sheets and alerts use 18px, the poster frame 22px, and only stickers and number badges are round. Each ticket has a 9px half-circle punched from both short edges and a dashed line inset 6px. Each card draws its perforations with a border-image on its paper layer only, 3.6px bites every 12px, so text is never touched.
 
 ## Components
 
@@ -236,8 +243,8 @@ Corners are small and handmade: 6px on notes, 8px on tickets and tags, 10px on c
 - **Chip:** bright paper, a thin ink border, 10px corners.
 
 ### Cards / Containers
-- **Paper note:** torn grained paper with 16-20px of padding, and inset hairlines between rows. Some carry washi tape or a small pinned gift sticker.
-- **Callout:** a paper note with a round die-cut tone sticker. Text stays in paper ink, and the sticker carries the tone.
+- **Stamp card:** flat cream card stock with perforated edges, 16-20px of padding, and inset hairlines between rows. Some carry washi tape or a small pinned gift sticker.
+- **Callout:** a stamp card with a round die-cut tone sticker. Text stays in paper ink, and the sticker carries the tone.
 
 ### Inputs / Fields
 - **Style:** bright paper, 1.5px ink border at 30%, 10px corners, a red caret.
@@ -249,21 +256,24 @@ A centred script signature with two sparkles at the top of every page but home. 
 ### Sheets and Alerts
 Native dialogs on plain paper. Sheets rise from the bottom in 0.45s with a drag handle, a close sticker on the left and an optional confirm on the right. Alerts scale in over 0.35s at 330px wide at most.
 
+### Link Preview
+Every invite link unfurls in chat apps as a stamp card on the lights: "You're invited to", the group name in red script, the budget ticket and date tag, and how many people have joined. The site's own link gets the same card with the promise ticket. Both are drawn in `src/lib/og.tsx`, and the organiser sees the invite card above the link.
+
 ### Gift and Reveal
-An original die-cut present that bobs, shakes when tapped, then loses its lid while a torn paper tag swings out on a gold string with the drawn name in red script. Calendar-page tiles count down to the party, with a red header over a bright paper face. Reduced motion turns all of this off.
+An original die-cut present that bobs, shakes when tapped, then loses its lid while a stamp-edged paper tag swings out on a gold string with the drawn name in red script. Calendar-page tiles count down to the party in Salsa, with a red header over a bright paper face. Reduced motion turns all of this off.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** put lists, forms and long text on a paper note or sheet, with short script headings and labels on the night.
-- **Do** keep tilts small on things people read: notes at 0.7deg or less, tickets at 1deg. Decorative stickers can go up to 9deg.
+- **Do** put lists, forms and long text on a stamp card or sheet, with short script headings and labels on the night.
+- **Do** keep tilts small on things people read: cards at 0.7deg or less, tickets at 1deg. Decorative stickers can go up to 9deg.
 - **Do** draw new artwork as original SVG, and keep the fixed lights backdrop on every page.
 - **Do** keep shop and app badges in their own brand colours, as those are the only colours from outside this palette.
 
 ### Don't:
-- **Don't** reuse the logo, photos or wording of Cultural Fest 2027.
+- **Don't** reuse the logo, photos or wording of Cultural Fest 2027; take only its CI palette, faces and shapes.
 - **Don't** add a light theme or a theme switch.
 - **Don't** translate the interface into Thai, or remove a Thai font from a stack.
-- **Don't** set reading text in Yellowtail, or set body copy in Bree Serif.
+- **Don't** set reading text in Allura, set body copy in Fraunces, or use Salsa outside calendars.
 - **Don't** add fixed top bars, tab bars or floating buttons.
 - **Don't** add new motion without a reduced-motion path.

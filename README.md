@@ -17,6 +17,9 @@ Run a gift exchange from one link. Create a group, share the link, and everyone 
   <img src="docs/screenshots/edit-people.jpg" alt="Edit people sheet with names and exclusions" width="240">
 </p>
 <p>
+  <img src="docs/screenshots/link-card.jpg" alt="The invite card a chat app shows for a group's link: the group name, budget, date and how many have joined" width="492">
+</p>
+<p>
   <img src="docs/screenshots/unwrap.jpg" alt="A wrapped gift waiting to be tapped" width="240">
   <img src="docs/screenshots/reveal.jpg" alt="The name you drew, on a gift tag" width="240">
 </p>
@@ -32,6 +35,7 @@ The screenshots use a demo group with made-up names.
 
 **Running the draw**
 - **One invite link** for the whole group, with Copy, Share (on phones) and a QR code. You never type a list of names.
+- **An invite card:** send the link in LINE, Messenger or WhatsApp and it shows a card with the group name, budget, date and how many have joined.
 - **Draw when you're ready:** see who has joined, then draw once at least 3 people are in.
 - **Exclusions:** keep couples or housemates from drawing each other.
 - **Budget, party date and a note** for everyone: a big budget field with shortcuts, the site's own calendar, and a live countdown.
@@ -52,7 +56,8 @@ The screenshots use a demo group with made-up names.
 
 **Everywhere**
 - An English interface. Names and wishes people type can be in Thai too, with matching Thai fonts.
-- A festive poster look: blurred lights, gold script, torn paper notes and punched tickets, recorded in [DESIGN.md](DESIGN.md).
+- The Cultural Fest 2027 look: grainy blurred lights, gold script, stamp-edged cream cards and punched tickets, recorded in [DESIGN.md](DESIGN.md).
+- Fast on phones: about 200 KB for the home page, and only the font weights and axes the site uses.
 - Reduced motion is respected.
 
 ## How the secret is kept
