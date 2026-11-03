@@ -157,3 +157,18 @@ test("prices read the way the shop shows them", () => {
   assert.equal(formatPrice({ amount: 1150.5, currency: "THB" }), "฿1,150.50");
   assert.equal(formatPrice({ amount: 89, currency: "USD" }), "$89");
 });
+
+test("prices in every standard place a shop puts them", () => {
+  const ld = (data: unknown) => `<script type="application/ld+json">${JSON.stringify(data)}</script>`;
+  // A product nested inside the page's own data, and a price inside a price specification
+  assert.deepEqual(priceFromHtml(ld({ "@type": "WebPage", mainEntity: { "@type": "Product", offers: { priceSpecification: { price: 990, priceCurrency: "THB" } } } })), { amount: 990, currency: "THB" });
+  // Microdata on a visible element, with the amount in its text
+  assert.deepEqual(priceFromHtml('<span itemprop="priceCurrency" content="THB"></span><span itemprop="price">1,290.00</span>'), { amount: 1290, currency: "THB" });
+  // The price line in a link preview, in Thai, with the currency written out
+  assert.deepEqual(priceFromHtml('<meta name="twitter:label1" content="ราคา"><meta name="twitter:data1" content="2,500 บาท">'), { amount: 2500, currency: "THB" });
+  assert.deepEqual(priceFromHtml('<meta name="twitter:label1" content="Price"><meta name="twitter:data1" content="SGD 49.90">'), { amount: 49.9, currency: "SGD" });
+  // Expensive things are real too
+  assert.deepEqual(priceFromHtml(ld({ "@type": "Product", offers: { price: "18000000", priceCurrency: "THB" } })), { amount: 18_000_000, currency: "THB" });
+  // Empty tags, as a page that fills them in with JavaScript leaves them, give no price
+  assert.equal(priceFromHtml('<meta itemprop="price" content=""><meta itemprop="priceCurrency" content="">'), null);
+});

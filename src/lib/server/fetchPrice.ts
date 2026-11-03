@@ -3,7 +3,9 @@ import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
 import { priceFromHtml, type ShopPrice } from "../price";
 
-const UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
+// Says what it is. A shop that keeps its prices from bots, like Shopee, gets no workaround: that wish
+// just has no price.
+const UA = "Mozilla/5.0 (compatible; SecretSantaPriceCheck/1.0; +https://secretsanta-draw.vercel.app)";
 const MAX_BYTES = 3_000_000;
 
 /** Addresses a link must never reach: this machine, the private network, and the cloud's metadata service. */
@@ -45,7 +47,7 @@ async function readCapped(res: Response): Promise<string> {
 }
 
 /**
- * Reads the price from a wish's link, the way a phone would see the page. Short
+ * Reads the price from a wish's link, as the page states it to anyone. Short
  * links redirect, so each hop is checked again before it's followed. Shops that
  * hide their pages from servers, like Shopee, give null.
  */
