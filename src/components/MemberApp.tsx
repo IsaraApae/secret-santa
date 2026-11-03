@@ -6,10 +6,11 @@ import { api, baht, errorText, getSession, rememberGroup, setSession, type Sessi
 import { useT } from "@/lib/i18n";
 import type { AboutMe, WishItem } from "@/lib/schema";
 import type { MeAction, MemberView, Msg, PublicGroup } from "@/lib/server/groups";
+import { hasThai } from "@/lib/format";
 import { formatPrice, type ShopPrice } from "@/lib/price";
 import { parseShopPaste, safeUrl, SHOP_LABEL, shopOf, siteOf, type Shop } from "@/lib/shop";
 import { Countdown, Fall, GiftBox, GroupFacts, GiftTag, GuessResults } from "./Festive";
-import { Callout, cx, ICON, Section, Segmented, Sheet } from "./ui";
+import { Callout, cx, ICON, Section, Segmented, Sheet, Sticker } from "./ui";
 
 export function MemberApp({ id, initial }: { id: string; initial: PublicGroup }) {
   const t = useT();
@@ -64,7 +65,7 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
   return (
     <>
       <header className="space-y-3 px-1 pt-2 text-center">
-        <h1 className="large-title break-words">{group.name}</h1>
+        <h1 className={cx("large-title break-words", hasThai(group.name) && "leading-[1.6]")}>{group.name}</h1>
         <GroupFacts budget={group.budget} date={group.date} />
       </header>
       {group.date && <Countdown date={group.date} />}
@@ -107,7 +108,8 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
 
   // The sheet focuses itself on open, so move on to the field straight after.
   useEffect(() => {
-    if (picked) pinRef.current?.focus();
+    // No scroll: the sheet is still sliding up, and the page jumping under it looked broken.
+    if (picked) pinRef.current?.focus({ preventScroll: true });
   }, [picked]);
 
   async function joinGroup() {
@@ -137,7 +139,7 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
       {group.drawn ? (
         <Callout tone="info">{t("closedHint")}</Callout>
       ) : (
-        <Section title={t("joinTitle")}>
+        <Section title={t("joinTitle")} sticker="tree">
           <form
             className="card space-y-3 p-4"
             onSubmit={(e) => {
@@ -167,7 +169,7 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
       )}
 
       {group.members.length > 0 && (
-      <Section title={group.drawn ? t("whoAreYou") : t("alreadyJoined")}>
+      <Section title={group.drawn ? t("whoAreYou") : t("alreadyJoined")} sticker="info">
         <ul className="card rows">
           <li className="px-5 py-3 font-serif text-[15px]">{t("whoAreYouSub")}</li>
           {group.members.map((m) => (
@@ -280,14 +282,28 @@ function WhoIsIn({ members, meId }: { members: PublicGroup["members"]; meId: str
   return (
     <Section
       title={t("whosIn")}
+      sticker="gingerbread"
       action={<span className="pb-1 font-serif text-[15px] text-ink-2">{t(members.length === 1 ? "countPerson" : "countPeople", { n: members.length })}</span>}
     >
-      <ul className="card flex flex-wrap gap-2 p-4">
-        {members.map((m) => (
-          <li key={m.id} className={cx("tag max-w-full truncate px-3 py-1.5 text-[15px]", m.id === meId && "font-semibold")}>
-            {m.id === meId ? t("youAre", { name: m.name }) : m.name}
-          </li>
-        ))}
+      <ul className="card flex flex-wrap justify-center gap-x-2.5 gap-y-3 px-4 py-5">
+        {members.map((m, i) => {
+          const me = m.id === meId;
+          return (
+            // A paper gift tag each, punched at one end and a little off true; yours is the red one.
+            <li
+              key={m.id}
+              className={cx(
+                "flex max-w-full items-center gap-2 rounded-r-lg rounded-l-[14px] border-[1.5px] py-1.5 pr-3.5 pl-2 text-[15px] shadow-[0_3px_6px_rgb(0_0_0/0.14)]",
+                me ? "border-transparent bg-[var(--santa)] text-[var(--paper-light)]" : "border-[rgb(44_40_37/0.25)] bg-[var(--paper-light)] text-[#2c2825]",
+                ["-rotate-2", "rotate-1", "-rotate-1", "rotate-2"][i % 4],
+              )}
+            >
+              <span aria-hidden className={cx("size-2.5 shrink-0 rounded-full ring-[1.5px]", me ? "bg-[var(--santa-deep)] ring-[var(--ribbon)]" : "bg-[var(--paper)] ring-[rgb(44_40_37/0.35)]")} />
+              <span className="min-w-0 truncate font-medium">{m.name}</span>
+              {me && <span className="shrink-0 font-serif text-[12px] opacity-85">{t("you").toLowerCase()}</span>}
+            </li>
+          );
+        })}
       </ul>
     </Section>
   );
@@ -344,7 +360,7 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
       </section>
 
       {(person.about.likes || person.about.sizes || person.about.avoid) && (
-        <Section title={t("aboutOf", { name: person.name })}>
+        <Section title={t("aboutOf", { name: person.name })} sticker="mitten">
           <dl className="card rows taped tilt-r nudge-r relative">
             {(
               [
@@ -365,7 +381,7 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
         </Section>
       )}
 
-      <Section title={t("theirWishes", { name: person.name })}>
+      <Section title={t("theirWishes", { name: person.name })} sticker="stocking">
         {person.wishes.length ? (
           <ul className="card rows">
             {person.wishes.map((w) => (
@@ -373,7 +389,10 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
             ))}
           </ul>
         ) : (
-          <p className="card px-5 py-4 text-[15px] text-ink-2">{t("noWishes", { name: person.name })}</p>
+          <p className="card flex items-center gap-3 px-5 py-4 text-[15px] text-ink-2">
+            <Sticker name="stocking" size={44} className="-rotate-6" />
+            {t("noWishes", { name: person.name })}
+          </p>
         )}
       </Section>
 
@@ -407,6 +426,7 @@ function MineTab({ view, act, members }: { view: MemberView; act: (a: MeAction) 
     <>
       <Section
         title={t("myWishesTitle")}
+        sticker="gift"
         action={
           <button type="button" className="chip min-h-9 shrink-0 whitespace-nowrap" disabled={wishes.length >= 30} onClick={() => setEditing("new")}>
             <Plus size={16} {...ICON} aria-hidden />
@@ -435,8 +455,11 @@ function MineTab({ view, act, members }: { view: MemberView; act: (a: MeAction) 
             ))}
           </ul>
         ) : (
-          <p className="card px-5 py-4 text-[15px] text-ink-2">
-            {t("myWishesHint")} {t("noMyWishes")}
+          <p className="card flex items-center gap-3 px-5 py-4 text-[15px] text-ink-2">
+            <Sticker name="gift" size={44} className="-rotate-6" />
+            <span>
+              {t("myWishesHint")} {t("noMyWishes")}
+            </span>
           </p>
         )}
       </Section>
@@ -461,7 +484,7 @@ function GuessForm({ view, members, act }: { view: MemberView; members: PublicGr
   const closed = view.guesses !== null;
   const changed = choice !== (view.myGuess ?? "");
   return (
-    <Section title={t("guessTitle")}>
+    <Section title={t("guessTitle")} sticker="question">
       <form
         className="card tilt-r relative space-y-3 p-4"
         onSubmit={async (e) => {
@@ -519,7 +542,7 @@ function AboutForm({ about, onSave }: { about: AboutMe; onSave: (a: AboutMe) => 
     />
   );
   return (
-    <Section title={t("aboutTitle")}>
+    <Section title={t("aboutTitle")} sticker="mitten">
       <form
         className="card tilt-l space-y-3 p-4"
         onSubmit={async (e) => {
@@ -554,7 +577,7 @@ function GiftSearch({ likes, budget }: { likes: string; budget: number | null })
     ["temu", `https://www.temu.com/search_result.html?search_key=${q}`],
   ];
   return (
-    <Section title={t("findGift")}>
+    <Section title={t("findGift")} sticker="palette">
       <div className="card tilt-r nudge-r space-y-3 p-4">
         <p className="px-1 text-[13px] text-ink-2">{budget !== null ? t("findGiftHint", { budget: baht(budget) }) : t("findGiftHintNoBudget")}</p>
         <input className="input" maxLength={60} value={query} aria-label={t("searchWord")} onChange={(e) => setQuery(e.target.value)} />
@@ -691,9 +714,7 @@ function Chat({
   }
 
   return (
-    <Section
-      title={title}
-    >
+    <Section title={title}>
       <div className="card relative space-y-3 p-4">
         <GiftBox state="still" size={54} className="pin-sticker" />
         <p className="px-1 pr-12 text-[14px] leading-snug text-ink-2">{hint}</p>

@@ -62,7 +62,7 @@ export function PeopleEditor({
 
   return (
     <>
-      <Section title={t("sectionPeople")} action={people.length > 0 && <span className="pb-1 font-serif text-[15px] text-ink-2">{t(people.length === 1 ? "countPerson" : "countPeople", { n: people.length })}</span>}>
+      <Section title={t("sectionPeople")} sticker="gingerbread" action={people.length > 0 && <span className="pb-1 font-serif text-[15px] text-ink-2">{t(people.length === 1 ? "countPerson" : "countPeople", { n: people.length })}</span>}>
         <div className="card p-4">
           <form
             className="flex gap-2"
@@ -115,7 +115,7 @@ export function PeopleEditor({
       </Section>
 
       {people.length >= 3 && (
-        <Section title={t("sectionExclusions")}>
+        <Section title={t("sectionExclusions")} sticker="warning">
           <div className="card space-y-3 p-4">
             <p className="px-1 text-[15px] leading-snug text-ink-2">{t("noExclusions")}</p>
             <div className="grid grid-cols-[1fr_1fr_auto] items-center gap-2">

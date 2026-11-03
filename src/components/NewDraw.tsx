@@ -25,13 +25,14 @@ export function NewDraw() {
       return;
     }
     rememberGroup({ id: res.data.id, name: body.name, key: res.data.key });
-    router.push(`/o/${res.data.id}?k=${res.data.key}`);
+    // The key stays on this phone only (rememberGroup), never in an address that could be shared.
+    router.push(`/o/${res.data.id}`);
   }
 
   return (
     <>
       <h1 className="large-title px-1 pt-2 text-center">{t("newTitle")}</h1>
-      <Section title={t("sectionDetails")}>
+      <Section title={t("sectionDetails")} sticker="calendar">
         <DetailsFields value={details} onChange={setDetails} />
       </Section>
       <p className="px-1 text-center text-[15px] text-ink-2">{t("newHint")}</p>

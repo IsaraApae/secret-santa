@@ -22,6 +22,7 @@ Run a gift exchange from one link. Create a group, share the link, and everyone 
 <p>
   <img src="docs/screenshots/unwrap.jpg" alt="A wrapped gift waiting to be tapped" width="240">
   <img src="docs/screenshots/reveal.jpg" alt="The name you drew, on a gift tag" width="240">
+  <img src="docs/screenshots/whos-in.jpg" alt="Who's in: everyone in the group on paper gift tags, yours in red" width="240">
 </p>
 <p>
   <img src="docs/screenshots/wishes.jpg" alt="A wish list where every link shows its website, and the IKEA one its price from the shop" width="240">
@@ -44,6 +45,7 @@ The screenshots use a demo group with made-up names.
 - **Copy a reminder:** a ready-made message for your group chat naming anyone still to open their name.
 - **Draw again:** the same group for next year, avoiding last round's matches when the group is big enough.
 - **Delete the group:** removes every name, wish list and message.
+- **Only the organiser manages it:** the organiser page works only on the phone that made the group. There's no organiser link to pass around.
 
 **Taking part**
 - **Join with your name and a 4-digit PIN.** The PIN opens your page on another phone.
@@ -58,7 +60,7 @@ The screenshots use a demo group with made-up names.
 
 **Everywhere**
 - An English interface. Names and wishes people type can be in Thai too, with matching Thai fonts.
-- The Cultural Fest 2027 look: grainy blurred lights, gold script, stamp-edged cream cards and punched tickets, recorded in [DESIGN.md](DESIGN.md).
+- The Cultural Fest 2027 look: grainy blurred lights, gold script, stamp-edged cream cards, punched tickets and the CI's own die-cut stickers, recorded in [DESIGN.md](DESIGN.md).
 - Fast on phones: about 320 KB for the home page, and only the font weights and axes the site uses. An open page checks for changes with one request every few seconds, and stops while it's in the background.
 - Reduced motion is respected.
 

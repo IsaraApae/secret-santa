@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { myGroups, type SavedGroup } from "@/lib/client/store";
 import { useT } from "@/lib/i18n";
 import { Fall, GiftBox, Sparkle } from "./Festive";
-import { ICON, Section } from "./ui";
+import { ICON, Section, Sticker } from "./ui";
 
 export function Home() {
   const t = useT();
@@ -29,6 +29,11 @@ export function Home() {
             <p className="ticket inline-block -rotate-1 px-7 py-3 font-serif text-[clamp(18px,5vw,26px)] leading-snug text-balance">{t("heroTitle")}</p>
           </div>
           <div className="relative">
+            {/* CI stickers around the present, clear of the two tags. */}
+            <Sticker name="bell" size={54} className="absolute top-0 right-[8%] rotate-[14deg] md:right-[4%] md:h-[80px]!" />
+            <Sticker name="tree" size={70} className="absolute bottom-1 left-[5%] -rotate-[8deg] md:left-0 md:h-[110px]!" />
+            <Sticker name="ornament" size={40} className="absolute top-[42%] left-[2%] rotate-[-12deg] md:h-[60px]!" />
+            <Sticker name="snowflake" size={36} className="absolute top-[38%] right-[1%] rotate-[18deg] md:h-[54px]!" />
             <GiftBox size={190} className="md:h-[320px] md:w-[320px]" />
             <span className="absolute top-2 left-[6%] rotate-[-9deg] rounded-md bg-[var(--accent)] px-3 py-1 font-serif text-[14px] text-[var(--paper-light)] shadow-[0_0_0_2.5px_var(--sticker),0_6px_12px_rgb(0_0_0/0.4)] md:left-0">
               {t("noSignUp")}
@@ -47,7 +52,7 @@ export function Home() {
       </section>
 
       {groups.length > 0 && (
-        <Section title={t("yourGroups")}>
+        <Section title={t("yourGroups")} sticker="gift">
           <ul className="card rows">
             {groups.map((g) => (
               <li key={g.id} className="flex items-center gap-2 py-1 pr-3 pl-5">
@@ -66,7 +71,7 @@ export function Home() {
         </Section>
       )}
 
-      <Section title={t("howTitle")}>
+      <Section title={t("howTitle")} sticker="candle">
         <ol className="space-y-3.5">
           {(["how1", "how2", "how3", "how4"] as const).map((key, i) => (
             <li key={key} className={`card flex items-start gap-3 px-5 py-4 ${i % 2 ? "rotate-[0.6deg] md:ml-8" : "-rotate-[0.6deg] md:mr-8"}`}>

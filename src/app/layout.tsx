@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Allura, Fraunces, Salsa, Sarabun, Source_Serif_4, Sriracha } from "next/font/google";
+import { Allura, Charm, Fraunces, Noto_Serif_Thai, Salsa, Source_Serif_4 } from "next/font/google";
 import { preload } from "react-dom";
 import { ConfirmHost } from "@/components/ConfirmHost";
 import { TopBar } from "@/components/TopBar";
@@ -14,8 +14,10 @@ const display = Fraunces({ subsets: ["latin"], axes: ["SOFT"], variable: "--font
 const body = Source_Serif_4({ subsets: ["latin"], variable: "--font-body" });
 // Only calendars use it, and they draw after the page has loaded.
 const calendar = Salsa({ weight: "400", subsets: ["latin"], variable: "--font-cal", preload: false });
-const thaiHand = Sriracha({ weight: "400", subsets: ["thai"], variable: "--font-thai-hand", preload: false });
-const thai = Sarabun({ weight: ["400", "600"], subsets: ["thai"], variable: "--font-thai", preload: false });
+// Thai partners in the same spirit: Charm's fine calligraphy beside Allura, and Noto Serif Thai's looped
+// letters beside the serifs. Only Thai names and wishes load them.
+const thaiHand = Charm({ weight: "400", subsets: ["thai"], variable: "--font-thai-hand", preload: false });
+const thai = Noto_Serif_Thai({ subsets: ["thai"], variable: "--font-thai", preload: false });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),

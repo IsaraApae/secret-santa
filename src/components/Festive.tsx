@@ -79,6 +79,18 @@ export function GiftBox({ state = "idle", size = 176, className = "" }: { state?
   );
 }
 
+/**
+ * Room around the drawn name, from the letters in it, so the gaps to the lines above and below look even.
+ * The script leaves a deep empty band under its letters, used only by letters that hang into it; Thai
+ * stacks marks above its letters: two high when a tone mark sits on an upper vowel, and higher too
+ * on the tall letters ป ฝ ฟ ฬ.
+ */
+function nameRoom(name: string) {
+  const hangs = /[fgjpqyGJQYZฺุูฎฏญฐ]/.test(name);
+  const above = /[ัิีึื][่้๊๋]|[่้๊๋]ำ/.test(name) ? "pt-[0.32em]" : /[ปฝฟฬ][ุู]?[่้๊๋]/.test(name) ? "pt-[0.2em]" : /[ัิีึื็่้๊๋์ำ]/.test(name) ? "pt-[0.12em]" : "";
+  return `${hangs ? "mb-[14px]" : "-mb-3"} ${above}`;
+}
+
 /** The result: a paper gift tag hanging from its string. */
 export function GiftTag({ lead, name, foot }: { lead: string; name: string; foot: string }) {
   return (
@@ -89,7 +101,7 @@ export function GiftTag({ lead, name, foot }: { lead: string; name: string; foot
       <div className="card px-6 pt-12 pb-8 text-center">
         <span className="absolute top-3.5 left-1/2 size-5 -translate-x-1/2 rounded-full bg-[#2c2825] ring-[3px] ring-[var(--ribbon)]" aria-hidden />
         <p className="font-serif text-[17px] text-ink-2">{lead}</p>
-        <p className="my-1 font-script text-[84px] leading-[1.1] break-words text-santa">{name}</p>
+        <p className={`mt-1 font-script text-[84px] leading-[1.1] break-words text-santa ${nameRoom(name)}`}>{name}</p>
         <p className="font-serif text-[15px] text-ink-2">{foot}</p>
       </div>
     </div>
@@ -152,7 +164,7 @@ export function GuessResults({ results }: { results: NonNullable<PublicGroup["gu
   const t = useT();
   const right = results.filter((r) => r.correct).length;
   return (
-    <Section title={t("resultsTitle")}>
+    <Section title={t("resultsTitle")} sticker="star">
       <ul className="card rows taped relative">
         <li className="px-5 pt-4 pb-3">
           <span className="block font-serif text-[17px]">{t("resultsCount", { n: right, total: results.length })}</span>

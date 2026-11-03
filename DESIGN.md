@@ -26,44 +26,44 @@ colors:
   warn-soft: "#f6e2ae"
 typography:
   display:
-    fontFamily: "Allura, Sriracha, Brush Script MT, cursive"
+    fontFamily: "Allura, Charm, Brush Script MT, cursive"
     fontSize: "clamp(100px, 29vw, 196px)"
     fontWeight: 400
     lineHeight: 0.9
   headline:
-    fontFamily: "Allura, Sriracha, Brush Script MT, cursive"
+    fontFamily: "Allura, Charm, Brush Script MT, cursive"
     fontSize: "66px"
     fontWeight: 400
     lineHeight: 1.05
   title:
-    fontFamily: "Allura, Sriracha, Brush Script MT, cursive"
+    fontFamily: "Allura, Charm, Brush Script MT, cursive"
     fontSize: "38px"
     fontWeight: 400
     lineHeight: 1.25
   button:
-    fontFamily: "Fraunces (SOFT 100, wght 560), Sarabun, Georgia, serif"
+    fontFamily: "Fraunces (SOFT 100, wght 560), Noto Serif Thai, Georgia, serif"
     fontSize: "17px"
     fontWeight: 400
   label:
-    fontFamily: "Fraunces (SOFT 100, wght 560), Sarabun, Georgia, serif"
+    fontFamily: "Fraunces (SOFT 100, wght 560), Noto Serif Thai, Georgia, serif"
     fontSize: "15px"
     fontWeight: 400
   body:
-    fontFamily: "Source Serif 4, Sarabun, system-ui, sans-serif"
+    fontFamily: "Source Serif 4, Noto Serif Thai, system-ui, sans-serif"
     fontSize: "17px"
     fontWeight: 400
     lineHeight: 1.45
   body-small:
-    fontFamily: "Source Serif 4, Sarabun, system-ui, sans-serif"
+    fontFamily: "Source Serif 4, Noto Serif Thai, system-ui, sans-serif"
     fontSize: "15px"
     fontWeight: 400
     lineHeight: 1.375
   calendar:
-    fontFamily: "Salsa, Sarabun, Georgia, serif"
+    fontFamily: "Salsa, Noto Serif Thai, Georgia, serif"
     fontSize: "32px"
     fontWeight: 400
   caption:
-    fontFamily: "Source Serif 4, Sarabun, system-ui, sans-serif"
+    fontFamily: "Source Serif 4, Noto Serif Thai, system-ui, sans-serif"
     fontSize: "13px"
     fontWeight: 400
 rounded:
@@ -149,7 +149,7 @@ components:
 
 A gift exchange should feel like the Cultural Fest 2027 Christmas Market, not a tidy app. Gold script sits on a grainy night of blurred red, green and gold lights, and everything you read or touch is a physical scrap laid on top: cream cards with perforated stamp edges, punched tickets, gift tags, die-cut stickers and calendar pages.
 
-The palette, faces and shapes follow the CI section of the Cultural Fest 2027 Figma file. The festival's logo, photos and wording are never reused, and all artwork here is original.
+The palette, faces, shapes and stickers follow the CI section of the Cultural Fest 2027 Figma file. The 21 stickers in `public/stickers` are that section's own vector artwork. The festival's logo and wording are never reused, and neither are the CI's "background shades": those are photos saved from Pinterest, not the team's own, so the site keeps its own blurred lights with the CI's blur-and-grain treatment.
 
 There is one dark theme and no switch. Paper surfaces use dark ink because they are objects on the night, not a light mode. The interface is English only, while names and wishes people type can be Thai.
 
@@ -188,9 +188,9 @@ The CI's warm charcoal, cream card stock and three festive inks: gold, Santa red
 
 ## Typography
 
-**Display Font:** Allura, standing in for the CI's Vintage Goods (Thai falls back to Sriracha)
-**Label Font:** Fraunces at SOFT 100 and weight 560, standing in for Roca One (Thai falls back to Sarabun)
-**Body Font:** Source Serif 4, standing in for Times New Roman MT Condensed (Thai falls back to Sarabun)
+**Display Font:** Allura, standing in for the CI's Vintage Goods (Thai falls back to Charm)
+**Label Font:** Fraunces at SOFT 100 and weight 560, standing in for Roca One (Thai falls back to Noto Serif Thai)
+**Body Font:** Source Serif 4, standing in for Times New Roman MT Condensed (Thai falls back to Noto Serif Thai)
 **Calendar Font:** Salsa, used only on calendars, as the CI asks
 
 **Character:** A flowing market-stall script over a soft, chunky serif, with a bookish serif doing the reading. The CI's own faces are paid fonts, so these free Google Fonts stand in for them.
@@ -206,7 +206,7 @@ The CI's warm charcoal, cream card stock and three festive inks: gold, Santa red
 ### Named Rules
 **The Script Heading Rule.** Headings use Allura. Sheet and alert titles (Fraunces, 19-20px) do not follow it yet, and are drift rather than a pattern to copy.
 
-**The Thai Partner Rule.** Every face keeps its Thai partner in the stack, because any name or wish can be Thai. Headings use Sriracha. Labels and body use Sarabun.
+**The Thai Partner Rule.** Every face keeps its Thai partner in the stack, because any name or wish can be Thai. Headings use Charm, a fine Thai calligraphy that matches Allura. Labels and body use Noto Serif Thai, whose looped letters sit with the serifs.
 
 ## Layout
 
@@ -237,6 +237,7 @@ Cards have no corners to speak of: their edge is a row of perforations, like a p
 - **Compact confirm:** a flat evergreen square (12px radius) or circle holding an icon, used for add, send and sheet confirm.
 
 ### Stickers and Tags
+- **CI stickers:** die-cut vector stickers from the CI (`<Sticker>`), each with its own #FAF9F6 edge and soft shadow. Every section can pin one to its note's top-right corner, tilted about 10deg, chosen for what the section is about: a stocking on a wish list, a megaphone on the invite link, a question mark on guessing. The home poster scatters a bell, tree, ornament and snowflake around the present, and empty states carry one beside their text. Never next to a heading, where it would squeeze the title.
 - **Sticker button:** a 44px round cream die-cut holding a 2px-stroke line icon.
 - **Name tag:** bright paper with a thin ink border (8px).
 - **Tabs:** dashed gold tags on the night; the chosen one becomes solid paper, lifts 2px and tilts -1.2deg.
@@ -267,11 +268,11 @@ An original die-cut present that bobs, shakes when tapped, then loses its lid wh
 ### Do:
 - **Do** put lists, forms and long text on a stamp card or sheet, with short script headings and labels on the night.
 - **Do** keep tilts small on things people read: cards at 0.7deg or less, tickets at 1deg. Decorative stickers can go up to 9deg.
-- **Do** draw new artwork as original SVG, and keep the fixed lights backdrop on every page.
+- **Do** use the CI stickers for decoration, draw any other new artwork as original SVG, and keep the fixed lights backdrop on every page.
 - **Do** show where a wish link goes as a plain globe and site name, the same for every shop. There are no brand-coloured badges.
 
 ### Don't:
-- **Don't** reuse the logo, photos or wording of Cultural Fest 2027; take only its CI palette, faces and shapes.
+- **Don't** reuse the logo, photos or wording of Cultural Fest 2027, or the CI's Pinterest background shades; take only its palette, faces, shapes and stickers.
 - **Don't** add a light theme or a theme switch.
 - **Don't** translate the interface into Thai, or remove a Thai font from a stack.
 - **Don't** set reading text in Allura, set body copy in Fraunces, or use Salsa outside calendars.

@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { baht, formatDate } from "@/lib/format";
+import { baht, formatDate, hasThai } from "@/lib/format";
 import { CI, Gift, Lights, OG_SIZE, ogFonts, Sparkle, Stamp } from "@/lib/og";
 import { getPublicGroup } from "@/lib/server/groups";
 
@@ -7,8 +7,8 @@ export const alt = "An invitation to join a Secret Santa group";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 
-/** Long names step down so they stay on the card. */
-const nameSize = (name: string) => (name.length <= 10 ? 124 : name.length <= 16 ? 100 : name.length <= 26 ? 80 : 62);
+/** Long names step down so they stay on the card. Charm draws Thai much larger than Allura, so Thai steps down further. */
+const nameSize = (name: string) => (name.length <= 10 ? 124 : name.length <= 16 ? 100 : name.length <= 26 ? 80 : 62) * (hasThai(name) ? 0.6 : 1);
 
 /** The card a chat app shows when someone sends a group's invite link. */
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
@@ -34,13 +34,13 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         <div style={{ position: "absolute", left: 62, top: 54, width: 666, height: 392, display: "flex", flexDirection: "column", justifyContent: "center", gap: 48 }}>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ fontFamily: "Fraunces", fontSize: 30, color: CI.ink2, display: "flex" }}>You're invited to</div>
-            <div style={{ fontFamily: "Allura, Sriracha", fontSize: nameSize(name), lineHeight: 1.08, color: CI.santa, marginTop: 6, display: "flex" }}>{name}</div>
+            <div style={{ fontFamily: "Allura, Charm", fontSize: nameSize(name), lineHeight: 1.08, color: CI.santa, marginTop: hasThai(name) ? 34 : 6, display: "flex" }}>{name}</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
             {group && (group.budget !== null || group.date) && (
               <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                 {group.budget !== null && (
-                  <div style={{ display: "flex", fontFamily: "Fraunces, Sriracha", fontSize: 32, color: CI.sticker, background: CI.santa, borderRadius: 10, padding: "10px 28px", border: "2px dashed rgba(250,249,246,0.5)" }}>
+                  <div style={{ display: "flex", fontFamily: "Fraunces, Noto Serif Thai", fontSize: 32, color: CI.sticker, background: CI.santa, borderRadius: 10, padding: "10px 28px", border: "2px dashed rgba(250,249,246,0.5)" }}>
                     Budget {baht(group.budget)}
                   </div>
                 )}

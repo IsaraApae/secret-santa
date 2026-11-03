@@ -40,7 +40,7 @@ export function ShareCard({ url, groupName }: { url: string; groupName: string }
   }
 
   return (
-    <Section title={t("shareLink")}>
+    <Section title={t("shareLink")} sticker="megaphone">
       <div className="card space-y-3 p-4">
         <p className="px-1 text-[15px] leading-snug text-ink-2">{t("shareBlurb")}</p>
         {/* The link preview from g/[id]/opengraph-image, so the organiser sees what everyone gets. */}

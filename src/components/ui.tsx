@@ -66,20 +66,59 @@ export function Callout({
   );
 }
 
-/** A gold script heading above a note, with an optional action on the right. */
-export function Section({ title, action, children }: { title: ReactNode; action?: ReactNode; children: ReactNode }) {
+/** The die-cut stickers from the Cultural Fest CI (public/stickers), each with its own off-white edge and shadow. */
+export type StickerName =
+  | "bell" | "calendar" | "candle" | "flower" | "gift" | "gingerbread" | "info" | "megaphone" | "mitten" | "music" | "north-star"
+  | "ornament" | "palette" | "question" | "snowflake" | "spark" | "stage" | "star" | "stocking" | "tree" | "warning";
+
+export function Sticker({ name, size = 40, className, style }: { name: StickerName; size?: number; className?: string; style?: React.CSSProperties }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={`/stickers/${name}.svg`} alt="" aria-hidden height={size} draggable={false} className={cx("pointer-events-none w-auto shrink-0 select-none", className)} style={{ height: size, ...style }} />
+  );
+}
+
+/** A gold script heading above a note, with an optional action on the right and a sticker pinned to the note's corner. */
+export function Section({ title, action, sticker, children }: { title: ReactNode; action?: ReactNode; sticker?: StickerName; children: ReactNode }) {
   return (
     <section className="space-y-2">
       <div className="flex min-h-8 items-end justify-between gap-2 px-1">
         <h2 className="font-script text-[38px] leading-tight text-gold">{title}</h2>
         {action}
       </div>
-      <div className="space-y-3.5">{children}</div>
+      <div className="relative space-y-3.5">
+        {children}
+        {/* On the corner, as on the CI board, so it never squeezes the heading. */}
+        {sticker && <Sticker name={sticker} size={38} className="absolute -top-6 -right-2 z-10 rotate-[10deg]" />}
+      </div>
     </section>
   );
 }
 
 // ---------- Bottom sheet ------------------------------------------------------
+
+/**
+ * How far a phone's on-screen keyboard covers the bottom of the screen. The
+ * keyboard doesn't shrink the page, so a sheet resting on the bottom edge would
+ * sit underneath it while someone types.
+ */
+function useKeyboardInset(active: boolean) {
+  const [inset, setInset] = useState(0);
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!active || !vv) return;
+    const update = () => setInset(Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop)));
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+      setInset(0);
+    };
+  }, [active]);
+  return inset;
+}
 
 /**
  * Paper sheet on a native <dialog> (focus trap, Esc, inert background for
@@ -113,6 +152,7 @@ export function Sheet({
   const titleId = useId();
   const drag = useRef<{ y: number; dy: number } | null>(null);
   const [dy, setDy] = useState(0);
+  const keyboard = useKeyboardInset(open);
   // The dialog's "close" event arrives asynchronously; only treat it as a user
   // dismissal while we still think the sheet is open (avoids races with a
   // sheet that was just reopened or swapped).
@@ -142,7 +182,11 @@ export function Sheet({
       aria-labelledby={titleId}
       tabIndex={-1}
       className="sheet"
-      style={dy ? { transform: `translateY(${dy}px)` } : undefined}
+      style={{
+        ...(dy ? { transform: `translateY(${dy}px)` } : {}),
+        // Rest on the keyboard while it's up, short enough to stay on screen.
+        ...(keyboard ? { marginBottom: keyboard + 8, maxHeight: `calc(100dvh - ${keyboard + 24}px)` } : {}),
+      }}
       onClose={() => openRef.current && onClose()}
       onCancel={(e) => {
         e.preventDefault();

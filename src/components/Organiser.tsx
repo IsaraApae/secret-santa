@@ -1,17 +1,18 @@
 "use client";
 
-import { Bell, Check, HelpCircle, CircleDashed, Copy, Gift, KeyRound, Pencil, RefreshCw, ShieldCheck, Trash2, User, Users } from "lucide-react";
+import { Bell, Check, HelpCircle, Gift, KeyRound, Pencil, RefreshCw, ShieldCheck, Trash2, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { askConfirm } from "@/lib/client/confirm";
 import { api, errorText, forgetGroup, organiserKey, rememberGroup } from "@/lib/client/store";
+import { hasThai } from "@/lib/format";
 import { useT } from "@/lib/i18n";
 import type { AdminView } from "@/lib/server/groups";
 import { Countdown, GiftBox, GroupFacts, GuessResults } from "./Festive";
 import { detailsBody, DetailsFields, PeopleEditor, type DetailValues, type EditPerson, type Pair } from "./PeopleEditor";
 import { ShareCard, useCopy } from "./ShareCard";
-import { Callout, cx, ICON, Section, Sheet } from "./ui";
+import { Callout, ICON, Section, Sheet, Sticker } from "./ui";
 
 export function Organiser({ id }: { id: string }) {
   const t = useT();
@@ -21,7 +22,6 @@ export function Organiser({ id }: { id: string }) {
   const [error, setError] = useState("");
   const [sheet, setSheet] = useState<"details" | "people" | null>(null);
   const [origin, setOrigin] = useState("");
-  const { copied, copy } = useCopy();
   const reminder = useCopy();
   const router = useRouter();
 
@@ -45,10 +45,12 @@ export function Organiser({ id }: { id: string }) {
     const k = fromUrl ?? organiserKey(id) ?? null;
     setKey(k);
     if (!k) {
-      setError(t("errForbidden"));
+      setError(t("errNotOrganiser"));
       return;
     }
-    send(k, { type: "status" });
+    // A link with the key in it works once, from the phone that made the group: the key is kept on
+    // the device and taken out of the address, so there's no organiser link to pass around.
+    send(k, { type: "status" }).then((ok) => ok && fromUrl && router.replace(`/o/${id}`));
     // Keeps the lists current while the organiser watches, and catches up the
     // moment they come back to the page.
     const refresh = () => !document.hidden && send(k, { type: "status" });
@@ -113,7 +115,7 @@ export function Organiser({ id }: { id: string }) {
   return (
     <>
       <header className="space-y-3 px-1 pt-2 text-center">
-        <h1 className="large-title break-words">{view.name}</h1>
+        <h1 className={`large-title break-words ${hasThai(view.name) ? "leading-[1.6]" : ""}`}>{view.name}</h1>
         <GroupFacts budget={view.budget} date={view.date} />
         {/* Below the facts, not on the title: script names swash past their box. */}
         <button type="button" className="chip min-h-10" onClick={() => setSheet("details")}>
@@ -139,6 +141,7 @@ export function Organiser({ id }: { id: string }) {
 
       <Section
         title={view.drawn ? t("statusTitle") : t("joinedTitle")}
+        sticker="gingerbread"
         action={
           <button type="button" className="chip min-h-10 shrink-0 whitespace-nowrap" onClick={() => setSheet("people")}>
             <Users size={16} {...ICON} aria-hidden />
@@ -147,20 +150,12 @@ export function Organiser({ id }: { id: string }) {
         }
       >
         <ul className="card rows taped relative tilt-r">
-          <li className="px-5 pt-4 pb-3 font-serif text-[15px]">
+          <li className="flex items-center gap-3 px-5 pt-4 pb-3 font-serif text-[15px]">
+            {!view.members.length && <Sticker name="megaphone" size={40} className="-rotate-6" />}
             {view.drawn ? t("statusCount", { n: opened, total: view.members.length }) : view.members.length ? t(view.members.length === 1 ? "joinedOne" : "joinedCount", { n: view.members.length }) : t("joinedNone")}
           </li>
           {view.members.map((m) => (
             <li key={m.id} className="flex items-center gap-3 py-2 pr-2 pl-5">
-              <span
-                className={cx(
-                  "grid size-8 shrink-0 place-items-center rounded-full",
-                  m.opened ? "bg-accent text-accent-ink" : m.claimed ? "bg-field text-ink" : "text-ink-3",
-                )}
-                aria-hidden
-              >
-                {m.opened ? <Check size={17} {...ICON} /> : m.claimed ? <User size={17} {...ICON} /> : <CircleDashed size={18} {...ICON} />}
-              </span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-medium">{m.name}</span>
                 <span className="block text-[13px] text-ink-2">
@@ -201,7 +196,7 @@ export function Organiser({ id }: { id: string }) {
       {view.guesses ? (
         <GuessResults results={view.guesses} />
       ) : view.drawn && (
-        <Section title={t("guessTitle")}>
+        <Section title={t("guessTitle")} sticker="question">
           <div className="card tilt-r nudge-r space-y-2 p-4">
             <p className="px-1 font-serif text-[15px]">{t("guessedCount", { n: view.guessedCount, total: view.members.length })}</p>
             <button type="button" className="btn-primary h-12 w-full" onClick={revealGuesses}>
@@ -213,7 +208,7 @@ export function Organiser({ id }: { id: string }) {
         </Section>
       )}
 
-      <Section title={t("moreActions")}>
+      <Section title={t("moreActions")} sticker="ornament">
         <div className="card space-y-3 p-4">
           {view.drawn && (
             <>
@@ -229,11 +224,6 @@ export function Organiser({ id }: { id: string }) {
             {t("deleteGroup")}
           </button>
           <p className="px-1 text-[13px] leading-snug text-ink-2">{t("deleteGroupHint")}</p>
-          <button type="button" className="btn-secondary h-12 w-full" onClick={() => copy(`${origin}/o/${id}?k=${key}`)}>
-            {copied ? <Check size={20} {...ICON} aria-hidden /> : <Copy size={20} {...ICON} aria-hidden />}
-            {copied ? t("copied") : t("saveOrganiserLink")}
-          </button>
-          <p className="px-1 text-[13px] leading-snug text-ink-2">{t("saveOrganiserHint")}</p>
         </div>
       </Section>
 
