@@ -7,6 +7,9 @@ Run a gift exchange from one link. Create a group, share the link, and everyone 
 **Live:** https://secretsanta-draw.vercel.app
 
 <p>
+  <img src="docs/screenshots/animations.webp" alt="Three phone screens, animated: a group's page laying itself out on a first visit, everyone's name tag flying into a present that shakes and bursts into confetti when the organiser draws names, and a drawn name writing itself onto a gift tag" width="732">
+</p>
+<p>
   <img src="docs/screenshots/home.jpg" alt="Home page" width="240">
   <img src="docs/screenshots/new.jpg" alt="New group form with a big budget field" width="240">
   <img src="docs/screenshots/join.jpg" alt="Joining a group with a name and PIN, and name tags to tap if you already joined" width="240">

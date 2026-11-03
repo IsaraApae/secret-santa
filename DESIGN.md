@@ -261,7 +261,7 @@ Cards have no corners to speak of: their edge is a row of perforations, like a p
 A centred script signature with two sparkles at the top of every page but home. There is no other global navigation, and no fixed bars.
 
 ### Sheets and Alerts
-Native dialogs on plain paper. Sheets rise from the bottom in 0.45s with a drag handle, a close sticker on the left and an optional confirm on the right. Alerts scale in over 0.35s at 330px wide at most.
+Native dialogs on plain paper. Sheets rise from the bottom in 0.45s with a drag handle, a close sticker on the left and an optional confirm on the right. Alerts scale in over 0.35s at 330px wide at most. Their Cancel takes only its word's room and the action ticket the rest, so a two-word action like "Draw names" stays on one line, clear of its notches.
 
 ### Link Preview
 Every invite link unfurls in chat apps as a stamp card on the lights: "You're invited to", the group name in red script, the budget ticket and date tag, and how many people have joined. The site's own link gets the same card with the promise ticket. Both are drawn in `src/lib/og.tsx`, and the organiser sees the invite card above the link.

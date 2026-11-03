@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { onConfirmRequest, type ConfirmRequest } from "@/lib/client/confirm";
 import { useT } from "@/lib/i18n";
-import { cx } from "./ui";
 
 type Pending = ConfirmRequest & { resolve: (ok: boolean) => void };
 
@@ -38,19 +37,20 @@ export function ConfirmHost() {
       }}
     >
       {req && (
-        <div className="p-6 pt-7 text-center">
+        <div className="px-5 pt-7 pb-6 text-center">
           <h2 id="confirm-title" className="font-serif text-[20px]">
             {req.title}
           </h2>
           {req.message && <p className="mt-1.5 text-[15px] leading-snug text-ink-2">{req.message}</p>}
-          <div className="mt-6 grid grid-cols-2 gap-2.5">
-            <button type="button" className="btn-secondary h-12" onClick={() => answer(false)}>
+          <div className="mt-6 grid grid-cols-[auto_1fr] gap-2.5">
+            {/* Cancel takes only its word's room, so the action ("Draw names") sits clear of its notches on one line. */}
+            <button type="button" className="btn-secondary h-12 px-4 whitespace-nowrap" onClick={() => answer(false)}>
               {t("cancel")}
             </button>
             <button
               type="button"
               autoFocus
-              className={cx("btn-primary h-12", req.destructive && "px-3")}
+              className="btn-primary h-12 px-5 whitespace-nowrap"
               onClick={() => answer(true)}
             >
               {req.confirmLabel ?? t("ok")}
