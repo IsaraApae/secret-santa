@@ -1,7 +1,7 @@
 import "server-only";
 import { randomBytes } from "node:crypto";
 import { after } from "next/server";
-import { z } from "zod";
+import type * as z from "zod/mini";
 import { drawNames } from "../draw";
 import type { AboutMe, Details, People, WishItem } from "../schema";
 import type { ShopPrice } from "../price";
