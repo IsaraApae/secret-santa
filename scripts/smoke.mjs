@@ -37,6 +37,8 @@ assert.equal((await post(`${g}/join`, { name: "Bad", pin: "12" })).status, 400);
 const early = await post(`${g}/me`, { ...sessions.Ann, action: { type: "load" } });
 assert.equal(early.status, 200);
 assert.equal(early.data.person, null);
+// It brings the public group page with it, so a signed-in page polls once, not twice
+assert.deepEqual(early.data.group, await get(g));
 assert.equal((await post(`${g}/me`, { ...sessions.Ann, action: { type: "ask", text: "hi" } })).status, 200);
 assert.equal((await post(`${g}/admin`, { key, action: { type: "revealGuesses" } })).data.error, "not_drawn");
 assert.equal((await post(`${g}/admin`, { key, action: { type: "newRound" } })).data.error, "not_drawn");

@@ -213,10 +213,13 @@ const readThread = async (id: string, receiver: string): Promise<Msg[]> =>
 async function memberView(g: Loaded, memberId: string) {
   const receiver = isDrawn(g) ? unseal(sealSecret(), g.id, memberId, g.raw[`s:${memberId}`]) : null;
   const [withPerson, withSanta] = await Promise.all([receiver ? readThread(g.id, receiver) : [], readThread(g.id, memberId)]);
+  // The group page too, from the same read, so a signed-in page needs one request to stay current.
+  const group = publicView(g);
   return {
+    group,
     me: { id: memberId, name: g.raw[`m:${memberId}`], wishes: wishesOf(g, memberId), about: aboutOf(g, memberId) },
     myGuess: guessOf(g, memberId),
-    guesses: guessResults(g),
+    guesses: group.guesses,
     // They'd opened an earlier draw, so the name they remember is out of date.
     redrawn: Boolean(g.raw[`o:${memberId}`]) && Number(g.raw[`o:${memberId}`]) !== g.meta.round,
     joined: g.ids.length,

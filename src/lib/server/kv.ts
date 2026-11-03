@@ -1,6 +1,6 @@
 import "server-only";
 import { Redis } from "@upstash/redis";
-import { createClient, type RedisClientType } from "redis";
+import type { RedisClientType } from "redis";
 
 export class StorageNotConfiguredError extends Error {}
 
@@ -43,17 +43,22 @@ function upstashKv(r: Redis): Kv {
 
 let tcpClient: Promise<RedisClientType> | null = null;
 
-/** One connection per warm serverless instance, reconnecting after failures. */
+/**
+ * One connection per warm serverless instance, reconnecting after failures. The TCP client is a
+ * large library, so it's only loaded when this backend is in use: with Upstash, a cold start would
+ * otherwise read it all in before answering the first visitor.
+ */
 function tcp(url: string): Promise<RedisClientType> {
   if (!tcpClient) {
-    const client: RedisClientType = createClient({
-      url,
-      socket: { connectTimeout: 5000, reconnectStrategy: (n) => Math.min(n * 200, 2000) },
-    });
-    client.on("error", (e) => console.error("Redis error", e?.message ?? e));
-    tcpClient = client
-      .connect()
-      .then(() => client)
+    tcpClient = import("redis")
+      .then(({ createClient }) => {
+        const client: RedisClientType = createClient({
+          url,
+          socket: { connectTimeout: 5000, reconnectStrategy: (n) => Math.min(n * 200, 2000) },
+        });
+        client.on("error", (e) => console.error("Redis error", e?.message ?? e));
+        return client.connect().then(() => client);
+      })
       .catch((e) => {
         tcpClient = null;
         throw e;

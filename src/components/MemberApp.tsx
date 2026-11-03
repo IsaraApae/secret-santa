@@ -27,8 +27,10 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
   const act = useCallback(
     async (s: Session, action: MeAction) => {
       const res = await api<MemberView>(`/api/g/${id}/me`, { ...s, action });
-      if (res.ok) setView(res.data);
-      else if (res.error === "signed_out") signOut();
+      if (res.ok) {
+        setView(res.data);
+        setGroup(res.data.group);
+      } else if (res.error === "signed_out") signOut();
       return res.ok;
     },
     [id, signOut],
@@ -43,11 +45,12 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
   }, [id, initial.name, act]);
 
   // Every few seconds while on screen, and straight away on coming back to the page.
+  // Signed in, your own page brings the group with it, so that's one request, not two.
   useEffect(() => {
     const refresh = () => {
       if (document.hidden) return;
-      api<PublicGroup>(`/api/g/${id}`).then((r) => r.ok && setGroup(r.data));
       if (session) act(session, { type: "load" });
+      else api<PublicGroup>(`/api/g/${id}`).then((r) => r.ok && setGroup(r.data));
     };
     const i = setInterval(refresh, 5000);
     document.addEventListener("visibilitychange", refresh);
@@ -80,7 +83,6 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
             setSession(id, s);
             setSess(s);
             act(s, { type: "load" });
-            api<PublicGroup>(`/api/g/${id}`).then((r) => r.ok && setGroup(r.data));
           }}
         />
       )}
