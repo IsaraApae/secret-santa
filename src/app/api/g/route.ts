@@ -7,6 +7,7 @@ export function POST(req: Request) {
     if (await overLimit(req, "create", 30)) return jsonError(429, "too_many");
     const body = CreateBody.safeParse(await readJson(req));
     if (!body.success) return jsonError(400, "invalid");
-    return Response.json(await createGroup(body.data));
+    const { device, ...details } = body.data;
+    return Response.json(await createGroup(details, device));
   });
 }

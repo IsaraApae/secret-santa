@@ -243,7 +243,7 @@ Cards have no corners to speak of: their edge is a row of perforations, like a p
 - **Compact confirm:** a flat evergreen square (12px radius) or circle holding an icon, used for add, send and sheet confirm.
 
 ### Stickers and Tags
-- **CI stickers:** die-cut vector stickers from the CI (`<Sticker>`), each with its own #FAF9F6 edge and a soft CSS shadow. A section heading can end with one, inline after the last word and tilted about 9deg, chosen for what the section is about: a stocking on a wish list, a megaphone on the invite link, a question mark on guessing. It wraps with the title and is left out when the heading has an action or count on its right, so it never squeezes or covers text. The home poster scatters a bell, tree, ornament and snowflake around the present, and empty states carry one beside their text. The SVGs hold no filters: their shadow is CSS, so they stay sharp at any size.
+- **CI stickers:** die-cut vector stickers from the CI (`<Sticker>`), each with its own #FAF9F6 edge and a soft CSS shadow. A section heading can end with one, inline after the last word and tilted about 9deg, chosen for what the section is about: a stocking on a wish list, a megaphone on the invite link, a question mark on guessing. It wraps with the title and is left out when the heading has an action or count on its right, so it never squeezes or covers text. The home poster scatters a bell, tree, ornament and star around the present, and empty states carry one beside their text. The SVGs hold no filters: their shadow is CSS, so they stay sharp at any size.
 - **Sticker button:** a 44px round cream die-cut holding a 2px-stroke line icon.
 - **Name tag:** a person as a small paper gift tag (`NameTag`): bright paper, a thin ink border, a punched hole at one end and a slight tilt that varies along the row. Yours is red. "Who's in" lists them, and "Already joined?" makes them tappable, with a small lock on tags that already have a PIN.
 - **Tabs:** dashed gold tags on the night; the chosen one becomes solid paper, lifts 2px and tilts -1.2deg.
@@ -267,7 +267,7 @@ Native dialogs on plain paper. Sheets rise from the bottom in 0.45s with a drag 
 Every invite link unfurls in chat apps as a stamp card on the lights: "You're invited to", the group name in red script, the budget ticket and date tag, and how many people have joined. The site's own link gets the same card with the promise ticket. Both are drawn in `src/lib/og.tsx`, and the organiser sees the invite card above the link.
 
 ### Gift and Reveal
-An original die-cut present that bobs, shakes when tapped, then loses its lid while a stamp-edged paper tag swings out on a gold string with the drawn name in red script. Calendar-page tiles count down to the party in Salsa, with a red header over a bright paper face. Reduced motion turns all of this off.
+An original die-cut present that bobs, shakes when tapped, then loses its lid while a stamp-edged paper tag swings out on a gold string with the drawn name in red script. Calendar-page tiles count down to the party in Salsa, with a red header over a bright paper face. Snow falls slowly on every page. The drawn name writes itself onto the tag, and so does a group's name the first time a phone opens it, before its tickets drop and its cards rise in turn (only opacity, translate and scale move, so cards keep their tilt). When the organiser draws, everyone's name tag pops up around the present and drops into it, the present shakes, and confetti bursts. Reduced motion turns all of this off.
 
 ## Do's and Don'ts
 

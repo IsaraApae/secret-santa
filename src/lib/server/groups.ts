@@ -13,6 +13,7 @@ import { kv, sealSecret } from "./kv";
 /*
  * One Redis hash per group:
  *   meta      details, organiser key hash, exclusions, round
+ *   dev       hash of the organiser's phone: the key only works from there
  *   m:<id>    the person's name
  *   s:<id>    who they drew, sealed. Only ever opened for that person.
  *   p:<id>    their PIN record
@@ -214,7 +215,7 @@ function sealedDraw(id: string, ids: string[], pairs: [string, string][], avoid:
 }
 
 /** A group starts empty: people add themselves with the link, then the organiser draws. */
-export async function createGroup(input: DetailFields) {
+export async function createGroup(input: DetailFields, device: string) {
   const id = newId(9);
   const key = newId(18);
   const meta: Meta = {
@@ -227,7 +228,7 @@ export async function createGroup(input: DetailFields) {
     round: 1,
     drawn: false,
   };
-  await kv().hset(groupKey(id), { meta: JSON.stringify(meta) });
+  await kv().hset(groupKey(id), { meta: JSON.stringify(meta), dev: sha256(device) });
   await touch(id);
   return { id, key };
 }
@@ -351,9 +352,17 @@ export async function memberAction(id: string, memberId: string, token: string, 
 
 // ---------- Organiser ------------------------------------------------------------
 
-async function asAdmin(id: string, key: string) {
+/**
+ * The organiser key works only from the phone that made the group, so a key copied out of an old
+ * organiser link is no use anywhere else. Groups made before that belong to the first phone that
+ * manages them since.
+ */
+async function asAdmin(id: string, key: string, device: string) {
   const g = await load(id);
-  return g && safeEqual(sha256(key), g.meta.adminHash) ? g : null;
+  if (!g || !safeEqual(sha256(key), g.meta.adminHash)) return null;
+  if (!g.raw.dev && (await kv().hsetnx(groupKey(id), "dev", sha256(device)))) return g;
+  const dev = g.raw.dev ?? (await kv().hgetall(groupKey(id))).dev;
+  return dev && safeEqual(sha256(device), dev) ? g : null;
 }
 
 /** What the organiser sees. Never contains a sealed field or who drew whom. */
@@ -383,8 +392,8 @@ export type AdminAction =
   | { type: "revealGuesses" }
   | { type: "delete" };
 
-export async function adminAction(id: string, key: string, action: AdminAction) {
-  const g = await asAdmin(id, key);
+export async function adminAction(id: string, key: string, device: string, action: AdminAction) {
+  const g = await asAdmin(id, key, device);
   if (!g) return { error: "forbidden" as const };
   const reload = async () => {
     await touch(id);

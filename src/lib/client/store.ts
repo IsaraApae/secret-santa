@@ -38,6 +38,17 @@ export function rememberGroup(g: SavedGroup) {
 }
 export const forgetGroup = (id: string) => write("ss:groups", myGroups().filter((g) => g.id !== id));
 export const organiserKey = (id: string) => myGroups().find((g) => g.id === id)?.key;
+/** This phone's own random id. The server ties each group's organiser key to the phone that made it. */
+export function deviceId() {
+  let d = read<string | null>("ss:device", null);
+  if (!d) {
+    d = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(18)))).replace(/\+/g, "-").replace(/\//g, "_");
+    write("ss:device", d);
+  }
+  return d;
+}
+/** Drops a key the server won't take from this phone, so the page stops offering to manage that group. */
+export const dropKey = (id: string) => write("ss:groups", myGroups().map((g) => (g.id === id ? { id: g.id, name: g.name } : g)));
 
 export async function api<R>(path: string, body?: unknown): Promise<{ ok: true; data: R } | { ok: false; error: string; name?: string }> {
   try {

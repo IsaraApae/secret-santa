@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Charm, Fraunces, Instrument_Serif, Noto_Serif_Thai, Salsa, Satisfy } from "next/font/google";
 import { preload } from "react-dom";
 import { ConfirmHost } from "@/components/ConfirmHost";
+import { Fall } from "@/components/Festive";
 import { TopBar } from "@/components/TopBar";
 import { siteUrl } from "@/lib/site";
 import "./globals.css";
@@ -35,15 +36,22 @@ export const viewport: Viewport = {
   themeColor: "#451f19",
 };
 
+const ROOM_ENTRANCE = `try{var p=location.pathname;if(/^\\/[go]\\/[\\w-]{12}$/.test(p)&&!localStorage.getItem("ss:seen:"+p))document.documentElement.classList.add("first-room")}catch(e){}`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   // The lights fill the screen, so they're the largest paint. Start the download
   // with the HTML instead of waiting for the stylesheet to name it.
   preload("/lights.webp", { as: "image", fetchPriority: "high" });
   return (
-    <html lang="en" className={`${hand.variable} ${display.variable} ${body.variable} ${calendar.variable} ${thaiHand.variable} ${thai.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${hand.variable} ${display.variable} ${body.variable} ${calendar.variable} ${thaiHand.variable} ${thai.variable}`}>
       <body className="min-h-dvh font-sans">
+        {/* Starts a room's first-visit entrance before the first paint (see useRoomEntrance), so the
+            page doesn't show and then vanish into it. */}
+        <script dangerouslySetInnerHTML={{ __html: ROOM_ENTRANCE }} />
         <div className="edge-strip" aria-hidden />
         <div className="night" aria-hidden />
+        {/* Snow falls on every page. */}
+        <Fall kind="snow" />
         <TopBar />
         <main className="mx-auto w-full max-w-[640px] space-y-6 px-4 pt-2 pb-[max(48px,env(safe-area-inset-bottom))]">{children}</main>
         <ConfirmHost />

@@ -51,6 +51,8 @@ const en = {
   personB: "Person 2",
   drawNames: "Draw names",
   drawing: "Drawing…",
+  shuffling: "Shuffling names…",
+  namesDrawn: "Names drawn!",
 
   errImpossible: "Those exclusions leave no possible draw. Remove one and try again.",
   errDuplicate: "{name} is already in this group. Use a different name, e.g. add a last initial.",

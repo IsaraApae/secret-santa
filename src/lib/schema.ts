@@ -21,7 +21,10 @@ export const Details = z.object({
   note: text(400),
 });
 
-export const CreateBody = Details;
+/** The organiser's phone: a random id it keeps, so the group's key only works there. */
+const Device = id(40).check(z.minLength(16));
+
+export const CreateBody = z.object({ ...Details.shape, device: Device });
 
 export const Pin = z.string().check(z.regex(/^\d{4}$/));
 
@@ -63,6 +66,7 @@ export const MeBody = z.object({
 
 export const AdminBody = z.object({
   key: id(100),
+  device: Device,
   action: z.discriminatedUnion("type", [
     z.object({ type: z.literal("status") }),
     z.object({ type: z.literal("details"), ...Details.shape }),

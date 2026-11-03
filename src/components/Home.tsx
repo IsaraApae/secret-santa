@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { myGroups, type SavedGroup } from "@/lib/client/store";
 import { useT } from "@/lib/i18n";
-import { Fall, GiftBox, Sparkle } from "./Festive";
+import { GiftBox, Sparkle } from "./Festive";
 import { ICON, Section, Sticker } from "./ui";
 
 export function Home() {
@@ -14,7 +14,6 @@ export function Home() {
   useEffect(() => setGroups(myGroups()), []);
   return (
     <>
-      <Fall kind="snow" />
       {/* Wider than the page column on big screens: a poster, not a form. */}
       <section className="relative left-1/2 mt-[max(14px,env(safe-area-inset-top))] w-[calc(100vw-24px)] max-w-[1080px] -translate-x-1/2 rounded-[22px] border-[1.5px] border-gold/70 px-5 pt-7 pb-8 md:px-14 md:py-14">
         <Sparkle size={26} className="twinkle absolute top-3 right-3" />
@@ -33,7 +32,7 @@ export function Home() {
             <Sticker name="bell" size={54} className="absolute top-0 right-[8%] rotate-[14deg] md:right-[4%] md:h-[80px]!" />
             <Sticker name="tree" size={70} className="absolute bottom-1 left-[5%] -rotate-[8deg] md:left-0 md:h-[110px]!" />
             <Sticker name="ornament" size={40} className="absolute top-[42%] left-[2%] rotate-[-12deg] md:h-[60px]!" />
-            <Sticker name="snowflake" size={36} className="absolute top-[38%] right-[1%] rotate-[18deg] md:h-[54px]!" />
+            <Sticker name="star" size={40} className="absolute top-[38%] right-[1%] rotate-[14deg] md:h-[58px]!" />
             <GiftBox size={190} className="md:h-[320px] md:w-[320px]" />
             <span className="absolute top-2 left-[6%] rotate-[-9deg] rounded-md bg-[var(--accent)] px-3 py-1 font-label text-[14px] text-[var(--paper-light)] shadow-[0_0_0_2.5px_var(--sticker),0_6px_12px_rgb(0_0_0/0.4)] md:left-0">
               {t("noSignUp")}

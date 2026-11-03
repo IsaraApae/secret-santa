@@ -5,11 +5,11 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { askConfirm } from "@/lib/client/confirm";
-import { api, errorText, forgetGroup, organiserKey, rememberGroup } from "@/lib/client/store";
+import { api, deviceId, dropKey, errorText, forgetGroup, organiserKey, rememberGroup } from "@/lib/client/store";
 import { hasThai } from "@/lib/format";
 import { useT } from "@/lib/i18n";
 import type { AdminView } from "@/lib/server/groups";
-import { Countdown, GiftBox, GroupFacts, GuessResults } from "./Festive";
+import { Countdown, DrawShow, GiftBox, GroupFacts, GuessResults, useRoomEntrance } from "./Festive";
 import { detailsBody, DetailsFields, PeopleEditor, type DetailValues, type EditPerson, type Pair } from "./PeopleEditor";
 import { ShareCard, useCopy } from "./ShareCard";
 import { Callout, ICON, Section, Sheet, Sticker } from "./ui";
@@ -24,15 +24,26 @@ export function Organiser({ id }: { id: string }) {
   const [origin, setOrigin] = useState("");
   const reminder = useCopy();
   const router = useRouter();
+  // The names on show while they're drawn.
+  const [drawing, setDrawing] = useState<string[] | null>(null);
+  useRoomEntrance();
 
   const send = useCallback(
     async (k: string, action: object) => {
-      const res = await api<AdminView>(`/api/g/${id}/admin`, { key: k, action });
+      const res = await api<AdminView>(`/api/g/${id}/admin`, { key: k, device: deviceId(), action });
       if (res.ok) {
         setView(res.data);
         setError("");
         rememberGroup({ id, name: res.data.name, key: k });
         return true;
+      }
+      if (res.error === "forbidden") {
+        // Another phone made this group (or manages it): this one's copy of the key is no use.
+        dropKey(id);
+        setView(null);
+        setKey(null);
+        setError(t("errNotOrganiser"));
+        return false;
       }
       setError(errorText(t, res));
       return false;
@@ -54,7 +65,8 @@ export function Organiser({ id }: { id: string }) {
     send(k, { type: "status" });
     // Keeps the lists current while the organiser watches, and catches up the
     // moment they come back to the page.
-    const refresh = () => !document.hidden && send(k, { type: "status" });
+    // Stops once the server has refused this phone (its key is dropped then).
+    const refresh = () => !document.hidden && organiserKey(id) && send(k, { type: "status" });
     const i = setInterval(refresh, 5000);
     document.addEventListener("visibilitychange", refresh);
     return () => {
@@ -86,7 +98,8 @@ export function Organiser({ id }: { id: string }) {
 
   async function drawNow() {
     const ok = await askConfirm({ title: t("drawTitle"), message: t("drawBody"), confirmLabel: t("drawNow") });
-    if (ok) send(key!, { type: "draw" });
+    const names = view!.members.map((m) => m.name);
+    if (ok && (await send(key!, { type: "draw" }))) setDrawing(names);
   }
 
   async function revealGuesses() {
@@ -96,13 +109,14 @@ export function Organiser({ id }: { id: string }) {
 
   async function drawAgain() {
     const ok = await askConfirm({ title: t("drawAgainTitle"), message: t("drawAgainBody"), confirmLabel: t("drawAgain"), destructive: true });
-    if (ok) send(key!, { type: "newRound" });
+    const names = view!.members.map((m) => m.name);
+    if (ok && (await send(key!, { type: "newRound" }))) setDrawing(names);
   }
 
   async function deleteGroup() {
     const ok = await askConfirm({ title: t("deleteTitle", { name: view!.name }), message: t("deleteBody"), confirmLabel: t("delete"), destructive: true });
     if (!ok) return;
-    const res = await api(`/api/g/${id}/admin`, { key, action: { type: "delete" } });
+    const res = await api(`/api/g/${id}/admin`, { key, device: deviceId(), action: { type: "delete" } });
     if (!res.ok) return setError(errorText(t, res));
     forgetGroup(id);
     router.push("/");
@@ -114,7 +128,8 @@ export function Organiser({ id }: { id: string }) {
   }
 
   return (
-    <>
+    <div className="room space-y-6">
+      {drawing && <DrawShow names={drawing} onDone={() => setDrawing(null)} />}
       <header className="space-y-3 px-1 pt-2 text-center">
         <h1 className={`large-title break-words ${hasThai(view.name) ? "leading-[1.6]" : ""}`}>{view.name}</h1>
         <GroupFacts budget={view.budget} date={view.date} />
@@ -229,7 +244,7 @@ export function Organiser({ id }: { id: string }) {
 
       {sheet === "details" && <DetailsSheet view={view} onClose={() => setSheet(null)} onSave={(body) => send(key!, { type: "details", ...body })} />}
       {sheet === "people" && <PeopleSheet view={view} onClose={() => setSheet(null)} onSave={(people, pairs) => send(key!, { type: "people", people, pairs })} error={error} />}
-    </>
+    </div>
   );
 }
 

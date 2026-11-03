@@ -2,7 +2,10 @@
 import assert from "node:assert/strict";
 
 const base = process.argv[2] ?? "http://localhost:3000";
+// The organiser's phone: creating and managing a group send it, and the key only works from it.
+const device = "smoke-phone-0123456789";
 const post = async (path, body) => {
+  if (path === "/api/g" || path.endsWith("/admin")) body = { device, ...body };
   const res = await fetch(base + path, { method: "POST", body: JSON.stringify(body) });
   return { status: res.status, data: await res.json() };
 };
@@ -67,6 +70,8 @@ const ids = Object.fromEntries(pub.members.map((m) => [m.name, m.id]));
 const leaks = (o) => /"(s:|person|withPerson|sealed|target)/.test(JSON.stringify(o));
 assert.ok(!leaks(pub));
 assert.equal((await post(`${g}/admin`, { key: "wrong-key", action: { type: "status" } })).status, 403);
+// The right key from another phone, as from an old organiser link, is refused too
+assert.equal((await post(`${g}/admin`, { device: "another-phone-0123456", key, action: { type: "status" } })).status, 403);
 const admin = await post(`${g}/admin`, { key, action: { type: "status" } });
 assert.equal(admin.status, 200);
 assert.ok(!leaks(admin.data));

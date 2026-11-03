@@ -9,7 +9,7 @@ import type { MeAction, MemberView, Msg, PublicGroup } from "@/lib/server/groups
 import { hasThai } from "@/lib/format";
 import { formatPrice, type ShopPrice } from "@/lib/price";
 import { parseShopPaste, safeUrl, SHOP_LABEL, shopOf, siteOf, type Shop } from "@/lib/shop";
-import { Countdown, Fall, GiftBox, GroupFacts, GiftTag, GuessResults } from "./Festive";
+import { Countdown, Fall, GiftBox, GroupFacts, GiftTag, GuessResults, useRoomEntrance } from "./Festive";
 import { Callout, cx, ICON, Section, Segmented, Sheet, Sticker } from "./ui";
 
 export function MemberApp({ id, initial }: { id: string; initial: PublicGroup }) {
@@ -62,8 +62,10 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
     };
   }, [id, session, act]);
 
+  useRoomEntrance();
+
   return (
-    <>
+    <div className="room space-y-6">
       <header className="space-y-3 px-1 pt-2 text-center">
         <h1 className={cx("large-title break-words", hasThai(group.name) && "leading-[1.6]")}>{group.name}</h1>
         <GroupFacts budget={group.budget} date={group.date} />
@@ -88,7 +90,7 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
           }}
         />
       )}
-    </>
+    </div>
   );
 }
 
@@ -331,7 +333,6 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
   if (!view.person) {
     return (
       <div className="space-y-3 pt-4 text-center">
-        <Fall kind="snow" />
         <GiftBox />
         <p className="font-script text-[44px] leading-tight text-gold">{t("waitingTitle")}</p>
         <p className="card tilt-r px-4 py-3 text-[15px] leading-snug">{t("waitingBody", { n: view.joined })}</p>
@@ -350,7 +351,6 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
   if (stage !== "open") {
     return (
       <>
-        <Fall kind="snow" />
         {view.redrawn && <Callout tone="warn">{t("redrawn")}</Callout>}
         <button type="button" className="block w-full space-y-3 px-6 pt-4 pb-2 text-center" onClick={unwrap}>
           <GiftBox state={stage === "shake" ? "shake" : "idle"} />

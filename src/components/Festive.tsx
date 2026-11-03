@@ -1,13 +1,66 @@
 "use client";
 
 import { CalendarDays, Check, Minus, X } from "lucide-react";
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useState, type CSSProperties } from "react";
 import { baht, formatDate } from "@/lib/client/store";
 import { useT } from "@/lib/i18n";
 import type { PublicGroup } from "@/lib/server/groups";
 import { Section } from "./ui";
 
 const rand = (min: number, max: number) => min + Math.random() * (max - min);
+
+/**
+ * The first time this phone opens a room, its page lays itself out: the title writes itself in, the
+ * tickets drop and the cards rise. A script in the layout starts it before the first paint on a full
+ * load; this starts it on arriving from another page, and marks the room as seen.
+ */
+export function useRoomEntrance() {
+  useLayoutEffect(() => {
+    const seen = `ss:seen:${location.pathname}`;
+    try {
+      if (localStorage.getItem(seen)) return;
+      localStorage.setItem(seen, "1");
+    } catch {
+      return;
+    }
+    const html = document.documentElement;
+    html.classList.add("first-room");
+    setTimeout(() => html.classList.remove("first-room"), 4000);
+  }, []);
+}
+
+/** Names being drawn: everyone's tag flies into the present, it shakes, and confetti bursts out. Tap to skip. */
+export function DrawShow({ names, onDone }: { names: string[]; onDone: () => void }) {
+  const t = useT();
+  const [stage, setStage] = useState<"in" | "shake" | "done">("in");
+  const shown = names.slice(0, 12);
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return onDone();
+    const flown = 1400 + shown.length * 90;
+    const timers = [setTimeout(() => setStage("shake"), flown), setTimeout(() => setStage("done"), flown + 650), setTimeout(onDone, flown + 2800)];
+    return () => timers.forEach(clearTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return (
+    <div className="draw-show" onClick={onDone} role="status">
+      {stage === "done" && <Fall kind="confetti" />}
+      <div className="relative h-[300px] w-full max-w-[360px]">
+        <GiftBox state={stage === "shake" ? "shake" : "still"} size={170} className="absolute inset-0 m-auto" />
+        {stage === "in" &&
+          shown.map((name, i) => {
+            const a = (i / shown.length) * 2 * Math.PI - Math.PI / 2;
+            const style = { "--x": `${Math.cos(a) * 130}px`, "--y": `${Math.sin(a) * 130}px`, "--r": `${(i % 2 ? 1 : -1) * rand(3, 9)}deg`, animationDelay: `${i * 90}ms` };
+            return (
+              <span key={i} className="draw-tag" style={style as CSSProperties}>
+                {name}
+              </span>
+            );
+          })}
+      </div>
+      <p className="font-script text-[44px] leading-tight text-gold">{stage === "done" ? t("namesDrawn") : t("shuffling")}</p>
+    </div>
+  );
+}
 
 /** Slow snow, or a one-off burst of confetti. Rendered after mount as the positions are random. */
 export function Fall({ kind }: { kind: "snow" | "confetti" }) {
@@ -101,7 +154,7 @@ export function GiftTag({ lead, name, foot }: { lead: string; name: string; foot
       <div className="card px-6 pt-12 pb-8 text-center">
         <span className="absolute top-3.5 left-1/2 size-5 -translate-x-1/2 rounded-full bg-[#2c2825] ring-[3px] ring-[var(--ribbon)]" aria-hidden />
         <p className="font-serif text-[17px] text-ink-2">{lead}</p>
-        <p className={`mt-1 font-script text-[70px] leading-[1.1] break-words text-santa ${nameRoom(name)}`}>{name}</p>
+        <p className={`name-write mt-1 font-script text-[70px] leading-[1.1] break-words text-santa ${nameRoom(name)}`}>{name}</p>
         <p className="font-serif text-[15px] text-ink-2">{foot}</p>
       </div>
     </div>
@@ -113,7 +166,7 @@ export function GroupFacts({ budget, date }: { budget: number | null; date: stri
   const t = useT();
   if (budget === null && !date) return null;
   return (
-    <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 font-label text-[16px]">
+    <div className="facts flex flex-wrap items-center justify-center gap-x-3 gap-y-2 font-label text-[16px]">
       {budget !== null && <span className="ticket px-5 py-2">{t("budgetLine", { amount: baht(budget) })}</span>}
       {date && (
         <span className="tag inline-flex items-center gap-1.5 px-3 py-2 text-[#2c2825]">
