@@ -57,7 +57,7 @@ The screenshots use a demo group with made-up names.
 **Everywhere**
 - An English interface. Names and wishes people type can be in Thai too, with matching Thai fonts.
 - The Cultural Fest 2027 look: grainy blurred lights, gold script, stamp-edged cream cards and punched tickets, recorded in [DESIGN.md](DESIGN.md).
-- Fast on phones: about 200 KB for the home page, and only the font weights and axes the site uses.
+- Fast on phones: about 320 KB for the home page, and only the font weights and axes the site uses. An open page checks for changes with one request every few seconds, and stops while it's in the background.
 - Reduced motion is respected.
 
 ## How the secret is kept
