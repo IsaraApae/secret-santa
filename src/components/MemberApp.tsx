@@ -264,12 +264,32 @@ function Signedin({
         ]}
       />
       {tab === "person" ? <PersonTab view={view} act={act} budget={budget} /> : <MineTab view={view} act={act} members={members} />}
+      <WhoIsIn members={members} meId={view.me.id} />
       <div className="text-center">
         <button type="button" className="btn-ghost text-[15px]" onClick={signOut}>
           {t("signOut", { name: view.me.name })}
         </button>
       </div>
     </>
+  );
+}
+
+/** Everyone in the group, by name. The join page lists them anyway; never who drew whom. */
+function WhoIsIn({ members, meId }: { members: PublicGroup["members"]; meId: string }) {
+  const t = useT();
+  return (
+    <Section
+      title={t("whosIn")}
+      action={<span className="pb-1 font-serif text-[15px] text-ink-2">{t(members.length === 1 ? "countPerson" : "countPeople", { n: members.length })}</span>}
+    >
+      <ul className="card flex flex-wrap gap-2 p-4">
+        {members.map((m) => (
+          <li key={m.id} className={cx("tag max-w-full truncate px-3 py-1.5 text-[15px]", m.id === meId && "font-semibold")}>
+            {m.id === meId ? t("youAre", { name: m.name }) : m.name}
+          </li>
+        ))}
+      </ul>
+    </Section>
   );
 }
 

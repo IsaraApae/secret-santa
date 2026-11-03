@@ -146,6 +146,8 @@ const en = {
   replyPlaceholder: "Write a reply",
   send: "Send",
   you: "You",
+  whosIn: "Who's in",
+  youAre: "{name} (you)",
   yourSanta: "Your Santa",
 
   myWishesTitle: "Your wishes",
