@@ -696,6 +696,107 @@ dialog.alert::backdrop {
   }
 }
 
+/* Things that arrive while the page is open (useArrivals), out of sight until their list is on screen.
+   Each moves only transform and opacity, so phones and LINE's browser animate it without redrawing. */
+.arrive-wait {
+  opacity: 0;
+}
+/* A name tag drops into Who's in, swinging a little as it lands. */
+.drop-in {
+  animation: drop-in 0.75s var(--ease-spring) backwards;
+}
+@keyframes drop-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-40px) rotate(-12deg) scale(0.9);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(5px) rotate(3deg);
+  }
+}
+/* A saved wish slips onto the list... */
+.slip-in {
+  animation: slip-in 0.6s var(--ease-spring) backwards;
+}
+@keyframes slip-in {
+  from {
+    opacity: 0;
+    transform: translateX(-28px) rotate(-1.5deg);
+  }
+}
+/* ...and a tick pops up beside it, then fades. */
+.saved-tick {
+  animation: saved-tick 1.8s var(--ease-spring) both;
+}
+@keyframes saved-tick {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  15% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  25%,
+  80% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+/* A message slides up into the thread. */
+.msg-in {
+  animation: msg-in 0.45s var(--ease-spring) backwards;
+}
+@keyframes msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+}
+/* The message sent, as an envelope: it grows out of the send button and flies up and away. */
+.envelope-fly {
+  position: absolute;
+  top: 7px;
+  right: 1px;
+  pointer-events: none;
+  animation: envelope-fly 1s cubic-bezier(0.55, 0, 0.7, 0.4) forwards;
+}
+@keyframes envelope-fly {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1.08) rotate(-8deg);
+  }
+  35% {
+    transform: scale(1) rotate(-6deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-70px, -190px) rotate(14deg) scale(0.6);
+  }
+}
+/* Guess results the first time this phone sees them (useResultsReveal): each row flips over like a
+   card, one after another; on a first visit, once the page has laid itself out. */
+.new-results .result-row {
+  animation: card-flip 0.7s var(--ease-spring) calc(var(--i) * 0.12s + var(--after, 0s)) backwards;
+}
+.first-room .result-row {
+  --after: 1.6s;
+}
+@keyframes card-flip {
+  from {
+    opacity: 0;
+    transform: perspective(700px) rotateY(-100deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -705,7 +806,11 @@ dialog.alert::backdrop {
     scroll-behavior: auto !important;
   }
   .fall,
-  .gift-open {
+  .gift-open,
+  .envelope-fly {
     display: none;
+  }
+  .arrive-wait {
+    opacity: 1;
   }
 }

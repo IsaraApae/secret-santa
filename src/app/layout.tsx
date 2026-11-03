@@ -36,7 +36,7 @@ export const viewport: Viewport = {
   themeColor: "#451f19",
 };
 
-const ROOM_ENTRANCE = `try{var p=location.pathname;if(/^\\/[go]\\/[\\w-]{12}$/.test(p)&&!localStorage.getItem("ss:seen:"+p))document.documentElement.classList.add("first-room")}catch(e){}`;
+const ROOM_ENTRANCE = `try{var p=location.pathname,h=document.documentElement;if(/^\\/[go]\\/[\\w-]{12}$/.test(p)){if(!localStorage.getItem("ss:seen:"+p))h.classList.add("first-room");if(!localStorage.getItem("ss:results:"+p))h.classList.add("new-results")}}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   // The lights fill the screen, so they're the largest paint. Start the download
@@ -45,8 +45,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning className={`${hand.variable} ${display.variable} ${body.variable} ${calendar.variable} ${thaiHand.variable} ${thai.variable}`}>
       <body className="min-h-dvh font-sans">
-        {/* Starts a room's first-visit entrance before the first paint (see useRoomEntrance), so the
-            page doesn't show and then vanish into it. */}
+        {/* Starts a room's first-visit entrance, and the guess results' first flip, before the first
+            paint (see useRoomEntrance and useResultsReveal), so the page doesn't show and then vanish into them. */}
         <script dangerouslySetInnerHTML={{ __html: ROOM_ENTRANCE }} />
         <div className="edge-strip" aria-hidden />
         <div className="night" aria-hidden />

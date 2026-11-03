@@ -1,7 +1,7 @@
 "use client";
 
 import { CalendarDays, Check, Minus, X } from "lucide-react";
-import { useEffect, useLayoutEffect, useState, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useState, type CSSProperties, type RefCallback } from "react";
 import { baht, formatDate } from "@/lib/client/store";
 import { useT } from "@/lib/i18n";
 import type { PublicGroup } from "@/lib/server/groups";
@@ -26,6 +26,46 @@ export function useRoomEntrance() {
     const html = document.documentElement;
     html.classList.add("first-room");
     setTimeout(() => html.classList.remove("first-room"), 4000);
+  }, []);
+}
+
+/**
+ * Things that arrive while the page is open (someone joins, a wish is saved, a message comes in) move in;
+ * the ones already there when it opened stay still. They wait for their list to come on screen, so a
+ * name that drops in below the fold isn't missed. `also` is new though it was there from the start: you,
+ * just after joining. Put `ref` on the list and `arrive(id)` on each item, with the item's own motion.
+ */
+export function useArrivals<T extends HTMLElement>(ids: string[], motion: string, also?: string | null) {
+  const [first] = useState(() => new Set(ids.filter((id) => id !== also)));
+  const [list, setList] = useState<T | null>(null);
+  const [onScreen, setOnScreen] = useState(false);
+  useEffect(() => {
+    if (!list || onScreen) return;
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && setOnScreen(true), { threshold: 0.2 });
+    io.observe(list);
+    return () => io.disconnect();
+  }, [list, onScreen]);
+  const ref: RefCallback<T> = setList;
+  return { ref, arrive: (id: string) => (first.has(id) ? "" : onScreen ? motion : "arrive-wait") };
+}
+
+/**
+ * The guess results, the first time this phone sees them: each row flips over like a card, one after
+ * another. On a full load the layout's script starts it before the first paint; this starts it when they
+ * appear while the page is open, or on arriving from another page, and marks them as seen.
+ */
+function useResultsReveal() {
+  useLayoutEffect(() => {
+    const seen = `ss:results:${location.pathname}`;
+    try {
+      if (localStorage.getItem(seen)) return;
+      localStorage.setItem(seen, "1");
+    } catch {
+      return;
+    }
+    const html = document.documentElement;
+    html.classList.add("new-results");
+    setTimeout(() => html.classList.remove("new-results"), 6000);
   }, []);
 }
 
@@ -216,6 +256,7 @@ export function Countdown({ date }: { date: string }) {
 export function GuessResults({ results }: { results: NonNullable<PublicGroup["guesses"]> }) {
   const t = useT();
   const right = results.filter((r) => r.correct).length;
+  useResultsReveal();
   return (
     <Section title={t("resultsTitle")} sticker="star">
       <ul className="card rows taped relative">
@@ -223,8 +264,8 @@ export function GuessResults({ results }: { results: NonNullable<PublicGroup["gu
           <span className="block font-serif text-[17px]">{t("resultsCount", { n: right, total: results.length })}</span>
           <span className="block text-[14px] leading-snug text-ink-2">{t("resultsHint")}</span>
         </li>
-        {results.map((r) => (
-          <li key={r.name} className="flex items-center gap-3 px-5 py-2.5">
+        {results.map((r, i) => (
+          <li key={r.name} className="result-row flex items-center gap-3 px-5 py-2.5" style={{ "--i": i } as CSSProperties}>
             <span
               className={`grid size-8 shrink-0 place-items-center rounded-full ${r.correct ? "bg-accent text-accent-ink" : r.guessed ? "bg-field text-ink" : "text-ink-3"}`}
               aria-hidden

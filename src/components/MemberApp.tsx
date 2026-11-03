@@ -9,7 +9,7 @@ import type { MeAction, MemberView, Msg, PublicGroup } from "@/lib/server/groups
 import { hasThai } from "@/lib/format";
 import { formatPrice, type ShopPrice } from "@/lib/price";
 import { parseShopPaste, safeUrl, SHOP_LABEL, shopOf, siteOf, type Shop } from "@/lib/shop";
-import { Countdown, Fall, GiftBox, GroupFacts, GiftTag, GuessResults, useRoomEntrance } from "./Festive";
+import { Countdown, Fall, GiftBox, GroupFacts, GiftTag, GuessResults, useArrivals, useRoomEntrance } from "./Festive";
 import { Callout, cx, ICON, Section, Segmented, Sheet, Sticker } from "./ui";
 
 export function MemberApp({ id, initial }: { id: string; initial: PublicGroup }) {
@@ -18,6 +18,8 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
   const [session, setSess] = useState<Session | null>(null);
   const [view, setView] = useState<MemberView | null>(null);
   const [ready, setReady] = useState(false);
+  // You, just after joining here: your tag drops into Who's in.
+  const [joined, setJoined] = useState<string | null>(null);
 
   const signOut = useCallback(() => {
     setSession(id, null);
@@ -78,14 +80,15 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
       {!ready || (session && !view) ? (
         <p className="py-10 text-center text-ink-2">{t("loading")}</p>
       ) : session && view ? (
-        <Signedin view={view} act={(a) => act(session, a)} signOut={signOut} budget={group.budget} members={group.members} />
+        <Signedin view={view} act={(a) => act(session, a)} signOut={signOut} budget={group.budget} members={group.members} joined={joined} />
       ) : (
         <Picker
           id={id}
           group={group}
-          onSession={(s) => {
+          onSession={(s, isNew) => {
             setSession(id, s);
             setSess(s);
+            setJoined(isNew ? s.memberId : null);
             act(s, { type: "load" });
           }}
         />
@@ -96,8 +99,10 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
 
 // ---------- Picking your name ----------------------------------------------------
 
-function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSession: (s: Session) => void }) {
+function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSession: (s: Session, isNew?: boolean) => void }) {
   const t = useT();
+  // People who join while you're on this page drop into the list.
+  const tags = useArrivals<HTMLUListElement>(group.members.map((m) => m.id), "drop-in");
   const [newName, setNewName] = useState("");
   const [newPin, setNewPin] = useState("");
   const [joinError, setJoinError] = useState("");
@@ -119,7 +124,7 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
     setJoinError("");
     const res = await api<{ memberId: string; token: string }>(`/api/g/${id}/join`, { name: newName.trim(), pin: newPin });
     setJoining(false);
-    if (res.ok) onSession(res.data);
+    if (res.ok) onSession(res.data, true);
     else setJoinError(errorText(t, res));
   }
 
@@ -178,9 +183,9 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
             {group.members.some((m) => m.claimed) && <span className="block text-[13px] text-ink-2">{t("lockHint")}</span>}
           </p>
           {/* The same paper tags as "Who's in", to tap: yours opens the PIN sheet. */}
-          <ul className="flex flex-wrap justify-center gap-x-2.5 gap-y-3">
+          <ul ref={tags.ref} className="flex flex-wrap justify-center gap-x-2.5 gap-y-3">
             {group.members.map((m, i) => (
-              <li key={m.id} className="max-w-full">
+              <li key={m.id} className={cx("max-w-full", tags.arrive(m.id))}>
                 <button
                   type="button"
                   className="press block max-w-full rounded-lg"
@@ -242,12 +247,14 @@ function Signedin({
   signOut,
   budget,
   members,
+  joined,
 }: {
   view: MemberView;
   act: (a: MeAction) => Promise<boolean>;
   signOut: () => void;
   budget: number | null;
   members: PublicGroup["members"];
+  joined: string | null;
 }) {
   const t = useT();
   const [tab, setTab] = useState<"person" | "mine">("person");
@@ -272,7 +279,7 @@ function Signedin({
         ]}
       />
       {tab === "person" ? <PersonTab view={view} act={act} budget={budget} /> : <MineTab view={view} act={act} members={members} />}
-      <WhoIsIn members={members} meId={view.me.id} />
+      <WhoIsIn members={members} meId={view.me.id} joined={joined} />
       <div className="text-center">
         <button type="button" className="btn-ghost text-[15px]" onClick={signOut}>
           {t("signOut", { name: view.me.name })}
@@ -302,18 +309,20 @@ function NameTag({ name, index, me, children }: { name: string; index: number; m
   );
 }
 
-function WhoIsIn({ members, meId }: { members: PublicGroup["members"]; meId: string }) {
+function WhoIsIn({ members, meId, joined }: { members: PublicGroup["members"]; meId: string; joined: string | null }) {
   const t = useT();
+  // Your tag, just after joining, and anyone who joins while you're here drop in.
+  const tags = useArrivals<HTMLUListElement>(members.map((m) => m.id), "drop-in", joined);
   return (
     <Section
       title={t("whosIn")}
       action={<span className="pb-1 font-serif text-[15px] text-ink-2">{t(members.length === 1 ? "countPerson" : "countPeople", { n: members.length })}</span>}
     >
-      <ul className="card flex flex-wrap justify-center gap-x-2.5 gap-y-3 px-4 py-5">
+      <ul ref={tags.ref} className="card flex flex-wrap justify-center gap-x-2.5 gap-y-3 px-4 py-5">
         {members.map((m, i) => {
           const me = m.id === meId;
           return (
-            <li key={m.id} className="max-w-full">
+            <li key={m.id} className={cx("max-w-full", tags.arrive(m.id))}>
               <NameTag name={m.name} index={i} me={me}>
                 {me && <span className="shrink-0 font-label text-[12px] opacity-85">{t("you").toLowerCase()}</span>}
               </NameTag>
@@ -431,12 +440,17 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
 function MineTab({ view, act, members }: { view: MemberView; act: (a: MeAction) => Promise<boolean>; members: PublicGroup["members"] }) {
   const t = useT();
   const [editing, setEditing] = useState<WishItem | "new" | null>(null);
+  // The wish just saved shows a tick for a moment; a new one slips onto the list as well.
+  const [ticked, setTicked] = useState<string | null>(null);
   const wishes = view.me.wishes;
+  const rows = useArrivals<HTMLUListElement>(wishes.map((w) => w.id), "slip-in");
 
-  function save(wish: WishItem) {
+  async function save(wish: WishItem) {
     const next = wishes.some((w) => w.id === wish.id) ? wishes.map((w) => (w.id === wish.id ? wish : w)) : [...wishes, wish];
     setEditing(null);
-    return act({ type: "wishes", wishes: next });
+    if (!(await act({ type: "wishes", wishes: next }))) return;
+    setTicked(wish.id);
+    setTimeout(() => setTicked((id) => (id === wish.id ? null : id)), 1800);
   }
 
   return (
@@ -451,12 +465,14 @@ function MineTab({ view, act, members }: { view: MemberView; act: (a: MeAction) 
         }
       >
         {wishes.length ? (
-          <ul className="card rows taped relative">
+          <ul ref={rows.ref} className="card rows taped relative">
             <li className="px-5 pt-4 pb-3 text-[14px] text-ink-2">{t("myWishesHint")}</li>
             {wishes.map((w) => (
               <WishRow
                 key={w.id}
                 wish={w}
+                className={rows.arrive(w.id)}
+                ticked={ticked === w.id}
                 actions={
                   <>
                     <button type="button" className="icon-plain" aria-label={t("editWish")} onClick={() => setEditing(w)}>
@@ -622,16 +638,33 @@ function SiteName({ site }: { site: string }) {
   );
 }
 
-function WishRow({ wish, actions }: { wish: WishItem & { shopPrice?: ShopPrice | null }; actions?: React.ReactNode }) {
+function WishRow({
+  wish,
+  actions,
+  className,
+  ticked,
+}: {
+  wish: WishItem & { shopPrice?: ShopPrice | null };
+  actions?: React.ReactNode;
+  className?: string;
+  ticked?: boolean;
+}) {
   const t = useT();
   // Checked again on the way out: never render a stored link we wouldn't accept.
   const url = wish.url && safeUrl(wish.url);
   const shop = url ? shopOf(url) : null;
   const site = url ? siteOf(url) : null;
   return (
-    <li className="flex items-start gap-1 py-3.5 pr-2 pl-5">
+    <li className={cx("flex items-start gap-1 py-3.5 pr-2 pl-5", className)}>
       <div className="min-w-0 flex-1 space-y-1">
-        <p className="font-medium break-words">{wish.title}</p>
+        <p className="font-medium break-words">
+          {wish.title}
+          {ticked && (
+            <span className="saved-tick ml-2 inline-grid size-6 place-items-center rounded-full bg-accent align-[-5px] text-accent-ink" aria-hidden>
+              <Check size={15} strokeWidth={3} />
+            </span>
+          )}
+        </p>
         {site && <SiteName site={site} />}
         {/* Read from the shop's own page by the server, never typed in. */}
         {wish.shopPrice && site && (
@@ -698,6 +731,19 @@ function WishSheet({ wish, onClose, onSave }: { wish: WishItem | null; onClose: 
 
 // ---------- Anonymous chat -------------------------------------------------------------
 
+/** A sealed paper envelope that grows out of the send button and flies off, then is gone. */
+function Envelope() {
+  const [flying, setFlying] = useState(true);
+  if (!flying) return null;
+  return (
+    <svg viewBox="0 0 48 34" width="46" height="33" aria-hidden className="envelope-fly" onAnimationEnd={() => setFlying(false)}>
+      <rect x="2" y="2" width="44" height="30" rx="4" fill="var(--paper-light)" stroke="var(--sticker)" strokeWidth="3" />
+      <path d="M4 5l20 15L44 5" fill="none" stroke="#2c2825" strokeOpacity=".35" strokeWidth="2" strokeLinejoin="round" />
+      <circle cx="24" cy="19" r="5" fill="var(--santa)" />
+    </svg>
+  );
+}
+
 function Chat({
   title,
   hint,
@@ -720,12 +766,18 @@ function Chat({
   const t = useT();
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
+  // Each sent message folds into an envelope that flies off; the number keys a fresh one per send.
+  const [sent, setSent] = useState(0);
+  const bubbles = useArrivals<HTMLUListElement>(messages.map((_, i) => String(i)), "msg-in");
 
   async function send() {
     const value = text.trim();
     if (!value) return;
     setBusy(true);
-    if (await onSend(value)) setText("");
+    if (await onSend(value)) {
+      setText("");
+      setSent((n) => n + 1);
+    }
     setBusy(false);
   }
 
@@ -736,9 +788,9 @@ function Chat({
         <p className="px-1 pr-12 text-[14px] leading-snug text-ink-2">{hint}</p>
         {messages.length === 0 && empty && <p className="px-1 text-[15px] text-ink-2">{empty}</p>}
         {messages.length > 0 && (
-          <ul className="space-y-2">
+          <ul ref={bubbles.ref} className="space-y-2">
             {messages.map((m, i) => (
-              <li key={i} className={cx("flex flex-col", m.from === mine ? "items-end" : "items-start")}>
+              <li key={i} className={cx("flex flex-col", m.from === mine ? "items-end" : "items-start", bubbles.arrive(String(i)))}>
                 <span className="px-3 pb-0.5 text-[13px] text-ink-2">{m.from === mine ? t("you") : theirLabel}</span>
                 <span className={cx("max-w-[85%] rounded-xl px-4 py-2 leading-snug break-words whitespace-pre-wrap", m.from === mine ? "bg-accent text-accent-ink" : "tag text-ink")}>{m.text}</span>
               </li>
@@ -746,7 +798,7 @@ function Chat({
           </ul>
         )}
         <form
-          className="flex gap-2"
+          className="relative flex gap-2"
           onSubmit={(e) => {
             e.preventDefault();
             send();
@@ -756,6 +808,7 @@ function Chat({
           <button type="submit" className="press grid size-12 shrink-0 place-items-center rounded-xl bg-accent text-accent-ink disabled:opacity-40" aria-label={t("send")} disabled={busy || !text.trim()}>
             <Send size={20} {...ICON} aria-hidden />
           </button>
+          {sent > 0 && <Envelope key={sent} />}
         </form>
       </div>
     </Section>
