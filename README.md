@@ -24,7 +24,7 @@ Run a gift exchange from one link. Create a group, share the link, and everyone 
   <img src="docs/screenshots/reveal.jpg" alt="The name you drew, on a gift tag" width="240">
 </p>
 <p>
-  <img src="docs/screenshots/wishes.jpg" alt="A wish list with Shopee, Lazada and TikTok Shop links" width="240">
+  <img src="docs/screenshots/wishes.jpg" alt="A wish list where every link shows its website, and the Lazada one its price from the shop" width="240">
   <img src="docs/screenshots/status.jpg" alt="Organiser's list of who has opened their name" width="240">
   <img src="docs/screenshots/results.jpg" alt="Table of who guessed their Santa correctly" width="240">
 </p>
@@ -48,7 +48,8 @@ The screenshots use a demo group with made-up names.
 **Taking part**
 - **Join with your name and a 4-digit PIN.** The PIN opens your page on another phone.
 - **Unwrap a gift** to see who you drew, with falling snow and confetti. It wraps itself again on each visit, so the name is never on screen by surprise.
-- **Wish lists:** paste a link from any shop. The site recognises Shopee, Lazada, TikTok Shop, Taobao, Tmall, JD, AliExpress, Temu, SHEIN, Amazon, eBay and Etsy, and fills in the product name when the link includes one. Every link shows the website it really goes to. There's no price box, so nobody can list an expensive gift as cheap: where the shop allows it (Lazada and many smaller shops, but not Shopee), the site reads the price from the shop's own page, shows it as "฿1,150 at Lazada", and checks it again every six hours.
+- **Wish lists:** paste a link from any shop. The site recognises Shopee, Lazada, TikTok Shop, Taobao, Tmall, JD, AliExpress, Temu, SHEIN, Amazon, eBay and Etsy, and fills in the product name when the link includes one. Every link shows the website it really goes to, so a link can't pass for a shop it isn't.
+- **Real prices:** there's no price box, so nobody can list an expensive gift as cheap. Where the shop allows it (Lazada and many smaller shops, but not Shopee), the site reads the price from the shop's own page, shows it as "฿1,150 at Lazada", and checks it again every six hours.
 - **A few things about you:** likes, sizes and "please no", for people without links to add.
 - **Gift search:** search Shopee, Lazada, TikTok, Taobao, AliExpress and Temu, starting from what your person likes.
 - **Anonymous messages:** ask your person a question. They see "Your Santa" and can reply without learning who asked.
