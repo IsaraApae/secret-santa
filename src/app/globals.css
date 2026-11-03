@@ -612,10 +612,12 @@ dialog.alert::backdrop {
   }
 }
 
-/* Names being drawn, over everything. */
+/* Names being drawn, over everything. No margin: it sits in the page's stack of sections, whose
+   spacing gave it a bottom margin, and a fixed layer's margin lifts its bottom edge off the screen's. */
 .draw-show {
   position: fixed;
   inset: 0;
+  margin: 0;
   z-index: 60;
   display: flex;
   flex-direction: column;
@@ -681,6 +683,7 @@ dialog.alert::backdrop {
   position: fixed;
   inset: 0;
   bottom: 6px;
+  margin: 0;   /* the unwrap's confetti sits in the page's stack too (see .draw-show) */
   z-index: 40;
   overflow: hidden;
   pointer-events: none;
