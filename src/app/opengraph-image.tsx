@@ -15,11 +15,11 @@ export default async function Image() {
 
       <Stamp width={760} height={470} style={{ left: 70, top: 80, transform: "rotate(-1.6deg)" }}>
         <div style={{ position: "absolute", left: 0, top: 0, width: 760, height: 470, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 18 }}>
-          <div style={{ fontFamily: "Allura", fontSize: 150, lineHeight: 1, color: CI.santa, display: "flex" }}>Secret Santa</div>
-          <div style={{ display: "flex", fontFamily: "Fraunces", fontSize: 38, color: CI.sticker, background: CI.santa, borderRadius: 10, padding: "12px 34px", border: "2px dashed rgba(250,249,246,0.5)" }}>
+          <div style={{ fontFamily: "Satisfy", fontSize: 150, lineHeight: 1, color: CI.santa, display: "flex" }}>Secret Santa</div>
+          <div style={{ display: "flex", fontFamily: "Fraunces Label", fontSize: 32, color: CI.sticker, background: CI.santa, borderRadius: 10, padding: "12px 34px", border: "2px dashed rgba(250,249,246,0.5)" }}>
             Draw names. Keep the secret.
           </div>
-          <div style={{ fontFamily: "Source Serif", fontSize: 28, color: CI.ink2, marginTop: 10, display: "flex" }}>One link for the whole group. No sign-up.</div>
+          <div style={{ fontFamily: "Fraunces", fontSize: 28, color: CI.ink2, marginTop: 10, display: "flex" }}>One link for the whole group. No sign-up.</div>
         </div>
       </Stamp>
 

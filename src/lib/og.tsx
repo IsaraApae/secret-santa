@@ -26,12 +26,14 @@ async function font(family: string) {
 
 let loading: Promise<{ name: string; data: ArrayBuffer; weight: 400 | 600 }[]> | undefined;
 
-/** The page's faces as static files: Allura, soft Fraunces, Source Serif 4, and their Thai partners Charm and Noto Serif Thai. */
+/** The page's faces as static files: Satisfy, Instrument Serif, soft Fraunces, and their Thai partners Charm and Noto Serif Thai. */
 export function ogFonts() {
   loading ??= Promise.all([
-    font("Allura").then((data) => ({ name: "Allura", data, weight: 400 as const })),
-    font("Fraunces:opsz,wght,SOFT@72,600,100").then((data) => ({ name: "Fraunces", data, weight: 600 as const })),
-    font("Source Serif 4:opsz,wght@20,400").then((data) => ({ name: "Source Serif", data, weight: 400 as const })),
+    font("Satisfy").then((data) => ({ name: "Satisfy", data, weight: 400 as const })),
+    font("Instrument Serif").then((data) => ({ name: "Instrument Serif", data, weight: 400 as const })),
+    font("Fraunces:opsz,wght,SOFT@14,470,100").then((data) => ({ name: "Fraunces", data, weight: 400 as const })),
+    // The heavier cut the site's labels, tickets and tags use.
+    font("Fraunces:opsz,wght,SOFT@14,560,100").then((data) => ({ name: "Fraunces Label", data, weight: 400 as const })),
     font("Charm").then((data) => ({ name: "Charm", data, weight: 400 as const })),
     font("Noto Serif Thai:wght@600").then((data) => ({ name: "Noto Serif Thai", data, weight: 600 as const })),
   ]).catch((e) => {

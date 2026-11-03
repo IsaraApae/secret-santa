@@ -95,14 +95,21 @@ export function PeopleEditor({
             <ul className="mt-3 flex flex-wrap gap-2">
               {people.map((p) => (
                 <li key={p.id} className="tag inline-flex min-h-11 items-center gap-1 pr-1 pl-3 text-[15px] font-medium">
-                  <input
-                    className="min-w-0 bg-transparent outline-none"
-                    style={{ width: `${Math.max(2, [...p.name].length + 0.5)}ch` }}
-                    maxLength={40}
-                    value={p.name}
-                    aria-label={p.name}
-                    onChange={(e) => onChange(people.map((x) => (x.id === p.id ? { ...x, name: e.target.value } : x)), pairs)}
-                  />
+                  {/* Sized by an invisible copy of the name in the same grid cell, so every letter fits: a width
+                      counted in characters cut off wide letters like M, and Thai. */}
+                  <span
+                    data-name={`${p.name} `}
+                    className="inline-grid max-w-[calc(100vw-120px)] min-w-[2ch] after:invisible after:col-start-1 after:row-start-1 after:overflow-hidden after:whitespace-pre after:content-[attr(data-name)]"
+                  >
+                    <input
+                      className="col-start-1 row-start-1 w-full min-w-0 bg-transparent outline-none"
+                      size={1}
+                      maxLength={40}
+                      value={p.name}
+                      aria-label={p.name}
+                      onChange={(e) => onChange(people.map((x) => (x.id === p.id ? { ...x, name: e.target.value } : x)), pairs)}
+                    />
+                  </span>
                   <button type="button" className="press grid size-9 place-items-center rounded-full text-ink-2" aria-label={`${t("remove")} ${p.name}`} onClick={() => removePerson(p.id)}>
                     <X size={18} {...ICON} aria-hidden />
                   </button>
@@ -119,7 +126,7 @@ export function PeopleEditor({
           <div className="card space-y-3 p-4">
             <p className="px-1 text-[15px] leading-snug text-ink-2">{t("noExclusions")}</p>
             <div className="grid grid-cols-[1fr_1fr_auto] items-center gap-2">
-              <select className="input min-w-0 pr-2 pl-4 text-[15px]" value={a} onChange={(e) => setA(e.target.value)} aria-label={t("personA")}>
+              <select className="input min-w-0 pl-3 text-[15px]" value={a} onChange={(e) => setA(e.target.value)} aria-label={t("personA")}>
                 <option value="">{t("personA")}</option>
                 {byName.map((p) => (
                   <option key={p.id} value={p.id} disabled={p.id === b}>
@@ -127,7 +134,7 @@ export function PeopleEditor({
                   </option>
                 ))}
               </select>
-              <select className="input min-w-0 pr-2 pl-4 text-[15px]" value={b} onChange={(e) => setB(e.target.value)} aria-label={t("personB")}>
+              <select className="input min-w-0 pl-3 text-[15px]" value={b} onChange={(e) => setB(e.target.value)} aria-label={t("personB")}>
                 <option value="">{t("personB")}</option>
                 {byName.map((p) => (
                   <option key={p.id} value={p.id} disabled={p.id === a}>
@@ -188,6 +195,8 @@ function BudgetField({ value, onChange }: { value: string; onChange: (v: string)
             value={shown}
             onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, 7))}
           />
+          {/* A hidden ฿ balancing the real one, so the number itself sits in the middle. */}
+          <span aria-hidden className="invisible text-[24px]">฿</span>
         </span>
       </label>
       <div className="mt-1 flex flex-wrap justify-center gap-1.5">
@@ -196,7 +205,7 @@ function BudgetField({ value, onChange }: { value: string; onChange: (v: string)
             key={n}
             type="button"
             aria-pressed={value === String(n)}
-            className={`tnum press min-h-10 rounded-lg px-3 font-serif text-[15px] ${value === String(n) ? "bg-[var(--santa)] text-[var(--paper-light)]" : "bg-field text-[#2c2825]"}`}
+            className={`tnum press min-h-10 rounded-lg px-3 font-label text-[15px] ${value === String(n) ? "bg-[var(--santa)] text-[var(--paper-light)]" : "bg-field text-[#2c2825]"}`}
             onClick={() => onChange(value === String(n) ? "" : String(n))}
           >
             ฿{n.toLocaleString("en-US")}

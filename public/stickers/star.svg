@@ -1,5 +1,5 @@
-<svg width="74" height="71" viewBox="0 0 74 71" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g filter="url(#filter0_d_95_988)">
+<svg width="296" height="284" viewBox="0 0 74 71" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g>
 <use xlink:href="#stroke0_95_988" fill="#E2C75C"/>
 <mask id="stroke1_95_988" maskUnits="userSpaceOnUse" x="1.03052" y="-0.446777" width="71" height="68" fill="black">
 <rect fill="white" x="1.03052" y="-0.446777" width="71" height="68"/>
@@ -8,16 +8,6 @@
 <path d="M25.9601 24.2406L9.98781 24.3844C7.10918 24.4103 5.91606 28.0824 8.22969 29.7954L21.067 39.3C22.0956 40.0616 22.5278 41.3917 22.1433 42.6124L17.3443 57.8474C16.4794 60.5932 19.6031 62.8626 21.9472 61.1916L34.9536 51.9196C35.9957 51.1768 37.3943 51.1768 38.4364 51.9196L51.4428 61.1916C53.7869 62.8626 56.9106 60.5932 56.0457 57.8474L51.2467 42.6124C50.8622 41.3917 51.2944 40.0616 52.323 39.3L65.1603 29.7954C67.4739 28.0824 66.2808 24.4103 63.4022 24.3844L47.4299 24.2406C46.1501 24.2291 45.0186 23.407 44.6122 22.1934L39.5397 7.04732C38.6255 4.31759 34.7645 4.3176 33.8503 7.04732L28.7778 22.1934C28.3714 23.407 27.2398 24.2291 25.9601 24.2406Z" stroke-width="10" stroke="#FAF9F6" mask="url(#stroke1_95_988)"/>
 </g>
 <defs>
-<filter id="filter0_d_95_988" x="0" y="0" width="73.3901" height="70.7836" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-<feFlood flood-opacity="0" result="BackgroundImageFix"/>
-<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-<feOffset dy="2"/>
-<feGaussianBlur stdDeviation="1"/>
-<feComposite in2="hardAlpha" operator="out"/>
-<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
-<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_95_988"/>
-<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_95_988" result="shape"/>
-</filter>
 <path id="stroke0_95_988" d="M33.8503 7.04733C34.7645 4.3176 38.6255 4.31759 39.5397 7.04732L44.6122 22.1934C45.0186 23.407 46.1502 24.2291 47.4299 24.2406L63.4022 24.3844C66.2808 24.4103 67.4739 28.0824 65.1603 29.7954L52.323 39.3C51.2944 40.0616 50.8622 41.3917 51.2467 42.6124L56.0457 57.8474C56.9105 60.5932 53.7869 62.8626 51.4428 61.1916L38.4364 51.9196C37.3943 51.1768 35.9957 51.1768 34.9536 51.9196L21.9472 61.1916C19.6031 62.8626 16.4794 60.5932 17.3443 57.8474L22.1433 42.6124C22.5278 41.3917 22.0956 40.0616 21.067 39.3L8.22969 29.7954C5.91606 28.0824 7.10918 24.4103 9.98781 24.3844L25.9601 24.2406C27.2398 24.2291 28.3714 23.407 28.7778 22.1934L33.8503 7.04733Z"/>
 </defs>
 </svg>

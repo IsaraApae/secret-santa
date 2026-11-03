@@ -28,7 +28,7 @@ export function DateField({ value, onChange, label }: { value: string; onChange:
         <CalendarDays size={24} {...ICON} aria-hidden className="shrink-0 text-santa" />
         <span className="min-w-0 flex-1">
           <span className="block text-[13px] leading-tight text-ink-2">{label}</span>
-          <span className={cx("block font-serif text-[18px] leading-snug", value ? "text-[#2c2825]" : "text-ink-3")}>{value ? formatDate(value) : t("chooseDate")}</span>
+          <span className={cx("block font-label text-[18px] leading-snug", value ? "text-[#2c2825]" : "text-ink-3")}>{value ? formatDate(value) : t("chooseDate")}</span>
         </span>
         <ChevronRight size={20} {...ICON} aria-hidden className="shrink-0 text-ink-3" />
       </button>

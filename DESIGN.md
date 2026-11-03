@@ -26,18 +26,18 @@ colors:
   warn-soft: "#f6e2ae"
 typography:
   display:
-    fontFamily: "Allura, Charm, Brush Script MT, cursive"
-    fontSize: "clamp(100px, 29vw, 196px)"
+    fontFamily: "Satisfy, Charm, Brush Script MT, cursive"
+    fontSize: "clamp(84px, 25vw, 168px)"
     fontWeight: 400
-    lineHeight: 0.9
+    lineHeight: 0.95
   headline:
-    fontFamily: "Allura, Charm, Brush Script MT, cursive"
-    fontSize: "66px"
+    fontFamily: "Satisfy, Charm, Brush Script MT, cursive"
+    fontSize: "56px"
     fontWeight: 400
     lineHeight: 1.05
   title:
-    fontFamily: "Allura, Charm, Brush Script MT, cursive"
-    fontSize: "38px"
+    fontFamily: "Satisfy, Charm, Brush Script MT, cursive"
+    fontSize: "32px"
     fontWeight: 400
     lineHeight: 1.25
   button:
@@ -48,13 +48,17 @@ typography:
     fontFamily: "Fraunces (SOFT 100, wght 560), Noto Serif Thai, Georgia, serif"
     fontSize: "15px"
     fontWeight: 400
+  small-header:
+    fontFamily: "Instrument Serif, Noto Serif Thai, Georgia, serif"
+    fontSize: "15-20px"
+    fontWeight: 400
   body:
-    fontFamily: "Source Serif 4, Noto Serif Thai, system-ui, sans-serif"
+    fontFamily: "Fraunces (SOFT 100, wght 470), Noto Serif Thai, system-ui, sans-serif"
     fontSize: "17px"
     fontWeight: 400
     lineHeight: 1.45
   body-small:
-    fontFamily: "Source Serif 4, Noto Serif Thai, system-ui, sans-serif"
+    fontFamily: "Fraunces (SOFT 100, wght 470), Noto Serif Thai, system-ui, sans-serif"
     fontSize: "15px"
     fontWeight: 400
     lineHeight: 1.375
@@ -63,7 +67,7 @@ typography:
     fontSize: "32px"
     fontWeight: 400
   caption:
-    fontFamily: "Source Serif 4, Noto Serif Thai, system-ui, sans-serif"
+    fontFamily: "Fraunces (SOFT 100, wght 470), Noto Serif Thai, system-ui, sans-serif"
     fontSize: "13px"
     fontWeight: 400
 rounded:
@@ -128,7 +132,7 @@ components:
   note:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink-paper}"
-    edge: "perforated stamp, 3.6px bites every 12px"
+    edge: "stamp bites, 16px across every 27px"
     padding: "{spacing.note}"
   sticker-button:
     backgroundColor: "{colors.paper-light}"
@@ -188,25 +192,27 @@ The CI's warm charcoal, cream card stock and three festive inks: gold, Santa red
 
 ## Typography
 
-**Display Font:** Allura, standing in for the CI's Vintage Goods (Thai falls back to Charm)
-**Label Font:** Fraunces at SOFT 100 and weight 560, standing in for Roca One (Thai falls back to Noto Serif Thai)
-**Body Font:** Source Serif 4, standing in for Times New Roman MT Condensed (Thai falls back to Noto Serif Thai)
+**Display Font:** Satisfy, standing in for the CI's Vintage Goods big headers (Thai falls back to Charm)
+**Body Font:** Fraunces at SOFT 100 and weight 470, standing in for Roca One (Thai falls back to Noto Serif Thai)
+**Label Font:** the same soft Fraunces at weight 560, like the CI's Roca One card labels (`font-label`)
+**Small Header Font:** Instrument Serif, standing in for Times New Roman MT Condensed (`font-serif`, Thai falls back to Noto Serif Thai)
 **Calendar Font:** Salsa, used only on calendars, as the CI asks
 
-**Character:** A flowing market-stall script over a soft, chunky serif, with a bookish serif doing the reading. The CI's own faces are paid fonts, so these free Google Fonts stand in for them.
+**Character:** A brush-pen market-stall script over a soft, rounded serif, with a tall condensed serif for small headers, the same three roles as the CI. The CI's own faces are paid fonts, so the closest free Google Fonts, matched side by side with the CI's samples, stand in for them.
 
 ### Hierarchy
 - **Display:** the home page's Secret Santa, in gold.
 - **Headline:** page titles and group names, in gold.
-- **Title:** section headings above cards, in gold. The script also carries the top-bar signature (34px), the drawn name (84px) and short gift moments (50-52px).
+- **Title:** section headings above cards, in gold. The script also carries the top-bar signature (27px), the drawn name (70px) and short gift moments (42-44px).
 - **Calendar:** the countdown pages and the date picker.
-- **Button and Label:** every button, chip, tab, ticket and sticker label.
+- **Button and Label:** every button, chip, tab, ticket and sticker label, in heavier soft Fraunces.
+- **Small Header:** sheet and alert titles, counts beside headings, and the lines around the drawn name, in Instrument Serif.
 - **Body, Body Small and Caption:** reading text, notes and fine print. Counters use tabular figures.
 
 ### Named Rules
-**The Script Heading Rule.** Headings use Allura. Sheet and alert titles (Fraunces, 19-20px) do not follow it yet, and are drift rather than a pattern to copy.
+**The Script Heading Rule.** Headings use Satisfy. Sheet and alert titles are small headers, in Instrument Serif at 19-20px.
 
-**The Thai Partner Rule.** Every face keeps its Thai partner in the stack, because any name or wish can be Thai. Headings use Charm, a fine Thai calligraphy that matches Allura. Labels and body use Noto Serif Thai, whose looped letters sit with the serifs.
+**The Thai Partner Rule.** Every face keeps its Thai partner in the stack, because any name or wish can be Thai. Headings use Charm, a Thai calligraphy that sits with Satisfy. Labels and body use Noto Serif Thai, whose looped letters sit with the serifs.
 
 ## Layout
 
@@ -217,7 +223,7 @@ One centred column, 640px at most, with 16px gutters and 24px between sections. 
 Depth is a paper pile under one soft light from above. Shadows are soft and black, and they lift scraps off the night. Tickets stay flat, as if printed.
 
 ### Shadow Vocabulary
-- **Card** (`drop-shadow(0 10px 18px rgb(0 0 0 / 0.42))`): every stamp card, following its perforations.
+- **Card** (`drop-shadow(0 1.5px 1.5px rgb(0 0 0 / 0.5))`): every stamp card, following its bites. This is the CI's own tight card shadow at 0.7 scale.
 - **Sticker** (`0 0 0 2.5px #faf9f6, 0 6px 14px rgb(0 0 0 / 0.4)`): round sticker buttons. Hero stickers use 12px of blur.
 - **Lifted tag** (`0 8px 16px rgb(0 0 0 / 0.45)`): the chosen tab, and calendar pages at 0.4.
 - **Sheet** (`0 24px 60px rgb(0 0 0 / 0.6)`): sheets and alerts, over a `rgb(12 6 5 / 0.65)` backdrop.
@@ -227,7 +233,7 @@ Depth is a paper pile under one soft light from above. Shadows are soft and blac
 
 ## Shapes
 
-Cards have no corners to speak of: their edge is a row of perforations, like a postage stamp. Tickets and tags use 8px and controls 10px. Sheets and alerts use 18px, the poster frame 22px, and only stickers and number badges are round. Each ticket has a 9px half-circle punched from both short edges and a dashed line inset 6px. Each card draws its perforations with a border-image on its paper layer only, 3.6px bites every 12px, so text is never touched.
+Cards have no corners to speak of: their edge is a row of perforations, like a postage stamp. Tickets and tags use 8px and controls 10px. Sheets and alerts use 18px, the poster frame 22px, and only stickers and number badges are round. Each ticket has a 9px half-circle punched from both short edges and a dashed line inset 6px. Each card is cut to the CI's measurements at 0.7 scale: round bites 16px across every 27px, centred on the edge so a quarter bite takes each corner. They are drawn as background layers on the card's paper layer only, so text is never touched. The CI's paper texture, a fine ink grain, sits on top, cut to the same shape.
 
 ## Components
 
@@ -237,9 +243,9 @@ Cards have no corners to speak of: their edge is a row of perforations, like a p
 - **Compact confirm:** a flat evergreen square (12px radius) or circle holding an icon, used for add, send and sheet confirm.
 
 ### Stickers and Tags
-- **CI stickers:** die-cut vector stickers from the CI (`<Sticker>`), each with its own #FAF9F6 edge and soft shadow. Every section can pin one to its note's top-right corner, tilted about 10deg, chosen for what the section is about: a stocking on a wish list, a megaphone on the invite link, a question mark on guessing. The home poster scatters a bell, tree, ornament and snowflake around the present, and empty states carry one beside their text. Never next to a heading, where it would squeeze the title.
+- **CI stickers:** die-cut vector stickers from the CI (`<Sticker>`), each with its own #FAF9F6 edge and a soft CSS shadow. A section heading can end with one, inline after the last word and tilted about 9deg, chosen for what the section is about: a stocking on a wish list, a megaphone on the invite link, a question mark on guessing. It wraps with the title and is left out when the heading has an action or count on its right, so it never squeezes or covers text. The home poster scatters a bell, tree, ornament and snowflake around the present, and empty states carry one beside their text. The SVGs hold no filters: their shadow is CSS, so they stay sharp at any size.
 - **Sticker button:** a 44px round cream die-cut holding a 2px-stroke line icon.
-- **Name tag:** bright paper with a thin ink border (8px).
+- **Name tag:** a person as a small paper gift tag (`NameTag`): bright paper, a thin ink border, a punched hole at one end and a slight tilt that varies along the row. Yours is red. "Who's in" lists them, and "Already joined?" makes them tappable, with a small lock on tags that already have a PIN.
 - **Tabs:** dashed gold tags on the night; the chosen one becomes solid paper, lifts 2px and tilts -1.2deg.
 - **Chip:** bright paper, a thin ink border, 10px corners.
 
@@ -275,6 +281,6 @@ An original die-cut present that bobs, shakes when tapped, then loses its lid wh
 - **Don't** reuse the logo, photos or wording of Cultural Fest 2027, or the CI's Pinterest background shades; take only its palette, faces, shapes and stickers.
 - **Don't** add a light theme or a theme switch.
 - **Don't** translate the interface into Thai, or remove a Thai font from a stack.
-- **Don't** set reading text in Allura, set body copy in Fraunces, or use Salsa outside calendars.
+- **Don't** set reading text in Satisfy, use Instrument Serif for buttons or labels, or use Salsa outside calendars.
 - **Don't** add fixed top bars, tab bars or floating buttons.
 - **Don't** add new motion without a reduced-motion path.

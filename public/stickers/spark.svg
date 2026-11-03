@@ -1,5 +1,5 @@
-<svg width="63" height="94" viewBox="0 0 63 94" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g filter="url(#filter0_d_96_999)">
+<svg width="252" height="376" viewBox="0 0 63 94" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g>
 <use xlink:href="#stroke0_96_999" fill="#E2C75C"/>
 <mask id="stroke1_96_999" maskUnits="userSpaceOnUse" x="2" y="0" width="59" height="90" fill="black">
 <rect fill="white" x="2" width="59" height="90"/>
@@ -8,16 +8,6 @@
 <path d="M31 5C32.1046 5 33 5.89543 33 7V33.1011C33 35.7738 36.2314 37.1123 38.1213 35.2224L43.7578 29.5859C44.5389 28.805 45.8049 28.8049 46.5859 29.5859C47.3668 30.3669 47.3668 31.6331 46.5859 32.4141L41.1213 37.8787C39.2314 39.7686 40.5699 43 43.2426 43H54C55.1046 43 56 43.8954 56 45C56 46.1046 55.1046 47 54 47H36C34.3431 47 33 48.3431 33 50V83C33 84.1046 32.1046 85 31 85C29.8954 85 29 84.1046 29 83V57.2426C29 54.5699 25.7686 53.2314 23.8787 55.1213L18.5859 60.4141C17.8049 61.195 16.5388 61.1949 15.7578 60.4141C14.9768 59.633 14.9768 58.367 15.7578 57.5859L21.2224 52.1213C23.1123 50.2314 21.7738 47 19.1011 47H9C7.89543 47 7 46.1046 7 45C7 43.8954 7.89543 43 9 43H26C27.6569 43 29 41.6569 29 40V7C29 5.89543 29.8954 5 31 5Z" stroke-width="10" stroke-linecap="round" stroke="#FAF9F6" mask="url(#stroke1_96_999)"/>
 </g>
 <defs>
-<filter id="filter0_d_96_999" x="0" y="0" width="63" height="94" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-<feFlood flood-opacity="0" result="BackgroundImageFix"/>
-<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-<feOffset dy="2"/>
-<feGaussianBlur stdDeviation="1"/>
-<feComposite in2="hardAlpha" operator="out"/>
-<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
-<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_96_999"/>
-<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_96_999" result="shape"/>
-</filter>
 <path id="stroke0_96_999" d="M31 5C32.1046 5 33 5.89543 33 7V33.1011C33 35.7738 36.2314 37.1123 38.1213 35.2224L43.7578 29.5859C44.5389 28.805 45.8049 28.8049 46.5859 29.5859C47.3668 30.3669 47.3668 31.6331 46.5859 32.4141L41.1213 37.8787C39.2314 39.7686 40.5699 43 43.2426 43H54C55.1046 43 56 43.8954 56 45C56 46.1046 55.1046 47 54 47H36C34.3431 47 33 48.3431 33 50V83C33 84.1046 32.1046 85 31 85C29.8954 85 29 84.1046 29 83V57.2426C29 54.5699 25.7686 53.2314 23.8787 55.1213L18.5859 60.4141C17.8049 61.195 16.5388 61.1949 15.7578 60.4141C14.9768 59.633 14.9768 58.367 15.7578 57.5859L21.2224 52.1213C23.1123 50.2314 21.7738 47 19.1011 47H9C7.89543 47 7 46.1046 7 45C7 43.8954 7.89543 43 9 43H26C27.6569 43 29 41.6569 29 40V7C29 5.89543 29.8954 5 31 5Z"/>
 </defs>
 </svg>

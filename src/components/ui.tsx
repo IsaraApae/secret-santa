@@ -66,7 +66,8 @@ export function Callout({
   );
 }
 
-/** The die-cut stickers from the Cultural Fest CI (public/stickers), each with its own off-white edge and shadow. */
+/** The die-cut stickers from the Cultural Fest CI (public/stickers), each with its own off-white edge. The shadow is
+    CSS, drawn at screen resolution: a filter inside the SVG made them soft when shown larger. */
 export type StickerName =
   | "bell" | "calendar" | "candle" | "flower" | "gift" | "gingerbread" | "info" | "megaphone" | "mitten" | "music" | "north-star"
   | "ornament" | "palette" | "question" | "snowflake" | "spark" | "stage" | "star" | "stocking" | "tree" | "warning";
@@ -74,23 +75,25 @@ export type StickerName =
 export function Sticker({ name, size = 40, className, style }: { name: StickerName; size?: number; className?: string; style?: React.CSSProperties }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={`/stickers/${name}.svg`} alt="" aria-hidden height={size} draggable={false} className={cx("pointer-events-none w-auto shrink-0 select-none", className)} style={{ height: size, ...style }} />
+    <img src={`/stickers/${name}.svg`} alt="" aria-hidden height={size} draggable={false} className={cx("pointer-events-none w-auto shrink-0 drop-shadow-[0_2px_2px_rgb(0_0_0/0.3)] select-none", className)} style={{ height: size, ...style }} />
   );
 }
 
-/** A gold script heading above a note, with an optional action on the right and a sticker pinned to the note's corner. */
+/**
+ * A gold script heading above a note, with an optional action on the right. A sticker sits at the end of the
+ * title's last line and wraps with it, so it never covers anything; headings with an action leave it out.
+ */
 export function Section({ title, action, sticker, children }: { title: ReactNode; action?: ReactNode; sticker?: StickerName; children: ReactNode }) {
   return (
     <section className="space-y-2">
       <div className="flex min-h-8 items-end justify-between gap-2 px-1">
-        <h2 className="font-script text-[38px] leading-tight text-gold">{title}</h2>
+        <h2 className="font-script text-[32px] leading-tight text-gold">
+          {title}
+          {sticker && !action && <Sticker name={sticker} size={32} className="ml-2 inline-block rotate-[9deg] align-[-0.05em]" />}
+        </h2>
         {action}
       </div>
-      <div className="relative space-y-3.5">
-        {children}
-        {/* On the corner, as on the CI board, so it never squeezes the heading. */}
-        {sticker && <Sticker name={sticker} size={38} className="absolute -top-6 -right-2 z-10 rotate-[10deg]" />}
-      </div>
+      <div className="space-y-3.5">{children}</div>
     </section>
   );
 }

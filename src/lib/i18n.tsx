@@ -115,6 +115,7 @@ const en = {
   whoAreYou: "Who are you?",
   whoAreYouSub: "Tap your own name to get started.",
   pinTaken: "Has a PIN",
+  lockHint: "A lock means that person has already set a PIN.",
   pinResetBadge: "PIN reset × {n}",
   hiName: "Hi {name}!",
   choosePin: "Choose a 4-digit PIN",

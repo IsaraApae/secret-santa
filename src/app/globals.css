@@ -6,8 +6,12 @@
   --font-serif: var(--font-display), var(--font-thai), Georgia, serif;
   --font-script: var(--font-hand), var(--font-thai-hand), "Brush Script MT", cursive;
   --font-calendar: var(--font-cal), var(--font-thai), Georgia, serif;
-  /* Fraunces made soft and heavy, standing in for the CI's Roca One. */
-  --font-serif--font-variation-settings: "SOFT" 100, "wght" 560;
+  /* Labels, buttons, tickets and tags: Roca One, like the CI's card labels, in the same soft Fraunces
+     as body text but heavier. Instrument Serif (font-serif) is only for small headers. */
+  --font-label: var(--font-body), var(--font-thai), Georgia, serif;
+  /* Fraunces made soft, standing in for the CI's Roca One. */
+  --font-sans--font-variation-settings: "SOFT" 100;
+  --font-label--font-variation-settings: "SOFT" 100, "wght" 560;
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
   --color-ink-3: var(--ink-3);
@@ -90,6 +94,8 @@ html {
 }
 body {
   position: relative;
+  /* Roca One's weight, between Fraunces' regular and medium. */
+  font-weight: 470;
   min-height: 100vh;
   color: var(--ink);
   font-size: 17px;
@@ -174,8 +180,11 @@ dialog:focus-visible {
 
 /* ---------- Materials ------------------------------------------------------- */
 
-/* A cream card with perforated stamp edges, from the CI. The paper is its own
-   layer, so the shadow follows the bites and never touches the text. */
+/* A cream card cut like a stamp, to the CI's own measurements at 0.7 scale (its 24px body text is
+   17px here): round bites 16px across every 27px, centred on the edge so a quarter bite takes each
+   corner, and the CI's tight 1.5px shadow. One small gradient, tiled from half a tile outside the
+   corner, puts a hole on every edge; the middle is filled in. Backgrounds rather than a border-image,
+   which showed hairlines between its tiles at some card heights. */
 @utility card {
   position: relative;
   isolation: isolate;
@@ -185,6 +194,8 @@ dialog:focus-visible {
   --line: rgb(44 40 37 / 0.22);
   --field: rgb(44 40 37 / 0.07);
   --hover: rgb(44 40 37 / 0.06);
+  --bite: radial-gradient(circle 8px, #0000 97%, #000) round -13.5px -13.5px / 27px 27px;
+  --middle: linear-gradient(#000 0 0) center / calc(100% - 24px) calc(100% - 24px) no-repeat;
   color-scheme: light;
   color: var(--ink);
   &::before {
@@ -192,16 +203,23 @@ dialog:focus-visible {
     position: absolute;
     inset: 0;
     z-index: -1;
-    /* One 12px tile with a hole in its middle, tiled from half a tile outside
-       the corner so the holes land on the edges; the middle is filled in. Drawn
-       as backgrounds, as a border-image showed hairlines between its tiles at
-       some card heights. */
     background:
-      radial-gradient(circle 3.6px, #0000 97%, var(--paper)) round -6px -6px / 12px 12px,
-      linear-gradient(var(--paper) 0 0) center / calc(100% - 12px) calc(100% - 12px) no-repeat;
-    filter: drop-shadow(0 10px 18px rgb(0 0 0 / 0.42));
+      radial-gradient(circle 8px, #0000 97%, var(--paper)) round -13.5px -13.5px / 27px 27px,
+      linear-gradient(var(--paper) 0 0) center / calc(100% - 24px) calc(100% - 24px) no-repeat;
+    filter: drop-shadow(0 1.5px 1.5px rgb(0 0 0 / 0.5));
     /* Its own layer, so scrolling doesn't redraw the shadow. */
     transform: translateZ(0);
+  }
+  /* The CI's paper texture: a fine ink grain, cut to the same shape so the bites stay clean. */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .27 0 0 0 0 .22 0 0 0 0 .16 0 0 0 .2 -.04'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+    -webkit-mask: var(--bite), var(--middle);
+    mask: var(--bite), var(--middle);
   }
 }
 
@@ -228,7 +246,7 @@ dialog:focus-visible {
   }
 }
 @utility btn {
-  @apply press inline-flex min-h-12 items-center justify-center gap-2 px-6 font-serif text-[17px] select-none disabled:pointer-events-none disabled:opacity-45;
+  @apply press inline-flex min-h-12 items-center justify-center gap-2 px-6 font-label text-[17px] select-none disabled:pointer-events-none disabled:opacity-45;
   border-radius: 10px;
 }
 @utility btn-primary {
@@ -288,7 +306,7 @@ dialog:focus-visible {
   @apply press inline-grid size-11 shrink-0 place-items-center rounded-full text-ink-2 hover:bg-[var(--hover)];
 }
 @utility chip {
-  @apply press inline-flex min-h-11 items-center gap-2 px-4 font-serif text-[15px];
+  @apply press inline-flex min-h-11 items-center gap-2 px-4 font-label text-[15px];
   border-radius: 10px;
   background-color: var(--paper-light);
   color: #2c2825;
@@ -311,17 +329,28 @@ dialog:focus-visible {
     outline-offset: 0;
   }
 }
+/* Dropdowns draw their own chevron, clear of the edge: each browser's arrow sat
+   tight against the border and looked different on every phone. */
+select.input {
+  appearance: none;
+  padding-right: 34px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23554a42' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
+  text-overflow: ellipsis;
+}
 @utility label {
   @apply text-[14px] text-ink-2;
 }
-/* Charm draws Thai far larger than Allura's small letters, so its tall tone marks
-   ran into the line above. Each fallback is scaled to Allura's x-height instead, and
+/* Charm draws Thai far larger than Satisfy's letters, so its tall tone marks
+   ran into the line above. Each fallback is scaled to Satisfy's x-height instead, and
    a Thai name sits at the same size as an English one. */
 .font-script {
   font-size-adjust: from-font;
 }
 @utility large-title {
-  @apply font-script text-[66px] leading-[1.05] text-gold;
+  @apply font-script text-[56px] leading-[1.05] text-gold;
   font-size-adjust: from-font;
 }
 
@@ -338,8 +367,12 @@ dialog:focus-visible {
 .nudge-r {
   margin-left: 10px;
 }
-/* A strip of washi tape holding a note to the page. */
-.taped::after {
+/* A strip of washi tape holding a note to the page, on its first row: the note's own
+   ::after is its paper grain. */
+.taped > :first-child {
+  position: relative;
+}
+.taped > :first-child::before {
   content: "";
   position: absolute;
   top: -11px;
@@ -348,7 +381,8 @@ dialog:focus-visible {
   height: 22px;
   translate: -50% 0;
   rotate: -3deg;
-  background: rgb(226 199 92 / 0.82);
+  /* Solid, so the bites along the note's edge don't show through it. */
+  background: #dcc35f;
   box-shadow: 0 2px 4px rgb(0 0 0 / 0.25);
   pointer-events: none;
 }
@@ -367,7 +401,7 @@ dialog:focus-visible {
   min-height: 46px;
   border-radius: 8px;
   padding-inline: 10px;
-  font-family: var(--font-serif);
+  font-family: var(--font-label);
   font-variation-settings: "SOFT" 100, "wght" 560;
   font-size: 15px;
   color: var(--cream);

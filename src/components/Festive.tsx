@@ -101,7 +101,7 @@ export function GiftTag({ lead, name, foot }: { lead: string; name: string; foot
       <div className="card px-6 pt-12 pb-8 text-center">
         <span className="absolute top-3.5 left-1/2 size-5 -translate-x-1/2 rounded-full bg-[#2c2825] ring-[3px] ring-[var(--ribbon)]" aria-hidden />
         <p className="font-serif text-[17px] text-ink-2">{lead}</p>
-        <p className={`mt-1 font-script text-[84px] leading-[1.1] break-words text-santa ${nameRoom(name)}`}>{name}</p>
+        <p className={`mt-1 font-script text-[70px] leading-[1.1] break-words text-santa ${nameRoom(name)}`}>{name}</p>
         <p className="font-serif text-[15px] text-ink-2">{foot}</p>
       </div>
     </div>
@@ -113,7 +113,7 @@ export function GroupFacts({ budget, date }: { budget: number | null; date: stri
   const t = useT();
   if (budget === null && !date) return null;
   return (
-    <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 font-serif text-[16px]">
+    <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 font-label text-[16px]">
       {budget !== null && <span className="ticket px-5 py-2">{t("budgetLine", { amount: baht(budget) })}</span>}
       {date && (
         <span className="tag inline-flex items-center gap-1.5 px-3 py-2 text-[#2c2825]">
@@ -139,7 +139,7 @@ export function Countdown({ date }: { date: string }) {
   const left = target - now;
   // Over the whole of the party day, then gone once it has passed.
   if (left <= -86_400_000) return null;
-  if (left <= 0) return <p className="py-2 text-center font-script text-[50px] text-gold">{t("today")}</p>;
+  if (left <= 0) return <p className="py-2 text-center font-script text-[42px] text-gold">{t("today")}</p>;
   const s = Math.floor(left / 1000);
   const tiles: [number, string][] = [
     [Math.floor(s / 86400), t("days")],

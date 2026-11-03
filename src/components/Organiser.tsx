@@ -17,7 +17,7 @@ import { Callout, ICON, Section, Sheet, Sticker } from "./ui";
 export function Organiser({ id }: { id: string }) {
   const t = useT();
   const fromUrl = useSearchParams().get("k");
-  const [key, setKey] = useState<string | null>(fromUrl);
+  const [key, setKey] = useState<string | null>(null);
   const [view, setView] = useState<AdminView | null>(null);
   const [error, setError] = useState("");
   const [sheet, setSheet] = useState<"details" | "people" | null>(null);
@@ -42,15 +42,16 @@ export function Organiser({ id }: { id: string }) {
 
   useEffect(() => {
     setOrigin(location.origin);
-    const k = fromUrl ?? organiserKey(id) ?? null;
+    // Only the phone that made the group holds its key. A key in an address (an old organiser link) is
+    // never taken up, so passing a link around can't make anyone else an organiser; it's only cleared away.
+    if (fromUrl) router.replace(`/o/${id}`);
+    const k = organiserKey(id) ?? null;
     setKey(k);
     if (!k) {
       setError(t("errNotOrganiser"));
       return;
     }
-    // A link with the key in it works once, from the phone that made the group: the key is kept on
-    // the device and taken out of the address, so there's no organiser link to pass around.
-    send(k, { type: "status" }).then((ok) => ok && fromUrl && router.replace(`/o/${id}`));
+    send(k, { type: "status" });
     // Keeps the lists current while the organiser watches, and catches up the
     // moment they come back to the page.
     const refresh = () => !document.hidden && send(k, { type: "status" });
@@ -141,7 +142,6 @@ export function Organiser({ id }: { id: string }) {
 
       <Section
         title={view.drawn ? t("statusTitle") : t("joinedTitle")}
-        sticker="gingerbread"
         action={
           <button type="button" className="chip min-h-10 shrink-0 whitespace-nowrap" onClick={() => setSheet("people")}>
             <Users size={16} {...ICON} aria-hidden />

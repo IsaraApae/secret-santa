@@ -9,7 +9,7 @@ Run a gift exchange from one link. Create a group, share the link, and everyone 
 <p>
   <img src="docs/screenshots/home.jpg" alt="Home page" width="240">
   <img src="docs/screenshots/new.jpg" alt="New group form with a big budget field" width="240">
-  <img src="docs/screenshots/join.jpg" alt="Joining a group with a name and PIN" width="240">
+  <img src="docs/screenshots/join.jpg" alt="Joining a group with a name and PIN, and name tags to tap if you already joined" width="240">
 </p>
 <p>
   <img src="docs/screenshots/invite.jpg" alt="Organiser page with the invite link" width="240">

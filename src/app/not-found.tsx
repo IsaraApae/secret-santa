@@ -7,7 +7,7 @@ export default function NotFound() {
   const t = useT();
   return (
     <div className="card mt-8 space-y-3 p-8 text-center">
-      <h1 className="font-script text-[50px] leading-tight text-santa">{t("notFound")}</h1>
+      <h1 className="font-script text-[42px] leading-tight text-santa">{t("notFound")}</h1>
       <p className="text-ink-2">{t("notFoundSub")}</p>
       <Link href="/" className="btn-primary">
         {t("backHome")}

@@ -21,12 +21,12 @@ export function Home() {
         <Sparkle size={16} className="twinkle absolute top-3 left-4" style={{ animationDelay: "1.1s" }} />
                 <div className="grid items-center gap-5 md:grid-cols-[1.15fr_0.85fr] md:gap-10">
           <div className="space-y-5 text-center md:text-left">
-            <h1 className="font-script text-[clamp(100px,29vw,196px)] leading-[0.9] text-gold">
+            <h1 className="font-script text-[clamp(84px,25vw,168px)] leading-[0.95] text-gold">
               Secret
               <br />
               Santa
             </h1>
-            <p className="ticket inline-block -rotate-1 px-7 py-3 font-serif text-[clamp(18px,5vw,26px)] leading-snug text-balance">{t("heroTitle")}</p>
+            <p className="ticket inline-block -rotate-1 px-7 py-3 font-label text-[clamp(18px,5vw,26px)] leading-snug text-balance">{t("heroTitle")}</p>
           </div>
           <div className="relative">
             {/* CI stickers around the present, clear of the two tags. */}
@@ -35,10 +35,10 @@ export function Home() {
             <Sticker name="ornament" size={40} className="absolute top-[42%] left-[2%] rotate-[-12deg] md:h-[60px]!" />
             <Sticker name="snowflake" size={36} className="absolute top-[38%] right-[1%] rotate-[18deg] md:h-[54px]!" />
             <GiftBox size={190} className="md:h-[320px] md:w-[320px]" />
-            <span className="absolute top-2 left-[6%] rotate-[-9deg] rounded-md bg-[var(--accent)] px-3 py-1 font-serif text-[14px] text-[var(--paper-light)] shadow-[0_0_0_2.5px_var(--sticker),0_6px_12px_rgb(0_0_0/0.4)] md:left-0">
+            <span className="absolute top-2 left-[6%] rotate-[-9deg] rounded-md bg-[var(--accent)] px-3 py-1 font-label text-[14px] text-[var(--paper-light)] shadow-[0_0_0_2.5px_var(--sticker),0_6px_12px_rgb(0_0_0/0.4)] md:left-0">
               {t("noSignUp")}
             </span>
-            <span className="absolute right-[6%] bottom-3 rotate-[7deg] rounded-md bg-[var(--paper-light)] px-3 py-1 font-serif text-[14px] text-[#2c2825] shadow-[0_0_0_2.5px_var(--sticker),0_6px_12px_rgb(0_0_0/0.4)] md:right-0">
+            <span className="absolute right-[6%] bottom-3 rotate-[7deg] rounded-md bg-[var(--paper-light)] px-3 py-1 font-label text-[14px] text-[#2c2825] shadow-[0_0_0_2.5px_var(--sticker),0_6px_12px_rgb(0_0_0/0.4)] md:right-0">
               {t("oneLink")}
             </span>
           </div>
@@ -56,7 +56,7 @@ export function Home() {
           <ul className="card rows">
             {groups.map((g) => (
               <li key={g.id} className="flex items-center gap-2 py-1 pr-3 pl-5">
-                <Link href={`/g/${g.id}`} className="flex min-h-12 min-w-0 flex-1 items-center gap-2 font-serif">
+                <Link href={`/g/${g.id}`} className="flex min-h-12 min-w-0 flex-1 items-center gap-2 font-label">
                   <span className="truncate">{g.name}</span>
                   <ChevronRight size={18} {...ICON} aria-hidden className="shrink-0 text-ink-3" />
                 </Link>
@@ -75,7 +75,7 @@ export function Home() {
         <ol className="space-y-3.5">
           {(["how1", "how2", "how3", "how4"] as const).map((key, i) => (
             <li key={key} className={`card flex items-start gap-3 px-5 py-4 ${i % 2 ? "rotate-[0.6deg] md:ml-8" : "-rotate-[0.6deg] md:mr-8"}`}>
-              <span className="tnum grid size-8 shrink-0 place-items-center rounded-full bg-[var(--santa)] font-serif text-[16px] text-[var(--paper-light)]">{i + 1}</span>
+              <span className="tnum grid size-8 shrink-0 place-items-center rounded-full bg-[var(--santa)] font-label text-[16px] text-[var(--paper-light)]">{i + 1}</span>
               <span className="leading-snug">{t(key)}</span>
             </li>
           ))}

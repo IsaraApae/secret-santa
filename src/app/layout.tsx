@@ -1,20 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Allura, Charm, Fraunces, Noto_Serif_Thai, Salsa, Source_Serif_4 } from "next/font/google";
+import { Charm, Fraunces, Instrument_Serif, Noto_Serif_Thai, Salsa, Satisfy } from "next/font/google";
 import { preload } from "react-dom";
 import { ConfirmHost } from "@/components/ConfirmHost";
 import { TopBar } from "@/components/TopBar";
 import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
-// Free stand-ins for the Cultural Fest CI faces: Allura for Vintage Goods, soft Fraunces for
-// Roca One, Source Serif 4 for Times New Roman MT Condensed. Salsa is the CI's own calendar face.
-const hand = Allura({ weight: "400", subsets: ["latin"], variable: "--font-hand" });
-// Only the axes the page uses: each extra axis roughly doubles a variable font's file.
-const display = Fraunces({ subsets: ["latin"], axes: ["SOFT"], variable: "--font-display" });
-const body = Source_Serif_4({ subsets: ["latin"], variable: "--font-body" });
+// The Cultural Fest CI's faces in its own roles, as the closest free fonts side by side with the CI's
+// samples: Satisfy for Vintage Goods (headers), soft Fraunces for Roca One (body text), Instrument Serif
+// for Times New Roman MT Condensed (small headers, labels and buttons). Salsa is the CI's own calendar face.
+const hand = Satisfy({ weight: "400", subsets: ["latin"], variable: "--font-hand" });
+const display = Instrument_Serif({ weight: "400", subsets: ["latin"], variable: "--font-display" });
+// Only the axis the page uses: each extra axis roughly doubles a variable font's file.
+const body = Fraunces({ subsets: ["latin"], axes: ["SOFT"], variable: "--font-body" });
 // Only calendars use it, and they draw after the page has loaded.
 const calendar = Salsa({ weight: "400", subsets: ["latin"], variable: "--font-cal", preload: false });
-// Thai partners in the same spirit: Charm's fine calligraphy beside Allura, and Noto Serif Thai's looped
+// Thai partners in the same spirit: Charm's calligraphy beside Satisfy, and Noto Serif Thai's looped
 // letters beside the serifs. Only Thai names and wishes load them.
 const thaiHand = Charm({ weight: "400", subsets: ["thai"], variable: "--font-thai-hand", preload: false });
 const thai = Noto_Serif_Thai({ subsets: ["thai"], variable: "--font-thai", preload: false });

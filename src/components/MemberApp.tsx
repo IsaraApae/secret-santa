@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ExternalLink, Globe, Lock, Pencil, Plus, Search, Send, Trash2 } from "lucide-react";
+import { Check, ExternalLink, EyeOff, Globe, Lock, Pencil, Plus, Search, Send, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, baht, errorText, getSession, rememberGroup, setSession, type Session } from "@/lib/client/store";
 import { useT } from "@/lib/i18n";
@@ -170,30 +170,34 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
 
       {group.members.length > 0 && (
       <Section title={group.drawn ? t("whoAreYou") : t("alreadyJoined")} sticker="info">
-        <ul className="card rows">
-          <li className="px-5 py-3 font-serif text-[15px]">{t("whoAreYouSub")}</li>
-          {group.members.map((m) => (
-            <li key={m.id}>
-              <button
-                type="button"
-                className="flex min-h-13 w-full items-center gap-3 px-5 py-2 text-left hover:bg-[var(--hover)]"
-                onClick={() => {
-                  setPicked(m);
-                  setPin("");
-                  setError("");
-                }}
-              >
-                <span className="min-w-0 flex-1 truncate font-medium">{m.name}</span>
-                {m.resets > 0 && <span className="shrink-0 rounded-md bg-warn-soft px-2.5 py-0.5 text-[13px] text-warn">{t("pinResetBadge", { n: m.resets })}</span>}
-                {m.claimed && (
-                  <span className="flex shrink-0 items-center gap-1 text-[13px] text-ink-2">
-                    <Lock size={14} {...ICON} aria-hidden /> {t("pinTaken")}
-                  </span>
-                )}
-              </button>
-            </li>
-          ))}
-        </ul>
+        <div className="card space-y-4 px-4 pt-4 pb-5">
+          <p className="px-1 text-center font-serif text-[15px]">
+            {t("whoAreYouSub")}
+            {group.members.some((m) => m.claimed) && <span className="block text-[13px] text-ink-2">{t("lockHint")}</span>}
+          </p>
+          {/* The same paper tags as "Who's in", to tap: yours opens the PIN sheet. */}
+          <ul className="flex flex-wrap justify-center gap-x-2.5 gap-y-3">
+            {group.members.map((m, i) => (
+              <li key={m.id} className="max-w-full">
+                <button
+                  type="button"
+                  className="press block max-w-full rounded-lg"
+                  aria-label={m.claimed ? `${m.name}, ${t("pinTaken")}` : m.name}
+                  onClick={() => {
+                    setPicked(m);
+                    setPin("");
+                    setError("");
+                  }}
+                >
+                  <NameTag name={m.name} index={i}>
+                    {m.claimed && <Lock size={13} {...ICON} aria-hidden className="shrink-0 text-ink-3" />}
+                    {m.resets > 0 && <span className="shrink-0 rounded bg-warn-soft px-1.5 text-[12px] text-warn">{t("pinResetBadge", { n: m.resets })}</span>}
+                  </NameTag>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       </Section>
       )}
 
@@ -277,30 +281,40 @@ function Signedin({
 }
 
 /** Everyone in the group, by name. The join page lists them anyway; never who drew whom. */
+const TILTS = ["-rotate-2", "rotate-1", "-rotate-1", "rotate-2"];
+
+/** A person as a small paper gift tag, punched at one end and a little off true. Yours is the red one. */
+function NameTag({ name, index, me, children }: { name: string; index: number; me?: boolean; children?: React.ReactNode }) {
+  return (
+    <span
+      className={cx(
+        "flex max-w-full items-center gap-2 rounded-r-lg rounded-l-[14px] border-[1.5px] py-1.5 pr-3.5 pl-2 text-[15px] shadow-[0_3px_6px_rgb(0_0_0/0.14)]",
+        me ? "border-transparent bg-[var(--santa)] text-[var(--paper-light)]" : "border-[rgb(44_40_37/0.25)] bg-[var(--paper-light)] text-[#2c2825]",
+        TILTS[index % TILTS.length],
+      )}
+    >
+      <span aria-hidden className={cx("size-2.5 shrink-0 rounded-full ring-[1.5px]", me ? "bg-[var(--santa-deep)] ring-[var(--ribbon)]" : "bg-[var(--paper)] ring-[rgb(44_40_37/0.35)]")} />
+      <span className="min-w-0 truncate font-medium">{name}</span>
+      {children}
+    </span>
+  );
+}
+
 function WhoIsIn({ members, meId }: { members: PublicGroup["members"]; meId: string }) {
   const t = useT();
   return (
     <Section
       title={t("whosIn")}
-      sticker="gingerbread"
       action={<span className="pb-1 font-serif text-[15px] text-ink-2">{t(members.length === 1 ? "countPerson" : "countPeople", { n: members.length })}</span>}
     >
       <ul className="card flex flex-wrap justify-center gap-x-2.5 gap-y-3 px-4 py-5">
         {members.map((m, i) => {
           const me = m.id === meId;
           return (
-            // A paper gift tag each, punched at one end and a little off true; yours is the red one.
-            <li
-              key={m.id}
-              className={cx(
-                "flex max-w-full items-center gap-2 rounded-r-lg rounded-l-[14px] border-[1.5px] py-1.5 pr-3.5 pl-2 text-[15px] shadow-[0_3px_6px_rgb(0_0_0/0.14)]",
-                me ? "border-transparent bg-[var(--santa)] text-[var(--paper-light)]" : "border-[rgb(44_40_37/0.25)] bg-[var(--paper-light)] text-[#2c2825]",
-                ["-rotate-2", "rotate-1", "-rotate-1", "rotate-2"][i % 4],
-              )}
-            >
-              <span aria-hidden className={cx("size-2.5 shrink-0 rounded-full ring-[1.5px]", me ? "bg-[var(--santa-deep)] ring-[var(--ribbon)]" : "bg-[var(--paper)] ring-[rgb(44_40_37/0.35)]")} />
-              <span className="min-w-0 truncate font-medium">{m.name}</span>
-              {me && <span className="shrink-0 font-serif text-[12px] opacity-85">{t("you").toLowerCase()}</span>}
+            <li key={m.id} className="max-w-full">
+              <NameTag name={m.name} index={i} me={me}>
+                {me && <span className="shrink-0 font-label text-[12px] opacity-85">{t("you").toLowerCase()}</span>}
+              </NameTag>
             </li>
           );
         })}
@@ -319,7 +333,7 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
       <div className="space-y-3 pt-4 text-center">
         <Fall kind="snow" />
         <GiftBox />
-        <p className="font-script text-[52px] leading-tight text-gold">{t("waitingTitle")}</p>
+        <p className="font-script text-[44px] leading-tight text-gold">{t("waitingTitle")}</p>
         <p className="card tilt-r px-4 py-3 text-[15px] leading-snug">{t("waitingBody", { n: view.joined })}</p>
       </div>
     );
@@ -341,8 +355,11 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
         <button type="button" className="block w-full space-y-3 px-6 pt-4 pb-2 text-center" onClick={unwrap}>
           <GiftBox state={stage === "shake" ? "shake" : "idle"} />
           <span className="block">
-            <span className="block font-script text-[52px] leading-tight text-gold">{t("tapToUnwrap")}</span>
-            <span className="card tilt-r mt-3 block px-4 py-2.5 text-[15px]">{t("unwrapHint")}</span>
+            <span className="block font-script text-[44px] leading-tight text-gold">{t("tapToUnwrap")}</span>
+            <span className="mt-2 inline-flex items-center gap-2 text-[15px] text-cream/85">
+              <EyeOff size={17} {...ICON} className="shrink-0 text-gold" />
+              {t("unwrapHint")}
+            </span>
           </span>
         </button>
       </>
@@ -426,7 +443,6 @@ function MineTab({ view, act, members }: { view: MemberView; act: (a: MeAction) 
     <>
       <Section
         title={t("myWishesTitle")}
-        sticker="gift"
         action={
           <button type="button" className="chip min-h-9 shrink-0 whitespace-nowrap" disabled={wishes.length >= 30} onClick={() => setEditing("new")}>
             <Plus size={16} {...ICON} aria-hidden />
@@ -619,7 +635,7 @@ function WishRow({ wish, actions }: { wish: WishItem & { shopPrice?: ShopPrice |
         {site && <SiteName site={site} />}
         {/* Read from the shop's own page by the server, never typed in. */}
         {wish.shopPrice && site && (
-          <p className="tnum font-serif text-[16px]">{t("priceAt", { price: formatPrice(wish.shopPrice), shop: shop ? SHOP_LABEL[shop] : site })}</p>
+          <p className="tnum font-label text-[16px]">{t("priceAt", { price: formatPrice(wish.shopPrice), shop: shop ? SHOP_LABEL[shop] : site })}</p>
         )}
         {wish.note && <p className="text-[15px] leading-snug break-words text-ink-2">{wish.note}</p>}
         {url && (
