@@ -8,6 +8,7 @@ Run a gift exchange from one link. Create a group, share the link, and everyone 
 
 <p>
   <img src="docs/screenshots/animations.webp" alt="Three phone screens, animated: a group's page laying itself out on a first visit, everyone's name tag flying into a present that shakes and bursts into confetti when the organiser draws names, and a drawn name writing itself onto a gift tag" width="732">
+  <img src="docs/screenshots/animations-2.webp" alt="Three more phone screens, animated: a new member's name tag dropping into Who's in, then another person's as they join; a wish slipping onto the list with a tick, then a reply flying off as an envelope; and the guess results flipping over one by one when the organiser shows them" width="732">
 </p>
 <p>
   <img src="docs/screenshots/home.jpg" alt="Home page" width="240">
@@ -53,20 +54,20 @@ The screenshots use a demo group with made-up names.
 
 **Taking part**
 - **Join with your name and a 4-digit PIN.** The PIN opens your page on another phone.
-- **See who's in:** once you've joined, your page lists everyone in the group by name, with yours marked. Never who drew whom.
+- **See who's in:** once you've joined, your page lists everyone in the group by name, with yours marked. Never who drew whom. Your tag drops in when you join, and so does anyone else's who joins while you're there.
 - **The first time you open a group,** its page lays itself out: the name writes itself in, the tickets drop and the cards rise.
 - **Unwrap a gift** to see who you drew: confetti bursts and the name writes itself onto a gift tag. It wraps itself again on each visit, so the name is never on screen by surprise.
-- **Wish lists:** paste a link from any shop. The site recognises Shopee, Lazada, TikTok Shop, Taobao, Tmall, JD, AliExpress, Temu, SHEIN, Amazon, eBay and Etsy, and fills in the product name when the link includes one. Every link shows the website it really goes to, so a link can't pass for a shop it isn't.
+- **Wish lists:** paste a link from any shop. The site recognises Shopee, Lazada, TikTok Shop, Taobao, Tmall, JD, AliExpress, Temu, SHEIN, Amazon, eBay and Etsy, and fills in the product name when the link includes one. Every link shows the website it really goes to, so a link can't pass for a shop it isn't. A saved wish slips onto your list with a tick.
 - **Real prices:** there's no price box, so nobody can list an expensive gift as cheap. For shops that let price checkers in, like IKEA, Central and B2S, the site reads the price from the shop's own page, shows it as "฿39 at ikea.com", and checks it again every six hours. It says who it is when it asks, and many big shops turn away automated visitors from cloud servers (Shopee, Lazada, JIB, Banana, Power Buy, Watsons, Uniqlo, Amazon and Etsy among them), so their links show the website but no price.
 - **A few things about you:** likes, sizes and "please no", for people without links to add.
 - **Gift search:** search Shopee, Lazada, TikTok, Taobao, AliExpress and Temu, starting from what your person likes.
-- **Anonymous messages:** ask your person a question. They see "Your Santa" and can reply without learning who asked.
-- **Guess your Santa:** pick who you think drew you, and change your mind until the organiser shows the results. The table shows only who was right, not who they named.
+- **Anonymous messages:** ask your person a question. They see "Your Santa" and can reply without learning who asked. A message you send flies off as an envelope.
+- **Guess your Santa:** pick who you think drew you, and change your mind until the organiser shows the results. The table shows only who was right, not who they named, and the first time you see it each row flips over like a card.
 
 **Everywhere**
 - An English interface. Names and wishes people type can be in Thai too, with matching Thai fonts.
 - The Cultural Fest 2027 look: grainy blurred lights, gold script, stamp-edged cream cards, punched tickets and the CI's own die-cut stickers, recorded in [DESIGN.md](DESIGN.md).
-- Fast on phones: about 320 KB for the home page, and only the font weights and axes the site uses. An open page checks for changes with one request every few seconds, and stops while it's in the background.
+- Fast on phones: about 290 KB for the home page, and only the font weights and axes the site uses. An open page checks for changes with one request every few seconds, and stops while it's in the background. The animations move only position and transparency, so phones and LINE's browser play them without redrawing the page.
 - Reduced motion is respected.
 
 ## How the secret is kept
