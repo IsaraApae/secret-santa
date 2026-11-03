@@ -26,6 +26,8 @@ export const JoinBody = z.object({ name: text(40).min(1), pin: Pin });
 
 export const ClaimBody = z.object({ memberId: z.string().max(40), pin: Pin });
 
+// No price: anyone could type any number, and the shops don't let a server read the real one, so the
+// Santa checks it at the link. A price from an older page is dropped, as unknown keys are.
 export const Wish = z.object({
   id: z.string().max(40),
   title: text(120).min(1),
@@ -35,7 +37,6 @@ export const Wish = z.object({
     .max(2000)
     .nullable()
     .refine((u) => u === null || safeUrl(u) !== null),
-  price: z.number().int().min(0).max(10_000_000).nullable(),
   note: text(200),
 });
 export type WishItem = z.infer<typeof Wish>;

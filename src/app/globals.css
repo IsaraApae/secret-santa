@@ -172,8 +172,7 @@ dialog:focus-visible {
 /* ---------- Materials ------------------------------------------------------- */
 
 /* A cream card with perforated stamp edges, from the CI. The paper is its own
-   layer: a border-image draws the perforated edge around a flat padding box,
-   so the shadow follows the bites and never touches the text. */
+   layer, so the shadow follows the bites and never touches the text. */
 @utility card {
   position: relative;
   isolation: isolate;
@@ -190,10 +189,13 @@ dialog:focus-visible {
     position: absolute;
     inset: 0;
     z-index: -1;
-    border: 12px solid transparent;
-    border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36'%3E%3Cmask id='m'%3E%3Crect width='36' height='36' fill='%23fff'/%3E%3Cg%3E%3Ccircle cx='6' cy='0' r='3.6'/%3E%3Ccircle cx='18' cy='0' r='3.6'/%3E%3Ccircle cx='30' cy='0' r='3.6'/%3E%3Ccircle cx='6' cy='36' r='3.6'/%3E%3Ccircle cx='18' cy='36' r='3.6'/%3E%3Ccircle cx='30' cy='36' r='3.6'/%3E%3Ccircle cx='0' cy='6' r='3.6'/%3E%3Ccircle cx='0' cy='18' r='3.6'/%3E%3Ccircle cx='0' cy='30' r='3.6'/%3E%3Ccircle cx='36' cy='6' r='3.6'/%3E%3Ccircle cx='36' cy='18' r='3.6'/%3E%3Ccircle cx='36' cy='30' r='3.6'/%3E%3C/g%3E%3C/mask%3E%3Crect width='36' height='36' fill='%23e2d3bc' mask='url(%23m)'/%3E%3C/svg%3E") 12 round;
-    /* Tucked 2px under the edge so no hairline shows where the two meet. */
-    background: linear-gradient(var(--paper), var(--paper)) center / calc(100% - 20px) calc(100% - 20px) no-repeat border-box;
+    /* One 12px tile with a hole in its middle, tiled from half a tile outside
+       the corner so the holes land on the edges; the middle is filled in. Drawn
+       as backgrounds, as a border-image showed hairlines between its tiles at
+       some card heights. */
+    background:
+      radial-gradient(circle 3.6px, #0000 97%, var(--paper)) round -6px -6px / 12px 12px,
+      linear-gradient(var(--paper) 0 0) center / calc(100% - 12px) calc(100% - 12px) no-repeat;
     filter: drop-shadow(0 10px 18px rgb(0 0 0 / 0.42));
     /* Its own layer, so scrolling doesn't redraw the shadow. */
     transform: translateZ(0);

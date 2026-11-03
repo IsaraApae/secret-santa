@@ -1,12 +1,13 @@
 "use client";
 
-import { Check, ExternalLink, Lock, Pencil, Plus, Search, Send, Trash2 } from "lucide-react";
+import { Check, ExternalLink, Globe, Lock, Pencil, Plus, Search, Send, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, baht, errorText, getSession, rememberGroup, setSession, type Session } from "@/lib/client/store";
 import { useT } from "@/lib/i18n";
 import type { AboutMe, WishItem } from "@/lib/schema";
 import type { MeAction, MemberView, Msg, PublicGroup } from "@/lib/server/groups";
-import { parseShopPaste, safeUrl, SHOP_LABEL, shopOf, type Shop } from "@/lib/shop";
+import { formatPrice, type ShopPrice } from "@/lib/price";
+import { parseShopPaste, safeUrl, SHOP_LABEL, shopOf, siteOf, type Shop } from "@/lib/shop";
 import { Countdown, Fall, GiftBox, GroupFacts, GiftTag, GuessResults } from "./Festive";
 import { Callout, cx, ICON, Section, Segmented, Sheet } from "./ui";
 
@@ -552,38 +553,31 @@ function GiftSearch({ likes, budget }: { likes: string; budget: number | null })
 
 // ---------- Wishes ------------------------------------------------------------------
 
-const SHOP_STYLE: Record<Shop, string> = {
-  shopee: "bg-[#ee4d2d] text-white",
-  lazada: "bg-[#1a1a7a] text-white",
-  tiktok: "bg-[#111] text-white ring-1 ring-white/20",
-  taobao: "bg-[#c94f00] text-white",
-  tmall: "bg-[#c8102e] text-white",
-  jd: "bg-[#c8161d] text-white",
-  aliexpress: "bg-[#c9360f] text-white",
-  temu: "bg-[#c2500c] text-white",
-  shein: "bg-[#111] text-white",
-  amazon: "bg-[#232f3e] text-white",
-  ebay: "bg-[#0654ba] text-white",
-  etsy: "bg-[#b84a12] text-white",
-};
-
-function ShopBadge({ shop }: { shop: Shop }) {
-  return <span className={cx("inline-block shrink-0 rounded-md px-2.5 py-0.5 text-[13px] font-semibold", SHOP_STYLE[shop])}>{SHOP_LABEL[shop]}</span>;
+/** Where a link really goes: the same plain globe and site name for every link, a big shop's or not. */
+function SiteName({ site }: { site: string }) {
+  return (
+    <span className="flex min-w-0 items-center gap-1 text-[14px] text-ink-2">
+      <Globe size={14} {...ICON} aria-hidden className="shrink-0" />
+      <span className="truncate">{site}</span>
+    </span>
+  );
 }
 
-function WishRow({ wish, actions }: { wish: WishItem; actions?: React.ReactNode }) {
+function WishRow({ wish, actions }: { wish: WishItem & { shopPrice?: ShopPrice | null }; actions?: React.ReactNode }) {
   const t = useT();
   // Checked again on the way out: never render a stored link we wouldn't accept.
   const url = wish.url && safeUrl(wish.url);
   const shop = url ? shopOf(url) : null;
+  const site = url ? siteOf(url) : null;
   return (
     <li className="flex items-start gap-1 py-3.5 pr-2 pl-5">
       <div className="min-w-0 flex-1 space-y-1">
         <p className="font-medium break-words">{wish.title}</p>
-        <div className="flex flex-wrap items-center gap-2 text-[15px] text-ink-2">
-          {shop && <ShopBadge shop={shop} />}
-          {wish.price !== null && <span className="tnum">{baht(wish.price)}</span>}
-        </div>
+        {site && <SiteName site={site} />}
+        {/* Read from the shop's own page by the server, never typed in. */}
+        {wish.shopPrice && site && (
+          <p className="tnum font-serif text-[16px]">{t("priceAt", { price: formatPrice(wish.shopPrice), shop: shop ? SHOP_LABEL[shop] : site })}</p>
+        )}
         {wish.note && <p className="text-[15px] leading-snug break-words text-ink-2">{wish.note}</p>}
         {url && (
           <a href={url} target="_blank" rel="noreferrer noopener" className="inline-flex min-h-9 items-center gap-1.5 font-semibold text-accent-strong">
@@ -602,9 +596,8 @@ function WishSheet({ wish, onClose, onSave }: { wish: WishItem | null; onClose: 
   const [link, setLink] = useState(wish?.url ?? "");
   const [url, setUrl] = useState<string | null>(wish?.url ?? null);
   const [title, setTitle] = useState(wish?.title ?? "");
-  const [price, setPrice] = useState(wish?.price == null ? "" : String(wish.price));
   const [note, setNote] = useState(wish?.note ?? "");
-  const shop = url ? shopOf(url) : null;
+  const site = url ? siteOf(url) : null;
   const badLink = link.trim() !== "" && !url;
 
   function onLink(text: string) {
@@ -625,7 +618,6 @@ function WishSheet({ wish, onClose, onSave }: { wish: WishItem | null; onClose: 
           id: wish?.id ?? crypto.randomUUID().slice(0, 12),
           title: title.trim(),
           url,
-          price: price ? Number(price) : null,
           note: note.trim(),
         })
       }
@@ -636,11 +628,9 @@ function WishSheet({ wish, onClose, onSave }: { wish: WishItem | null; onClose: 
           <input className="input" inputMode="url" autoComplete="off" value={link} placeholder="https://" onChange={(e) => onLink(e.target.value)} />
         </label>
         <div className="flex min-h-6 items-center gap-2 px-3 text-[13px] leading-snug text-ink-2">
-          {shop && <ShopBadge shop={shop} />}
-          {badLink ? <span className="text-danger">{t("badLink")}</span> : !shop && t("pasteLinkHint")}
+          {badLink ? <span className="text-danger">{t("badLink")}</span> : site ? <SiteName site={site} /> : t("pasteLinkHint")}
         </div>
         <input className="input" maxLength={120} value={title} placeholder={t("wishTitle")} aria-label={t("wishTitle")} onChange={(e) => setTitle(e.target.value)} />
-        <input className="input tnum" inputMode="numeric" value={price} placeholder={t("wishPrice")} aria-label={t("wishPrice")} onChange={(e) => setPrice(e.target.value.replace(/\D/g, "").slice(0, 8))} />
         <input className="input" maxLength={200} value={note} placeholder={t("wishNote")} aria-label={t("wishNote")} onChange={(e) => setNote(e.target.value)} />
       </div>
     </Sheet>

@@ -42,6 +42,16 @@ export function safeUrl(text: string): string | null {
   }
 }
 
+/** The site a link really goes to, shown on every wish so a link can't pass for somewhere it isn't. */
+export function siteOf(url: string): string | null {
+  try {
+    // Punycode for other scripts, so a look-alike name shows as xn--…
+    return new URL(url).hostname.toLowerCase().replace(/^www\./, "") || null;
+  } catch {
+    return null;
+  }
+}
+
 export function shopOf(url: string): Shop | null {
   try {
     const host = new URL(url).hostname.toLowerCase();

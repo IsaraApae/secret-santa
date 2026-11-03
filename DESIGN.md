@@ -268,7 +268,7 @@ An original die-cut present that bobs, shakes when tapped, then loses its lid wh
 - **Do** put lists, forms and long text on a stamp card or sheet, with short script headings and labels on the night.
 - **Do** keep tilts small on things people read: cards at 0.7deg or less, tickets at 1deg. Decorative stickers can go up to 9deg.
 - **Do** draw new artwork as original SVG, and keep the fixed lights backdrop on every page.
-- **Do** keep shop and app badges in their own brand colours, as those are the only colours from outside this palette.
+- **Do** show where a wish link goes as a plain globe and site name, the same for every shop. There are no brand-coloured badges.
 
 ### Don't:
 - **Don't** reuse the logo, photos or wording of Cultural Fest 2027; take only its CI palette, faces and shapes.

@@ -112,7 +112,10 @@ const wish = { id: "w1", title: "Pink mug", url: "https://shopee.co.th/Pink-Mug-
 const santaOf = (name) => Object.keys(views).find((n) => views[n].person.name === name);
 await post(`${g}/me`, { ...sessions.Chai, action: { type: "wishes", wishes: [wish] } });
 const santa = santaOf("Chai");
-assert.equal((await post(`${g}/me`, { ...sessions[santa], action: { type: "load" } })).data.person.wishes[0].title, "Pink mug");
+const seen = (await post(`${g}/me`, { ...sessions[santa], action: { type: "load" } })).data.person.wishes[0];
+assert.equal(seen.title, "Pink mug");
+// A typed price, as an older page still sends, is dropped: only the shop's own page can say what it costs
+assert.equal(seen.price, undefined);
 const notSanta = names.find((n) => n !== santa && n !== "Chai");
 assert.notEqual((await post(`${g}/me`, { ...sessions[notSanta], action: { type: "load" } })).data.person.name, "Chai");
 assert.equal((await post(`${g}/me`, { ...sessions.Chai, action: { type: "wishes", wishes: [{ ...wish, url: "javascript:alert(1)" }] } })).status, 400);

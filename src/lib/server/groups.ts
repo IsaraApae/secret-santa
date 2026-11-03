@@ -1,9 +1,13 @@
 import "server-only";
 import { randomBytes } from "node:crypto";
+import { after } from "next/server";
 import { z } from "zod";
 import { drawNames } from "../draw";
 import type { AboutMe, Details, People, WishItem } from "../schema";
+import type { ShopPrice } from "../price";
 import { hashPin, memberToken, safeEqual, seal, sha256, unseal } from "../seal";
+import { safeUrl } from "../shop";
+import { fetchPrice } from "./fetchPrice";
 import { kv, sealSecret } from "./kv";
 
 /*
@@ -17,6 +21,7 @@ import { kv, sealSecret } from "./kv";
  *   a:<id>    their answers: what they like, sizes, what to avoid
  *   q:<id>    who they guess their Santa is, and in which round
  *   r:<id>    how many times the organiser has reset their PIN
+ *   sp:<id>   prices read from the links in their wish list, by link. Only the server writes these.
  * One list per person for the anonymous chat with whoever drew them. It's kept
  * under the receiver, so nothing stored ever says who the Santa is.
  */
@@ -66,7 +71,71 @@ async function touch(id: string) {
   await kv().expire(groupKey(id), TTL);
 }
 
-const wishesOf = (g: Loaded, memberId: string): WishItem[] => JSON.parse(g.raw[`w:${memberId}`] ?? "[]");
+/** One look at a link's page: the price it stated, if any, and when. */
+interface PriceCheck extends Partial<ShopPrice> {
+  at: number;
+}
+const pricesOf = (g: { raw: Record<string, string> }, memberId: string): Record<string, PriceCheck> => JSON.parse(g.raw[`sp:${memberId}`] ?? "{}");
+const savedWishes = (g: { raw: Record<string, string> }, memberId: string): WishItem[] => JSON.parse(g.raw[`w:${memberId}`] ?? "[]");
+
+// A typed price from lists saved before they were removed never leaves the server; the only
+// price shown is the one read from the shop's page.
+function wishesOf(g: Loaded, memberId: string) {
+  const prices = pricesOf(g, memberId);
+  return savedWishes(g, memberId).map(({ id, title, url, note }) => {
+    const p = url ? prices[url] : undefined;
+    return { id, title, url, note, shopPrice: p?.amount && p.currency ? { amount: p.amount, currency: p.currency } : null };
+  });
+}
+
+const PRICE_AGE = 6 * 60 * 60 * 1000; // read again after six hours
+
+// One read per link per minute on this server, shared by everyone whose list has it.
+const recentReads = new Map<string, Promise<ShopPrice | null>>();
+function readOnce(link: string) {
+  let read = recentReads.get(link);
+  if (!read) {
+    read = fetchPrice(link);
+    recentReads.set(link, read);
+    setTimeout(() => recentReads.delete(link), 60_000);
+  }
+  return read;
+}
+
+/**
+ * Reads the prices on these people's wish lists that are new or six hours old, after the
+ * response has gone, so neither saving nor opening a page waits for a shop.
+ */
+function refreshPrices(g: Loaded, memberIds: string[]) {
+  const due = memberIds.map((memberId) => {
+    const prices = pricesOf(g, memberId);
+    const links = savedWishes(g, memberId)
+      .map((w) => w.url && safeUrl(w.url))
+      .filter((u): u is string => !!u && Date.now() - (prices[u]?.at ?? 0) >= PRICE_AGE);
+    return { memberId, links: [...new Set(links)] };
+  });
+  if (!due.some((d) => d.links.length)) return;
+  after(async () => {
+    const links = [...new Set(due.flatMap((d) => d.links))].slice(0, 30);
+    const read = new Map(await Promise.all(links.map(async (u) => [u, await readOnce(u)] as const)));
+    // Fresh from the store: the lists may have changed while the shops answered.
+    const now = { raw: await kv().hgetall(groupKey(g.id)) };
+    if (!now.raw.meta) return;
+    const fields: Record<string, string> = {};
+    for (const { memberId } of due) {
+      const old = pricesOf(now, memberId);
+      const kept: Record<string, PriceCheck> = {};
+      for (const w of savedWishes(now, memberId)) {
+        const u = w.url && safeUrl(w.url);
+        if (!u) continue;
+        const fresh = read.get(u);
+        kept[u] = read.has(u) ? { ...fresh, at: Date.now() } : old[u];
+      }
+      fields[`sp:${memberId}`] = JSON.stringify(Object.fromEntries(Object.entries(kept).filter(([, v]) => v)));
+    }
+    await kv().hset(groupKey(g.id), fields);
+  });
+}
 const aboutOf = (g: Loaded, memberId: string): AboutMe => JSON.parse(g.raw[`a:${memberId}`] ?? '{"likes":"","sizes":"","avoid":""}');
 
 function guessOf(g: Loaded, memberId: string): string | null {
@@ -274,7 +343,10 @@ export async function memberAction(id: string, memberId: string, token: string, 
   if (action.type === "ask") await post(g, unseal(sealSecret(), id, memberId, g.raw[`s:${memberId}`]), "santa", action.text);
   if (action.type === "reply") await post(g, memberId, "person", action.text);
   if (action.type !== "load") await touch(id);
-  return memberView(g, memberId);
+  const view = await memberView(g, memberId);
+  // Their own list, and the list of the person they drew: the two this page shows.
+  refreshPrices(g, [memberId, ...(isDrawn(g) ? [unseal(sealSecret(), id, memberId, g.raw[`s:${memberId}`])] : [])]);
+  return view;
 }
 
 // ---------- Organiser ------------------------------------------------------------

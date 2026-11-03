@@ -157,10 +157,10 @@ const en = {
   pasteLinkHint: "In the shop's app, tap Share and then Copy link.",
   badLink: "That doesn't look like a web link.",
   wishTitle: "What is it?",
-  wishPrice: "Price (฿)",
   wishNote: "Size, colour or any other detail",
   openIn: "Open in {shop}",
   openLink: "Open link",
+  priceAt: "{price} at {shop}",
 
   aboutTitle: "A few things about you",
   aboutHint: "Only your Santa sees this. Handy if you don't have links to add.",

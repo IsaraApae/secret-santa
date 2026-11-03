@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { drawNames } from "./draw.ts";
 import { hashPin, memberToken, seal, unseal } from "./seal.ts";
-import { parseShopPaste, safeUrl, shopOf } from "./shop.ts";
+import { formatPrice, priceFromHtml } from "./price.ts";
+import { parseShopPaste, safeUrl, shopOf, siteOf } from "./shop.ts";
 
 const ids = (n: number) => Array.from({ length: n }, (_, i) => `p${i}`);
 
@@ -123,4 +124,36 @@ test("shop links", () => {
   assert.equal(parseShopPaste("no link here"), null);
   assert.equal(safeUrl("javascript:alert(1)"), null);
   assert.equal(parseShopPaste("javascript:alert(1)"), null);
+});
+
+test("every link shows the site it really goes to", () => {
+  assert.equal(siteOf("https://www.shopee.co.th/Pink-Mug-i.1.2"), "shopee.co.th");
+  assert.equal(siteOf("https://shopee.co.th.evil.example/x"), "shopee.co.th.evil.example");
+  assert.equal(siteOf("https://my-gift-shop.com/item?id=1"), "my-gift-shop.com");
+  // A look-alike name in another script shows as punycode, not as the name it imitates.
+  assert.match(siteOf("https://shоpee.co.th/x") ?? "", /^xn--.*\.co\.th$/);
+  assert.equal(siteOf("not a link"), null);
+});
+
+test("prices come from the shop's own page", () => {
+  const ld = (data: unknown) => `<html><script type="application/ld+json">${JSON.stringify(data)}</script></html>`;
+  assert.deepEqual(priceFromHtml(ld({ "@type": "Product", offers: { "@type": "Offer", price: "1,150.00", priceCurrency: "THB" } })), { amount: 1150, currency: "THB" });
+  assert.deepEqual(priceFromHtml(ld({ "@graph": [{ "@type": "WebPage" }, { "@type": ["Product"], offers: [{ lowPrice: 89, priceCurrency: "USD" }] }] })), { amount: 89, currency: "USD" });
+  assert.deepEqual(
+    priceFromHtml('<meta content="450" property="product:price:amount"><meta property="product:price:currency" content="THB">'),
+    { amount: 450, currency: "THB" },
+  );
+  // Lazada's escaped page data, and a range reads as its lowest price
+  assert.deepEqual(priceFromHtml('{\\"pdt_price\\":\\"฿1,150.00\\",\\"x\\":1}'), { amount: 1150, currency: "THB" });
+  assert.deepEqual(priceFromHtml('"pdt_price":"฿100 - ฿200"'), { amount: 100, currency: "THB" });
+  // No currency, no number, or nothing at all: no price rather than a guess
+  assert.equal(priceFromHtml(ld({ "@type": "Product", offers: { price: "450" } })), null);
+  assert.equal(priceFromHtml(ld({ "@type": "Product", offers: { price: "free", priceCurrency: "THB" } })), null);
+  assert.equal(priceFromHtml("<html><title>Shopee</title></html>"), null);
+});
+
+test("prices read the way the shop shows them", () => {
+  assert.equal(formatPrice({ amount: 1150, currency: "THB" }), "฿1,150");
+  assert.equal(formatPrice({ amount: 1150.5, currency: "THB" }), "฿1,150.50");
+  assert.equal(formatPrice({ amount: 89, currency: "USD" }), "$89");
 });
