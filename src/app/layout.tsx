@@ -33,7 +33,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#451f19",
+  // No theme colour: the phone browser's bars show the lights under them (see .night).
 };
 
 const ROOM_ENTRANCE = `try{var p=location.pathname,h=document.documentElement;if(/^\\/[go]\\/[\\w-]{12}$/.test(p)){if(!localStorage.getItem("ss:seen:"+p))h.classList.add("first-room");if(!localStorage.getItem("ss:results:"+p))h.classList.add("new-results")}}catch(e){}`;
@@ -48,7 +48,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Starts a room's first-visit entrance, and the guess results' first flip, before the first
             paint (see useRoomEntrance and useResultsReveal), so the page doesn't show and then vanish into them. */}
         <script dangerouslySetInnerHTML={{ __html: ROOM_ENTRANCE }} />
-        <div className="edge-strip" aria-hidden />
         <div className="night" aria-hidden />
         {/* Snow falls on every page. */}
         <Fall kind="snow" />

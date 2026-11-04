@@ -40,11 +40,8 @@
 :root {
   color-scheme: dark;
   --night: #2c2825;
-  /* One solid colour for the page's top and bottom edges. Phone browsers fill
-     the strips behind their status bar and toolbar with a single colour, and
-     fixed layers aren't drawn there, so the page has to meet it without a seam.
-     It's the maroon along the top of the lights under their tint, so the
-     header and footer read as the same night as the rest of the page. */
+  /* The maroon along the top of the lights under their tint: under the picture,
+     and wherever the page runs past it (pulling past the top or bottom). */
   --edge: #451f19;
   /* Cultural Fest CI: #E2D3BC cards, #AB2828 red, #126E29 green, #E2C75C gold
      for text on the background, #FAF9F6 sticker outlines, #2C2825 text. */
@@ -128,35 +125,19 @@ dialog:focus-visible {
   scrollbar-color: rgb(226 199 92 / 0.5) transparent;
 }
 
-/* The night: a fixed layer of blurred fairy lights behind everything, with
-   the CI's film grain over it. The edge fades sit above the grain, so the
-   layer's first and last rows are exactly --edge and meet the phone's bars
-   without a line. They ease out over 180px so they don't read as a band. */
+/* The night: blurred fairy lights behind everything, with the CI's film grain over
+   them, scrolling with the page. Not a fixed layer, and no theme colour: phone
+   browsers don't draw fixed layers behind their bars and paint a solid strip there
+   instead, so this way the lights themselves run under the status bar and toolbar. */
 .night {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  /* iOS Safari paints a solid colour under its bottom bar when a fixed element
-     touches the bottom edge. Stopping short lets the page show behind the bar,
-     and .edge-strip, in the same colour, fills the gap. */
-  bottom: 6px;
   z-index: -1;
   pointer-events: none;
   background:
-    linear-gradient(var(--edge), color-mix(in srgb, var(--edge) 80%, transparent) 40px, color-mix(in srgb, var(--edge) 35%, transparent) 110px, transparent 180px),
-    linear-gradient(to top, var(--edge), color-mix(in srgb, var(--edge) 80%, transparent) 40px, color-mix(in srgb, var(--edge) 35%, transparent) 110px, transparent 180px),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .95 0 0 0 0 .88 0 0 0 .11 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"),
     linear-gradient(rgb(44 40 37 / 0.28), rgb(44 40 37 / 0.28)),
     var(--edge) url("/lights.webp") center / cover no-repeat;
-  /* The colour under the picture is the edge colour too: iPhone Safari tints its
-     bars from a full-screen fixed layer's own colour, and only the home page has
-     the see-through snow layer above this one. */
-}
-/* Scrolls with the page behind the lights, so the colour carries on under the bars. */
-.edge-strip {
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  background: var(--edge);
 }
 
 .tnum {
@@ -356,6 +337,9 @@ select.input {
 @utility large-title {
   @apply font-script text-[56px] leading-[1.05] text-gold;
   font-size-adjust: from-font;
+  /* A name that needs two lines splits into two of about the same length ("Chai Apae's /
+     Secret santa #2"), not a full line and a word or two left over. */
+  text-wrap: balance;
 }
 
 /* Collage: notes that sit a little off true. Small enough to read and tap. */
@@ -718,14 +702,18 @@ dialog.alert::backdrop {
     transform: translateY(5px) rotate(3deg);
   }
 }
-/* A saved wish slips onto the list... */
+/* A saved wish drops onto the list like a name tag joining: from above, past its place, then settles... */
 .slip-in {
-  animation: slip-in 0.6s var(--ease-spring) backwards;
+  animation: slip-in 0.75s var(--ease-spring) backwards;
 }
 @keyframes slip-in {
-  from {
+  0% {
     opacity: 0;
-    transform: translateX(-28px) rotate(-1.5deg);
+    transform: translateY(-34px) rotate(-4deg) scale(0.88);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(5px) rotate(1deg) scale(1.03);
   }
 }
 /* ...and a tick pops up beside it, then fades. */
@@ -739,7 +727,7 @@ dialog.alert::backdrop {
   }
   15% {
     opacity: 1;
-    transform: scale(1.15);
+    transform: scale(1.4) rotate(-12deg);
   }
   25%,
   80% {
@@ -750,14 +738,18 @@ dialog.alert::backdrop {
     opacity: 0;
   }
 }
-/* A message slides up into the thread. */
+/* A message pops up into the thread, past its place, then settles. */
 .msg-in {
-  animation: msg-in 0.45s var(--ease-spring) backwards;
+  animation: msg-in 0.7s var(--ease-spring) backwards;
 }
 @keyframes msg-in {
-  from {
+  0% {
     opacity: 0;
-    transform: translateY(12px) scale(0.96);
+    transform: translateY(26px) scale(0.8);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(-5px) scale(1.05);
   }
 }
 /* The message sent, as an envelope: it grows out of the send button and flies up and away. */
@@ -788,15 +780,19 @@ dialog.alert::backdrop {
 /* Guess results the first time this phone sees them (useResultsReveal): each row flips over like a
    card, one after another; on a first visit, once the page has laid itself out. */
 .new-results .result-row {
-  animation: card-flip 0.7s var(--ease-spring) calc(var(--i) * 0.12s + var(--after, 0s)) backwards;
+  animation: card-flip 0.85s var(--ease-spring) calc(var(--i) * 0.14s + var(--after, 0s)) backwards;
 }
 .first-room .result-row {
   --after: 1.6s;
 }
 @keyframes card-flip {
-  from {
+  0% {
     opacity: 0;
-    transform: perspective(700px) rotateY(-100deg);
+    transform: perspective(700px) rotateY(-100deg) scale(0.9);
+  }
+  55% {
+    opacity: 1;
+    transform: perspective(700px) rotateY(14deg) scale(1.04);
   }
 }
 

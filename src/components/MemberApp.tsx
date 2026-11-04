@@ -157,7 +157,7 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
             <p className="px-1 text-[14px] leading-snug text-ink-2">{t("joinHint")}</p>
             <input className="input" maxLength={40} autoComplete="given-name" value={newName} placeholder={t("yourName")} aria-label={t("yourName")} onChange={(e) => setNewName(e.target.value)} />
             <input
-              className="input tnum text-center text-[24px] tracking-[0.4em] placeholder:text-[17px] placeholder:tracking-normal"
+              className="input tnum text-center text-[24px] tracking-[0.4em] not-placeholder-shown:indent-[0.4em] placeholder:text-[17px] placeholder:tracking-normal"
               type="password"
               inputMode="numeric"
               autoComplete="off"
@@ -219,7 +219,8 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
           <p className="text-[15px] leading-snug text-ink-2">{picked?.claimed ? t("enterPinSub") : t("choosePinSub")}</p>
           <input
             ref={pinRef}
-            className="input tnum text-center text-[28px] tracking-[0.5em]"
+            // The spacing also follows the last dot, so the same amount at the start keeps the dots centred.
+            className="input tnum text-center text-[28px] tracking-[0.5em] indent-[0.5em]"
             type="password"
             inputMode="numeric"
             autoComplete="off"
