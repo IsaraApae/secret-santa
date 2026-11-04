@@ -7,13 +7,38 @@ export const alt = "An invitation to join a Secret Santa group";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 
-/** Long names step down so they stay on the card. Charm draws Thai much larger than Satisfy, so Thai steps down further. */
-const nameSize = (name: string) => (name.length <= 10 ? 124 : name.length <= 16 ? 100 : name.length <= 26 ? 80 : 62) * (hasThai(name) ? 0.6 : 1);
+/**
+ * A long name splits into two lines of about the same length at the space nearest its middle
+ * ("Chai Apae's / Secret santa #2"), as the group page's title does, instead of shrinking to one thin
+ * line with the card empty below it. The card's renderer can't balance lines itself.
+ */
+function nameLines(name: string) {
+  if (name.length <= 16) return [name];
+  const spaces = [...name.matchAll(/ /g)].map((m) => m.index);
+  if (!spaces.length) return [name];
+  const at = spaces.reduce((a, b) => (Math.abs(b - name.length / 2) < Math.abs(a - name.length / 2) ? b : a));
+  return [name.slice(0, at), name.slice(at + 1)];
+}
+
+/** Long lines step down so they stay on the card. Charm draws Thai much larger than Satisfy, so Thai steps down further. */
+const nameSize = (lines: string[], thai: boolean) => {
+  const n = Math.max(...lines.map((l) => l.length));
+  // Two lines a little smaller, so the card keeps its margins.
+  return (n <= 10 ? 124 : n <= 16 ? 100 : n <= 22 ? 80 : 62) * (thai ? 0.6 : 1) * (lines.length > 1 ? 0.9 : 1);
+};
+
+// The script's letters reach well past its line box: Satisfy's capitals up into the line above and
+// Charm's Thai marks higher still. These leave the name the same clear space above as below.
+const GAP_ABOVE = (thai: boolean) => (thai ? 52 : 22);
+const GAP_BELOW = 34;
 
 /** The card a chat app shows when someone sends a group's invite link. */
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
   const [group, fonts] = await Promise.all([params.then((p) => getPublicGroup(p.id)), ogFonts()]);
   const name = group?.name ?? "Secret Santa";
+  const thai = hasThai(name);
+  const lines = nameLines(name);
+  const nameFont = nameSize(lines, thai);
   const joined = group?.members.length ?? 0;
   const foot = !group
     ? "Draw names. Keep the secret."
@@ -31,10 +56,14 @@ export default async function Image({ params }: { params: Promise<{ id: string }
       <Sparkle size={24} x={812} y={560} />
 
       <Stamp width={790} height={500} style={{ left: 56, top: 62, transform: "rotate(-1.6deg)" }}>
-        <div style={{ position: "absolute", left: 62, top: 54, width: 666, height: 392, display: "flex", flexDirection: "column", justifyContent: "center", gap: 48 }}>
+        <div style={{ position: "absolute", left: 62, top: 54, width: 666, height: 392, display: "flex", flexDirection: "column", justifyContent: "center", gap: GAP_BELOW }}>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ fontFamily: "Instrument Serif", fontSize: 30, color: CI.ink2, display: "flex" }}>You're invited to</div>
-            <div style={{ fontFamily: "Satisfy, Charm", fontSize: nameSize(name), lineHeight: 1.08, color: CI.santa, marginTop: hasThai(name) ? 34 : 6, display: "flex" }}>{name}</div>
+            <div style={{ fontFamily: "Satisfy, Charm", fontSize: nameFont, lineHeight: 1.08, color: CI.santa, marginTop: GAP_ABOVE(thai), display: "flex", flexDirection: "column" }}>
+              {lines.map((l) => (
+                <span key={l}>{l}</span>
+              ))}
+            </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
             {group && (group.budget !== null || group.date) && (

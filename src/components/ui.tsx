@@ -320,7 +320,8 @@ export function Choice({
   className,
 }: {
   value: string;
-  options: { value: string; label: string; disabled?: boolean }[];
+  /** A disabled option can say why, in small type at its end. */
+  options: { value: string; label: string; disabled?: boolean; note?: string }[];
   onChange: (value: string) => void;
   label: string;
   placeholder: string;
@@ -353,6 +354,7 @@ export function Choice({
                   }}
                 >
                   <span className="min-w-0 truncate">{o.label}</span>
+                  {o.note && <span className="shrink-0 text-[14px] text-ink-2">{o.note}</span>}
                   {on && <Check size={20} {...ICON} aria-hidden className="shrink-0 text-accent-strong" />}
                 </button>
               </li>

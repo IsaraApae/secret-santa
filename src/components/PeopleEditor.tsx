@@ -53,9 +53,18 @@ export function PeopleEditor({
     );
   }
 
+  const apart = (x: string, y: string) => pairs.some((p) => p.includes(x) && p.includes(y));
+  // Each picker grays out whoever is already kept apart from the person in the other, and anyone
+  // already kept apart from everyone else, since no new pair could include them.
+  const pickable = (other: string) =>
+    byName.map((p) => {
+      const paired = other !== "" && p.id !== other && apart(p.id, other);
+      const full = byName.every((q) => q.id === p.id || apart(p.id, q.id));
+      return { value: p.id, label: p.name, disabled: p.id === other || paired || full, note: paired || full ? t("keptApart") : undefined };
+    });
+
   function addPair() {
-    const exists = pairs.some((p) => p.includes(a) && p.includes(b));
-    if (a && b && a !== b && !exists) onChange(people, [...pairs, [a, b]]);
+    if (a && b && a !== b && !apart(a, b)) onChange(people, [...pairs, [a, b]]);
     setA("");
     setB("");
   }
@@ -126,9 +135,9 @@ export function PeopleEditor({
           <div className="card space-y-3 p-4">
             <p className="px-1 text-[15px] leading-snug text-ink-2">{t("noExclusions")}</p>
             <div className="grid grid-cols-[1fr_1fr_auto] items-center gap-2">
-              <Choice className="min-w-0 pl-3 text-[15px]" value={a} onChange={setA} label={t("personA")} placeholder={t("personA")} options={byName.map((p) => ({ value: p.id, label: p.name, disabled: p.id === b }))} />
-              <Choice className="min-w-0 pl-3 text-[15px]" value={b} onChange={setB} label={t("personB")} placeholder={t("personB")} options={byName.map((p) => ({ value: p.id, label: p.name, disabled: p.id === a }))} />
-              <button type="button" className="press grid size-12 place-items-center rounded-xl bg-accent text-accent-ink disabled:opacity-40" aria-label={t("add")} disabled={!a || !b} onClick={addPair}>
+              <Choice className="min-w-0 pl-3 text-[15px]" value={a} onChange={setA} label={t("personA")} placeholder={t("personA")} options={pickable(b)} />
+              <Choice className="min-w-0 pl-3 text-[15px]" value={b} onChange={setB} label={t("personB")} placeholder={t("personB")} options={pickable(a)} />
+              <button type="button" className="press grid size-12 place-items-center rounded-xl bg-accent text-accent-ink disabled:opacity-40" aria-label={t("add")} disabled={!a || !b || a === b || apart(a, b)} onClick={addPair}>
                 <Plus size={22} {...ICON} aria-hidden />
               </button>
             </div>

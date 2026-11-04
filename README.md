@@ -42,7 +42,7 @@ The screenshots use a demo group with made-up names.
 - **One invite link** for the whole group, with Copy, Share (on phones) and a QR code. You never type a list of names.
 - **An invite card:** send the link in LINE, Messenger or WhatsApp and it shows a card with the group name, budget, date and how many have joined.
 - **Draw when you're ready:** see who has joined, then draw once at least 3 people are in.
-- **Exclusions:** keep couples or housemates from drawing each other.
+- **Exclusions:** keep couples or housemates from drawing each other. Pairs you've already kept apart are grayed out in the pickers.
 - **Budget, party date and a note** for everyone: a big budget field with shortcuts, the site's own calendar, and a live countdown.
 - **Change the group later:** add or remove people and everyone gets a new name. Renaming someone keeps the draw.
 - **See who's ready:** who has joined and who has opened their name, updating by itself every few seconds.

@@ -49,6 +49,7 @@ const en = {
   noExclusions: "Couples or housemates can be kept apart. This works both ways.",
   personA: "Person 1",
   personB: "Person 2",
+  keptApart: "Already kept apart",
   drawNames: "Draw names",
   drawing: "Drawing…",
   shuffling: "Shuffling names…",
