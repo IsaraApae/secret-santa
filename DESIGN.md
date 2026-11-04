@@ -158,7 +158,7 @@ The palette, faces, shapes and stickers follow the CI section of the Cultural Fe
 There is one dark theme and no switch. Paper surfaces use dark ink because they are objects on the night, not a light mode. The interface is English only, while names and wishes people type can be Thai.
 
 **Key Characteristics:**
-- A night of blurred lights behind every screen, running under the phone's status bar and toolbar (no theme colour or edge bands).
+- A night of blurred lights behind every screen, running up under the phone's status bar and the header (no theme colour); at the bottom it fades into the maroon of the toolbar.
 - Content on cream cards with perforated stamp edges, slightly tilted.
 - Actions on tickets with punched edges and a stitched inner line.
 - Phone first, one 640px column, with a wider poster hero on large screens.
