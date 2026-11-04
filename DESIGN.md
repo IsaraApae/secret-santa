@@ -158,7 +158,7 @@ The palette, faces, shapes and stickers follow the CI section of the Cultural Fe
 There is one dark theme and no switch. Paper surfaces use dark ink because they are objects on the night, not a light mode. The interface is English only, while names and wishes people type can be Thai.
 
 **Key Characteristics:**
-- A night of blurred lights behind every screen, running up under the phone's status bar and the header (no theme colour); at the bottom it fades into the maroon of the toolbar.
+- A fixed night of blurred lights behind every screen.
 - Content on cream cards with perforated stamp edges, slightly tilted.
 - Actions on tickets with punched edges and a stitched inner line.
 - Phone first, one 640px column, with a wider poster hero on large screens.
@@ -256,6 +256,8 @@ Cards have no corners to speak of: their edge is a row of perforations, like a p
 ### Inputs / Fields
 - **Style:** bright paper, 1.5px ink border at 30%, 10px corners, a red caret.
 - **Focus:** a red border and a 2px red outline.
+- **PIN keypad:** PINs are tapped on the site's own pad (`PinPad`), never typed with the phone's keyboard: four ink rings that fill with a small pop, over a 3x4 grid of chip keys with a delete key. Number keys, Backspace and Enter work on a computer.
+- **Pickers:** choosing a person (`Choice`) is a field with a chevron that opens a sheet listing the names as rows on a stamp card, with a green tick on the current one. It stands in for the phone's own wheel or menu, and a picker inside a sheet opens its sheet over that one.
 
 ### Navigation
 A centred script signature with two sparkles at the top of every page but home. There is no other global navigation, and no fixed bars.
@@ -274,7 +276,7 @@ An original die-cut present that bobs, shakes when tapped, then loses its lid wh
 ### Do:
 - **Do** put lists, forms and long text on a stamp card or sheet, with short script headings and labels on the night.
 - **Do** keep tilts small on things people read: cards at 0.7deg or less, tickets at 1deg. Decorative stickers can go up to 9deg.
-- **Do** use the CI stickers for decoration, draw any other new artwork as original SVG, and keep the lights backdrop on every page.
+- **Do** use the CI stickers for decoration, draw any other new artwork as original SVG, and keep the fixed lights backdrop on every page.
 - **Do** show where a wish link goes as a plain globe and site name, the same for every shop. There are no brand-coloured badges.
 
 ### Don't:

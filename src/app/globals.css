@@ -40,8 +40,11 @@
 :root {
   color-scheme: dark;
   --night: #2c2825;
-  /* The maroon along the top of the lights under their tint: under the picture,
-     and wherever the page runs past it (pulling past the top or bottom). */
+  /* One solid colour for the page's top and bottom edges. Phone browsers fill
+     the strips behind their status bar and toolbar with a single colour, and
+     fixed layers aren't drawn there, so the page has to meet it without a seam.
+     It's the maroon along the top of the lights under their tint, so the
+     header and footer read as the same night as the rest of the page. */
   --edge: #451f19;
   /* Cultural Fest CI: #E2D3BC cards, #AB2828 red, #126E29 green, #E2C75C gold
      for text on the background, #FAF9F6 sticker outlines, #2C2825 text. */
@@ -125,30 +128,35 @@ dialog:focus-visible {
   scrollbar-color: rgb(226 199 92 / 0.5) transparent;
 }
 
-/* The night: blurred fairy lights behind everything, with the CI's film grain over
-   them, scrolling with the page. Not a fixed layer, and no theme colour: phone
-   browsers don't draw fixed layers behind their status bar and paint a solid strip
-   there instead, so this way the lights run up under the status bar and the header. */
+/* The night: a fixed layer of blurred fairy lights behind everything, with
+   the CI's film grain over it. The edge fades sit above the grain, so the
+   layer's first and last rows are exactly --edge and meet the phone's bars
+   without a line. They ease out over 180px so they don't read as a band. */
 .night {
-  position: absolute;
+  position: fixed;
   inset: 0;
+  /* iOS Safari paints a solid colour under its bottom bar when a fixed element
+     touches the bottom edge. Stopping short lets the page show behind the bar,
+     and .edge-strip, in the same colour, fills the gap. */
+  bottom: 6px;
   z-index: -1;
   pointer-events: none;
   background:
+    linear-gradient(var(--edge), color-mix(in srgb, var(--edge) 80%, transparent) 40px, color-mix(in srgb, var(--edge) 35%, transparent) 110px, transparent 180px),
+    linear-gradient(to top, var(--edge), color-mix(in srgb, var(--edge) 80%, transparent) 40px, color-mix(in srgb, var(--edge) 35%, transparent) 110px, transparent 180px),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .95 0 0 0 0 .88 0 0 0 .11 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"),
     linear-gradient(rgb(44 40 37 / 0.28), rgb(44 40 37 / 0.28)),
     var(--edge) url("/lights.webp") center / cover no-repeat;
+  /* The colour under the picture is the edge colour too: iPhone Safari tints its
+     bars from a full-screen fixed layer's own colour, and only the home page has
+     the see-through snow layer above this one. */
 }
-/* The bottom stays maroon: the lights fade into --edge over 180px, on a fixed layer
-   touching the screen's bottom edge, which is what makes iPhone Safari paint its
-   toolbar in that colour (the page's own background, also --edge). */
-.edge-bottom {
-  position: fixed;
-  inset: auto 0 0;
-  height: 180px;
-  z-index: -1;
-  pointer-events: none;
-  background: linear-gradient(to top, var(--edge), color-mix(in srgb, var(--edge) 80%, transparent) 40px, color-mix(in srgb, var(--edge) 35%, transparent) 110px, transparent);
+/* Scrolls with the page behind the lights, so the colour carries on under the bars. */
+.edge-strip {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: var(--edge);
 }
 
 .tnum {
@@ -324,17 +332,6 @@ dialog:focus-visible {
     outline: 2px solid var(--santa);
     outline-offset: 0;
   }
-}
-/* Dropdowns draw their own chevron, clear of the edge: each browser's arrow sat
-   tight against the border and looked different on every phone. */
-select.input {
-  appearance: none;
-  padding-right: 34px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23554a42' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 14px;
-  text-overflow: ellipsis;
 }
 @utility label {
   @apply text-[14px] text-ink-2;
@@ -747,6 +744,18 @@ dialog.alert::backdrop {
   }
   100% {
     opacity: 0;
+  }
+}
+/* A PIN dot fills with a small pop, so each tap on the keypad is felt. */
+.pin-dot {
+  animation: pin-dot 0.3s var(--ease-spring) both;
+}
+@keyframes pin-dot {
+  from {
+    transform: scale(0.4);
+  }
+  60% {
+    transform: scale(1.25);
   }
 }
 /* A message pops up into the thread, past its place, then settles. */

@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, ExternalLink, EyeOff, Globe, Lock, Pencil, Plus, Search, Send, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api, baht, errorText, getSession, rememberGroup, setSession, type Session } from "@/lib/client/store";
 import { useT } from "@/lib/i18n";
 import type { AboutMe, WishItem } from "@/lib/schema";
@@ -10,7 +10,7 @@ import { hasThai } from "@/lib/format";
 import { formatPrice, type ShopPrice } from "@/lib/price";
 import { parseShopPaste, safeUrl, SHOP_LABEL, shopOf, siteOf, type Shop } from "@/lib/shop";
 import { Countdown, Fall, GiftBox, GroupFacts, GiftTag, GuessResults, useArrivals, useRoomEntrance } from "./Festive";
-import { Callout, cx, ICON, Section, Segmented, Sheet, Sticker } from "./ui";
+import { Callout, Choice, cx, ICON, PinPad, Section, Segmented, Sheet, Sticker } from "./ui";
 
 export function MemberApp({ id, initial }: { id: string; initial: PublicGroup }) {
   const t = useT();
@@ -111,13 +111,6 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const pinRef = useRef<HTMLInputElement>(null);
-
-  // The sheet focuses itself on open, so move on to the field straight after.
-  useEffect(() => {
-    // No scroll: the sheet is still sliding up, and the page jumping under it looked broken.
-    if (picked) pinRef.current?.focus({ preventScroll: true });
-  }, [picked]);
 
   async function joinGroup() {
     setJoining(true);
@@ -156,17 +149,8 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
           >
             <p className="px-1 text-[14px] leading-snug text-ink-2">{t("joinHint")}</p>
             <input className="input" maxLength={40} autoComplete="given-name" value={newName} placeholder={t("yourName")} aria-label={t("yourName")} onChange={(e) => setNewName(e.target.value)} />
-            <input
-              className="input tnum text-center text-[24px] tracking-[0.4em] not-placeholder-shown:indent-[0.4em] placeholder:text-[17px] placeholder:tracking-normal"
-              type="password"
-              inputMode="numeric"
-              autoComplete="off"
-              maxLength={4}
-              value={newPin}
-              placeholder={t("pin")}
-              aria-label={t("pin")}
-              onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))}
-            />
+            <p className="label pt-1 text-center">{t("pin")}</p>
+            <PinPad value={newPin} onChange={setNewPin} label={t("pin")} />
             {joinError && <Callout tone="error">{joinError}</Callout>}
             <button type="submit" className="btn-primary h-14 w-full text-[20px]" disabled={!newName.trim() || newPin.length !== 4 || joining}>
               {joining ? t("joining") : t("joinButton")}
@@ -217,21 +201,7 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
           }}
         >
           <p className="text-[15px] leading-snug text-ink-2">{picked?.claimed ? t("enterPinSub") : t("choosePinSub")}</p>
-          <input
-            ref={pinRef}
-            // The spacing also follows the last dot, so once typed, the same amount at the start keeps the dots
-            // centred. Empty, nothing is indented, so the cursor sits in the middle; the placeholder's dots are
-            // spaced with en spaces instead, the same 0.5em apart with nothing after the last.
-            className="input tnum text-center text-[28px] tracking-[0.5em] not-placeholder-shown:indent-[0.5em] placeholder:tracking-normal"
-            type="password"
-            inputMode="numeric"
-            autoComplete="off"
-            maxLength={4}
-            aria-label={t("pin")}
-            placeholder={"• • • •"}
-            value={pin}
-            onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
-          />
+          <PinPad value={pin} onChange={setPin} label={picked?.claimed ? t("enterPin") : t("choosePin")} autoFocus />
           {error && <Callout tone="error">{error}</Callout>}
           <button type="submit" className="btn-primary h-12 w-full" disabled={pin.length !== 4 || busy}>
             {t("continue")}
@@ -528,25 +498,20 @@ function GuessForm({ view, members, act }: { view: MemberView; members: PublicGr
         }}
       >
         <p className="px-1 text-[14px] leading-snug text-ink-2">{closed ? t("guessLocked") : t("guessHint")}</p>
-        <select
-          className="input"
+        <Choice
           value={choice}
           disabled={closed}
-          aria-label={t("guessTitle")}
-          onChange={(e) => {
+          label={t("guessTitle")}
+          placeholder={t("guessPick")}
+          options={[
+            { value: "", label: t("guessPick") },
+            ...members.filter((m) => m.id !== view.me.id).map((m) => ({ value: m.id, label: m.name })),
+          ]}
+          onChange={(v) => {
             setSaved(false);
-            setChoice(e.target.value);
+            setChoice(v);
           }}
-        >
-          <option value="">{t("guessPick")}</option>
-          {members
-            .filter((m) => m.id !== view.me.id)
-            .map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-        </select>
+        />
         {!closed && (
           <button type="submit" className="btn-green h-12 w-full" disabled={!changed}>
             {saved && !changed && <Check size={20} {...ICON} aria-hidden />}

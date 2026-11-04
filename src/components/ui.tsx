@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Check, CheckCircle2, Info, X, XCircle } from "lucide-react";
+import { AlertTriangle, Check, CheckCircle2, ChevronDown, Delete, Info, X, XCircle } from "lucide-react";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { useT } from "@/lib/i18n";
 
@@ -168,14 +168,18 @@ export function Sheet({
     if (open && !d.open) {
       d.showModal();
       // showModal focuses the close circle, which would show its focus ring on
-      // every open; start on the sheet itself instead (Tab still reaches it).
-      d.focus();
+      // every open; start on the sheet itself instead (Tab still reaches it),
+      // or on the field marked to take it, like the PIN keypad.
+      const first = d.querySelector<HTMLElement>("[data-autofocus]");
+      if (first) first.focus({ preventScroll: true });
+      else d.focus();
     }
     if (!open && d.open) d.close();
     const root = document.documentElement;
     if (open) root.style.overflow = "hidden";
     return () => {
-      root.style.overflow = "";
+      // A picker's sheet can open over another sheet: the page stays still while any other is open.
+      if (![...document.querySelectorAll("dialog[open]")].some((x) => x !== d)) root.style.overflow = "";
     };
   }, [open]);
 
@@ -190,8 +194,11 @@ export function Sheet({
         // Rest on the keyboard while it's up, short enough to stay on screen.
         ...(keyboard ? { marginBottom: keyboard + 8, maxHeight: `calc(100dvh - ${keyboard + 24}px)` } : {}),
       }}
-      onClose={() => openRef.current && onClose()}
+      // A picker's sheet opens inside this one, and React passes its close and cancel up here: only this
+      // sheet's own count, or picking from the inner one would close both.
+      onClose={(e) => e.target === e.currentTarget && openRef.current && onClose()}
       onCancel={(e) => {
+        if (e.target !== e.currentTarget) return;
         e.preventDefault();
         onClose();
       }}
@@ -248,5 +255,111 @@ export function Sheet({
         </div>
       </div>
     </dialog>
+  );
+}
+
+/**
+ * A 4-digit PIN on the site's own number pad instead of the phone's keyboard: four dots fill as
+ * paper keys are tapped. A computer's number keys, Backspace and Enter work on it too.
+ */
+export function PinPad({ value, onChange, label, autoFocus }: { value: string; onChange: (pin: string) => void; label: string; autoFocus?: boolean }) {
+  const t = useT();
+  const press = (key: string) => onChange(key === "del" ? value.slice(0, -1) : (value + key).slice(0, 4));
+  return (
+    <div
+      // The sheet it's in focuses it on opening (see Sheet).
+      data-autofocus={autoFocus || undefined}
+      tabIndex={0}
+      role="group"
+      aria-label={label}
+      className="space-y-3 outline-none"
+      onKeyDown={(e) => {
+        if (/^\d$/.test(e.key)) press(e.key);
+        else if (e.key === "Backspace") press("del");
+        else if (e.key === "Enter") e.currentTarget.closest("form")?.requestSubmit();
+        else return;
+        e.preventDefault();
+      }}
+    >
+      <div className="flex justify-center gap-5 py-1.5" role="status" aria-label={t("pinTyped", { n: value.length })}>
+        {[0, 1, 2, 3].map((i) => (
+          <span key={i} aria-hidden className={cx("size-4 rounded-full border-2 border-[#2c2825]/55", i < value.length && "pin-dot bg-[#2c2825]")} />
+        ))}
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "del"].map((key) =>
+          key === "" ? (
+            <span key="gap" />
+          ) : (
+            <button
+              key={key}
+              type="button"
+              tabIndex={-1}
+              className="chip h-13 justify-center text-[26px] tnum disabled:opacity-40"
+              aria-label={key === "del" ? t("deleteDigit") : key}
+              disabled={key === "del" ? !value : value.length === 4}
+              onClick={() => press(key)}
+            >
+              {key === "del" ? <Delete size={24} {...ICON} aria-hidden /> : key}
+            </button>
+          ),
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** One of a list, chosen on a sheet in the site's own style instead of the phone's wheel. Looks like a field. */
+export function Choice({
+  value,
+  options,
+  onChange,
+  label,
+  placeholder,
+  disabled,
+  className,
+}: {
+  value: string;
+  options: { value: string; label: string; disabled?: boolean }[];
+  onChange: (value: string) => void;
+  label: string;
+  placeholder: string;
+  disabled?: boolean;
+  className?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const current = options.find((o) => o.value === value && o.value !== "");
+  return (
+    <>
+      <button type="button" className={cx("input flex items-center justify-between gap-2 text-left disabled:opacity-60", className)} aria-haspopup="dialog" aria-label={`${label}: ${current?.label ?? placeholder}`} disabled={disabled} onClick={() => setOpen(true)}>
+        <span className={cx("min-w-0 truncate", !current && "text-ink-3")}>{current?.label ?? placeholder}</span>
+        <ChevronDown size={18} {...ICON} aria-hidden className="shrink-0 text-ink-2" />
+      </button>
+      <Sheet open={open} onClose={() => setOpen(false)} title={label}>
+        <ul className="card rows mb-2" role="listbox" aria-label={label}>
+          {options.map((o) => {
+            const on = o.value === value;
+            return (
+              <li key={o.value || "none"}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={on}
+                  disabled={o.disabled}
+                  className={cx("press flex min-h-12 w-full items-center justify-between gap-3 px-5 py-3 text-left text-[17px] disabled:opacity-40", o.value === "" && "text-ink-2")}
+                  onClick={() => {
+                    onChange(o.value);
+                    setOpen(false);
+                  }}
+                >
+                  <span className="min-w-0 truncate">{o.label}</span>
+                  {on && <Check size={20} {...ICON} aria-hidden className="shrink-0 text-accent-strong" />}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </Sheet>
+    </>
   );
 }

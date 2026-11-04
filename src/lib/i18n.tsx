@@ -125,6 +125,8 @@ const en = {
   enterPin: "Enter your PIN",
   enterPinSub: "If this isn't you, or someone else set your PIN, tell the organiser.",
   pin: "4-digit PIN",
+  pinTyped: "{n} of 4 digits",
+  deleteDigit: "Delete",
   continue: "Continue",
   wrongPin: "That PIN isn't right.",
   signOut: "Not {name}? Sign out",

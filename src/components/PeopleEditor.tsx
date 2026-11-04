@@ -4,7 +4,7 @@ import { Ban, Plus, X } from "lucide-react";
 import { useState } from "react";
 import { useT } from "@/lib/i18n";
 import { DateField } from "./DateField";
-import { Callout, ICON, Section } from "./ui";
+import { Callout, Choice, ICON, Section } from "./ui";
 
 export interface EditPerson {
   id: string;
@@ -126,22 +126,8 @@ export function PeopleEditor({
           <div className="card space-y-3 p-4">
             <p className="px-1 text-[15px] leading-snug text-ink-2">{t("noExclusions")}</p>
             <div className="grid grid-cols-[1fr_1fr_auto] items-center gap-2">
-              <select className="input min-w-0 pl-3 text-[15px]" value={a} onChange={(e) => setA(e.target.value)} aria-label={t("personA")}>
-                <option value="">{t("personA")}</option>
-                {byName.map((p) => (
-                  <option key={p.id} value={p.id} disabled={p.id === b}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-              <select className="input min-w-0 pl-3 text-[15px]" value={b} onChange={(e) => setB(e.target.value)} aria-label={t("personB")}>
-                <option value="">{t("personB")}</option>
-                {byName.map((p) => (
-                  <option key={p.id} value={p.id} disabled={p.id === a}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
+              <Choice className="min-w-0 pl-3 text-[15px]" value={a} onChange={setA} label={t("personA")} placeholder={t("personA")} options={byName.map((p) => ({ value: p.id, label: p.name, disabled: p.id === b }))} />
+              <Choice className="min-w-0 pl-3 text-[15px]" value={b} onChange={setB} label={t("personB")} placeholder={t("personB")} options={byName.map((p) => ({ value: p.id, label: p.name, disabled: p.id === a }))} />
               <button type="button" className="press grid size-12 place-items-center rounded-xl bg-accent text-accent-ink disabled:opacity-40" aria-label={t("add")} disabled={!a || !b} onClick={addPair}>
                 <Plus size={22} {...ICON} aria-hidden />
               </button>
