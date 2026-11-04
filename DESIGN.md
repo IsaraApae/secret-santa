@@ -158,7 +158,7 @@ The palette, faces, shapes and stickers follow the CI section of the Cultural Fe
 There is one dark theme and no switch. Paper surfaces use dark ink because they are objects on the night, not a light mode. The interface is English only, while names and wishes people type can be Thai.
 
 **Key Characteristics:**
-- A fixed night of blurred lights behind every screen.
+- A night of blurred lights behind every screen, running under the phone's status bar and toolbar (no theme colour or edge bands).
 - Content on cream cards with perforated stamp edges, slightly tilted.
 - Actions on tickets with punched edges and a stitched inner line.
 - Phone first, one 640px column, with a wider poster hero on large screens.
@@ -267,14 +267,14 @@ Native dialogs on plain paper. Sheets rise from the bottom in 0.45s with a drag 
 Every invite link unfurls in chat apps as a stamp card on the lights: "You're invited to", the group name in red script, the budget ticket and date tag, and how many people have joined. The site's own link gets the same card with the promise ticket. Both are drawn in `src/lib/og.tsx`, and the organiser sees the invite card above the link.
 
 ### Gift and Reveal
-An original die-cut present that bobs, shakes when tapped, then loses its lid while a stamp-edged paper tag swings out on a gold string with the drawn name in red script. Calendar-page tiles count down to the party in Salsa, with a red header over a bright paper face. Snow falls slowly on every page. The drawn name writes itself onto the tag, and so does a group's name the first time a phone opens it, before its tickets drop and its cards rise in turn (only opacity, translate and scale move, so cards keep their tilt). When the organiser draws, everyone's name tag pops up around the present and drops into it, the present shakes, and confetti bursts. Whatever arrives while a page is open moves in once its list is on screen: a name tag drops into Who's in with a small swing, a saved wish slips onto the list beside a tick that pops and fades, a message slides up into the thread while the one you sent flies off as a sealed envelope, and the guess results flip over like cards, one after another, the first time a phone sees them. Reduced motion turns all of this off.
+An original die-cut present that bobs, shakes when tapped, then loses its lid while a stamp-edged paper tag swings out on a gold string with the drawn name in red script. Calendar-page tiles count down to the party in Salsa, with a red header over a bright paper face. Snow falls slowly on every page. The drawn name writes itself onto the tag, and so does a group's name the first time a phone opens it, before its tickets drop and its cards rise in turn (only opacity, translate and scale move, so cards keep their tilt). When the organiser draws, everyone's name tag pops up around the present and drops into it, the present shakes, and confetti bursts. Whatever arrives while a page is open moves in once its list is on screen: a name tag drops into Who's in with a small swing, a saved wish drops onto the list in the same way beside a tick that pops and fades, a message pops up into the thread while the one you sent flies off as a sealed envelope, and the guess results flip over like cards, past square and back, one after another, the first time a phone sees them. Reduced motion turns all of this off.
 
 ## Do's and Don'ts
 
 ### Do:
 - **Do** put lists, forms and long text on a stamp card or sheet, with short script headings and labels on the night.
 - **Do** keep tilts small on things people read: cards at 0.7deg or less, tickets at 1deg. Decorative stickers can go up to 9deg.
-- **Do** use the CI stickers for decoration, draw any other new artwork as original SVG, and keep the fixed lights backdrop on every page.
+- **Do** use the CI stickers for decoration, draw any other new artwork as original SVG, and keep the lights backdrop on every page.
 - **Do** show where a wish link goes as a plain globe and site name, the same for every shop. There are no brand-coloured badges.
 
 ### Don't:
