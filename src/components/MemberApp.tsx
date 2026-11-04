@@ -12,6 +12,8 @@ import { parseShopPaste, safeUrl, SHOP_LABEL, shopOf, siteOf, type Shop } from "
 import { Countdown, Fall, GiftBox, GroupFacts, GiftTag, GuessResults, useArrivals, useRoomEntrance } from "./Festive";
 import { Callout, Choice, cx, ICON, PinPad, Section, Segmented, Sheet, Sticker } from "./ui";
 
+type ActError = { error: string; name?: string };
+
 export function MemberApp({ id, initial }: { id: string; initial: PublicGroup }) {
   const t = useT();
   const [group, setGroup] = useState(initial);
@@ -29,12 +31,13 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
   }, [id]);
 
   const act = useCallback(
-    async (s: Session, action: MeAction) => {
+    async (s: Session, action: MeAction, onError?: (e: ActError) => void) => {
       const res = await api<MemberView>(`/api/g/${id}/me`, { ...s, action });
       if (res.ok) {
         setView(res.data);
         setGroup(res.data.group);
       } else if (res.error === "signed_out") signOut();
+      else onError?.(res);
       return res.ok;
     },
     [id, signOut],
@@ -80,7 +83,7 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
       {!ready || (session && !view) ? (
         <p className="py-10 text-center text-ink-2">{t("loading")}</p>
       ) : session && view ? (
-        <Signedin view={view} act={(a) => act(session, a)} signOut={signOut} budget={group.budget} members={group.members} joined={joined} />
+        <Signedin view={view} act={(a, onError) => act(session, a, onError)} signOut={signOut} budget={group.budget} members={group.members} joined={joined} />
       ) : (
         <Picker
           id={id}
@@ -223,7 +226,7 @@ function Signedin({
   joined,
 }: {
   view: MemberView;
-  act: (a: MeAction) => Promise<boolean>;
+  act: (a: MeAction, onError?: (e: ActError) => void) => Promise<boolean>;
   signOut: () => void;
   budget: number | null;
   members: PublicGroup["members"];
@@ -231,6 +234,7 @@ function Signedin({
 }) {
   const t = useT();
   const [tab, setTab] = useState<"person" | "mine">("person");
+  const [renaming, setRenaming] = useState(false);
   const unread = view.withSanta.at(-1)?.from === "santa";
   return (
     <>
@@ -253,12 +257,50 @@ function Signedin({
       />
       {tab === "person" ? <PersonTab view={view} act={act} budget={budget} /> : <MineTab view={view} act={act} members={members} />}
       <WhoIsIn members={members} meId={view.me.id} joined={joined} />
-      <div className="text-center">
+      <div className="flex flex-wrap justify-center">
+        <button type="button" className="btn-ghost text-[15px]" onClick={() => setRenaming(true)}>
+          <Pencil size={16} {...ICON} aria-hidden />
+          {t("changeName")}
+        </button>
         <button type="button" className="btn-ghost text-[15px]" onClick={signOut}>
           {t("signOut", { name: view.me.name })}
         </button>
       </div>
+      {renaming && <RenameSheet name={view.me.name} act={act} onClose={() => setRenaming(false)} />}
     </>
+  );
+}
+
+/** Fixing your own name. Everyone sees the new one, your Santa included; nothing else changes. */
+function RenameSheet({ name, act, onClose }: { name: string; act: (a: MeAction, onError?: (e: ActError) => void) => Promise<boolean>; onClose: () => void }) {
+  const t = useT();
+  const [value, setValue] = useState(name);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const next = value.trim();
+  async function save() {
+    if (next === name) return onClose();
+    setBusy(true);
+    setError("");
+    const ok = await act({ type: "rename", name: next }, (e) => setError(errorText(t, e)));
+    setBusy(false);
+    if (ok) onClose();
+  }
+  return (
+    <Sheet open onClose={onClose} title={t("changeName")} confirmForm="rename" confirmLabel={t("save")} confirmDisabled={!next || busy}>
+      <form
+        id="rename"
+        className="space-y-3"
+        onSubmit={(e) => {
+          e.preventDefault();
+          save();
+        }}
+      >
+        <p className="text-[15px] leading-snug text-ink-2">{t("changeNameHint")}</p>
+        <input className="input" maxLength={40} autoComplete="given-name" value={value} aria-label={t("yourName")} placeholder={t("yourName")} onChange={(e) => setValue(e.target.value)} />
+        {error && <Callout tone="error">{error}</Callout>}
+      </form>
+    </Sheet>
   );
 }
 

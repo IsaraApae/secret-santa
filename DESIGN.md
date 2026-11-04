@@ -255,7 +255,7 @@ Cards have no corners to speak of: their edge is a row of perforations, like a p
 
 ### Inputs / Fields
 - **Style:** bright paper, 1.5px ink border at 30%, 10px corners, a red caret.
-- **Focus:** a red border and a 2px red outline.
+- **Focus:** the border turns red and thickens inward, with no ring outside it: a ring round a field the moment it was tapped looked like an error.
 - **PIN keypad:** PINs are tapped on the site's own pad (`PinPad`), never typed with the phone's keyboard: four ink rings that fill with a small pop, over a 3x4 grid of chip keys with a delete key. Number keys, Backspace and Enter work on a computer.
 - **Pickers:** choosing a person (`Choice`) is a field with a chevron that opens a sheet listing the names as rows on a stamp card, with a green tick on the current one. It stands in for the phone's own wheel or menu, and a picker inside a sheet opens its sheet over that one.
 

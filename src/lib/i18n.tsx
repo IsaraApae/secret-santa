@@ -130,6 +130,8 @@ const en = {
   continue: "Continue",
   wrongPin: "That PIN isn't right.",
   signOut: "Not {name}? Sign out",
+  changeName: "Change your name",
+  changeNameHint: "Everyone in the group will see your new name, your Santa too. Your PIN, wish list and messages stay the same.",
 
   tabPerson: "Your person",
   tabMine: "Your wish list",

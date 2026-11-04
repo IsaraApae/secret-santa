@@ -272,7 +272,7 @@ export function PinPad({ value, onChange, label, autoFocus }: { value: string; o
       tabIndex={0}
       role="group"
       aria-label={label}
-      className="space-y-3 outline-none"
+      className="pin-pad space-y-3"
       onKeyDown={(e) => {
         if (/^\d$/.test(e.key)) press(e.key);
         else if (e.key === "Backspace") press("del");

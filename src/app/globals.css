@@ -121,7 +121,15 @@ textarea {
 dialog :focus-visible {
   outline-color: var(--santa);
 }
-dialog:focus-visible {
+dialog:focus-visible,
+/* Text fields count as focus-visible on every tap, so the ring drew round a field the moment it was
+   touched; their own red border (see the input utility) shows where you're typing instead. */
+input:focus-visible,
+textarea:focus-visible,
+.input:focus-visible,
+/* The PIN keypad takes focus as its sheet opens, so a computer's number keys work at once; its dots
+   show the typing, and a ring round the whole pad looked like an error before anything was tapped. */
+.pin-pad:focus-visible {
   outline: none;
 }
 * {
@@ -327,10 +335,10 @@ dialog:focus-visible {
   border-radius: 10px;
   background-color: var(--paper-light);
   border: 1.5px solid rgb(44 40 37 / 0.3);
+  /* No ring outside: the border turns red and thickens inward. */
   &:focus-visible {
     border-color: var(--santa);
-    outline: 2px solid var(--santa);
-    outline-offset: 0;
+    box-shadow: inset 0 0 0 1px var(--santa);
   }
 }
 @utility label {

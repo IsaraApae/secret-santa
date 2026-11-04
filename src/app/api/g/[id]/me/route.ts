@@ -7,6 +7,7 @@ export function POST(req: Request, { params }: { params: Promise<{ id: string }>
     const body = MeBody.safeParse(await readJson(req));
     if (!body.success) return jsonError(400, "invalid");
     const view = await memberAction((await params).id, body.data.memberId, body.data.token, body.data.action);
-    return view ? Response.json(view) : jsonError(401, "signed_out");
+    if (!view) return jsonError(401, "signed_out");
+    return "error" in view ? jsonError(409, view.error, { name: view.name }) : Response.json(view);
   });
 }

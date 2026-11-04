@@ -243,7 +243,7 @@ export async function join(id: string, name: string, pin: string) {
   if (!g) return { error: "not_found" as const };
   if (isDrawn(g)) return { error: "closed" as const };
   if (g.ids.length >= MAX_PEOPLE) return { error: "full" as const };
-  if (g.ids.some((m) => g.raw[`m:${m}`].toLocaleLowerCase() === name.toLocaleLowerCase())) return { error: "duplicate_name" as const, name };
+  if (g.ids.some((m) => sameName(g.raw[`m:${m}`], name))) return { error: "duplicate_name" as const, name };
   const memberId = newId();
   const salt = newId(12);
   await kv().hset(groupKey(id), { [`m:${memberId}`]: name, [`p:${memberId}`]: JSON.stringify({ salt, hash: hashPin(pin, salt) }) });
@@ -320,7 +320,10 @@ export type MeAction =
   | { type: "about"; about: AboutMe }
   | { type: "guess"; target: string | null }
   | { type: "ask"; text: string }
-  | { type: "reply"; text: string };
+  | { type: "reply"; text: string }
+  | { type: "rename"; name: string };
+
+const sameName = (a: string, b: string) => a.toLocaleLowerCase() === b.toLocaleLowerCase();
 
 export async function memberAction(id: string, memberId: string, token: string, action: MeAction) {
   const g = await authed(id, memberId, token);
@@ -343,6 +346,12 @@ export async function memberAction(id: string, memberId: string, token: string, 
   }
   if (action.type === "ask") await post(g, unseal(sealSecret(), id, memberId, g.raw[`s:${memberId}`]), "santa", action.text);
   if (action.type === "reply") await post(g, memberId, "person", action.text);
+  // Draws, guesses and messages all point at the id, so only the name itself changes. Two people
+  // with one name would leave a Santa unsure who they drew, as when joining.
+  if (action.type === "rename") {
+    if (g.ids.some((m) => m !== memberId && sameName(g.raw[`m:${m}`], action.name))) return { error: "duplicate_name" as const, name: action.name };
+    await field(`m:${memberId}`, action.name);
+  }
   if (action.type !== "load") await touch(id);
   const view = await memberView(g, memberId);
   // Their own list, and the list of the person they drew: the two this page shows.

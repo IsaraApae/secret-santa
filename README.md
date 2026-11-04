@@ -26,7 +26,7 @@ Run a gift exchange from one link. Create a group, share the link, and everyone 
 <p>
   <img src="docs/screenshots/unwrap.jpg" alt="A wrapped gift waiting to be tapped" width="240">
   <img src="docs/screenshots/reveal.jpg" alt="The name you drew, on a gift tag" width="240">
-  <img src="docs/screenshots/whos-in.jpg" alt="Who's in: everyone in the group on paper gift tags, yours in red" width="240">
+  <img src="docs/screenshots/whos-in.jpg" alt="Who's in: everyone in the group on paper gift tags, yours in red, with Change your name and Sign out below" width="240">
 </p>
 <p>
   <img src="docs/screenshots/wishes.jpg" alt="A wish list where every link shows its website, and the IKEA one its price from the shop" width="240">
@@ -54,6 +54,7 @@ The screenshots use a demo group with made-up names.
 
 **Taking part**
 - **Join with your name and a 4-digit PIN,** tapped on the site's own keypad. The PIN opens your page on another phone.
+- **Change your name** any time, before or after the draw, to fix a typo or use a nickname. Everyone sees the new one, your Santa too; your PIN, wish list and messages stay.
 - **See who's in:** once you've joined, your page lists everyone in the group by name, with yours marked. Never who drew whom. Your tag drops in when you join, and so does anyone else's who joins while you're there.
 - **The first time you open a group,** its page lays itself out: the name writes itself in, the tickets drop and the cards rise.
 - **Unwrap a gift** to see who you drew: confetti bursts and the name writes itself onto a gift tag. It wraps itself again on each visit, so the name is never on screen by surprise.

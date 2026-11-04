@@ -61,6 +61,8 @@ export const MeBody = z.object({
     z.object({ type: z.literal("ask"), text: Message }),
     /** The person replying to their unknown Santa. */
     z.object({ type: z.literal("reply"), text: Message }),
+    /** Fixing your own name, e.g. a typo or a nickname. */
+    z.object({ type: z.literal("rename"), name: text(40).check(z.minLength(1)) }),
   ]),
 });
 
