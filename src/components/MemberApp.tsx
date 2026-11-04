@@ -219,14 +219,16 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
           <p className="text-[15px] leading-snug text-ink-2">{picked?.claimed ? t("enterPinSub") : t("choosePinSub")}</p>
           <input
             ref={pinRef}
-            // The spacing also follows the last dot, so the same amount at the start keeps the dots centred.
-            className="input tnum text-center text-[28px] tracking-[0.5em] indent-[0.5em]"
+            // The spacing also follows the last dot, so once typed, the same amount at the start keeps the dots
+            // centred. Empty, nothing is indented, so the cursor sits in the middle; the placeholder's dots are
+            // spaced with en spaces instead, the same 0.5em apart with nothing after the last.
+            className="input tnum text-center text-[28px] tracking-[0.5em] not-placeholder-shown:indent-[0.5em] placeholder:tracking-normal"
             type="password"
             inputMode="numeric"
             autoComplete="off"
             maxLength={4}
             aria-label={t("pin")}
-            placeholder="••••"
+            placeholder={"• • • •"}
             value={pin}
             onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
           />

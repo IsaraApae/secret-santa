@@ -33,7 +33,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  // No theme colour: the phone browser's bars show the lights under them (see .night).
+  // No theme colour: the phone's status bar shows the lights under it (see .night and .edge-bottom).
 };
 
 const ROOM_ENTRANCE = `try{var p=location.pathname,h=document.documentElement;if(/^\\/[go]\\/[\\w-]{12}$/.test(p)){if(!localStorage.getItem("ss:seen:"+p))h.classList.add("first-room");if(!localStorage.getItem("ss:results:"+p))h.classList.add("new-results")}}catch(e){}`;
@@ -49,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             paint (see useRoomEntrance and useResultsReveal), so the page doesn't show and then vanish into them. */}
         <script dangerouslySetInnerHTML={{ __html: ROOM_ENTRANCE }} />
         <div className="night" aria-hidden />
+        <div className="edge-bottom" aria-hidden />
         {/* Snow falls on every page. */}
         <Fall kind="snow" />
         <TopBar />
