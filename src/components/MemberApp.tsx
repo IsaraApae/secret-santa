@@ -348,10 +348,11 @@ function WhoIsIn({ members, meId, joined }: { members: PublicGroup["members"]; m
   );
 }
 
-/** The gift stays wrapped on every visit, so the name is never on screen by surprise. */
+/** Tap to unwrap once per draw; after that the gift stays open. */
 function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction) => Promise<boolean>; budget: number | null }) {
   const t = useT();
-  const [stage, setStage] = useState<"wrapped" | "shake" | "open">("wrapped");
+  // "seen": opened on an earlier visit, so no confetti.
+  const [stage, setStage] = useState<"wrapped" | "shake" | "open" | "seen">(view.opened ? "seen" : "wrapped");
 
   if (!view.person) {
     return (
@@ -371,7 +372,7 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
     act({ type: "open" });
   }
 
-  if (stage !== "open") {
+  if (stage === "wrapped" || stage === "shake") {
     return (
       <>
         {view.redrawn && <Callout tone="warn">{t("redrawn")}</Callout>}
@@ -391,7 +392,7 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
 
   return (
     <>
-      <Fall kind="confetti" />
+      {stage === "open" && <Fall kind="confetti" />}
       <section className="relative pt-4 pb-2">
         <div className="pointer-events-none absolute inset-x-0 top-0">
           <GiftBox state="open" />
