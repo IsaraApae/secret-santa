@@ -185,7 +185,6 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
                 >
                   <NameTag name={m.name} index={i}>
                     {m.claimed && <Lock size={13} {...ICON} aria-hidden className="shrink-0 text-ink-3" />}
-                    {m.resets > 0 && <span className="shrink-0 rounded bg-warn-soft px-1.5 text-[12px] text-warn">{t("pinResetBadge", { n: m.resets })}</span>}
                   </NameTag>
                 </button>
               </li>

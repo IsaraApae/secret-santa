@@ -174,7 +174,7 @@ export function Organiser({ id }: { id: string }) {
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-medium">{m.name}</span>
                 <span className="block text-[13px] text-ink-2">
-                  {[m.opened ? t("stOpened") : m.claimed ? t("stJoined") : t("stWaiting"), m.hasWishes && t("hasWishes"), m.resets > 0 && t("pinResetBadge", { n: m.resets })].filter(Boolean).join(" · ")}
+                  {[m.opened ? t("stOpened") : m.claimed ? t("stJoined") : t("stWaiting"), m.hasWishes && t("hasWishes")].filter(Boolean).join(" · ")}
                 </span>
               </span>
               {m.claimed && (

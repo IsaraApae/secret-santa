@@ -81,7 +81,7 @@ The screenshots use a demo group with made-up names.
 
 **What it can't prevent:**
 - Anyone with the link can join before the draw, so organisers should check the list and remove anyone unexpected.
-- An organiser could reset someone's PIN and log in as them. The reset then shows on the group page for everyone.
+- An organiser could reset someone's PIN and log in as them.
 - Someone holding both the database and `SEAL_SECRET` could decrypt the results on purpose.
 - With exactly 3 people, your own result reveals the whole circle, so the site warns about it when people are added by hand.
 
