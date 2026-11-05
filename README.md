@@ -18,10 +18,11 @@ Run a gift exchange from one link. Create a group, share the link, and everyone 
 <p>
   <img src="docs/screenshots/invite.jpg" alt="Organiser page with the invite link" width="240">
   <img src="docs/screenshots/lobby.jpg" alt="Organiser's list of who has joined, with the Draw names button" width="240">
-  <img src="docs/screenshots/edit-people.jpg" alt="Edit people sheet with names and exclusions" width="240">
+  <img src="docs/screenshots/edit-people.jpg" alt="Edit people sheet: names A to Z, and two pairs kept apart, also A to Z" width="240">
 </p>
 <p>
   <img src="docs/screenshots/link-card.jpg" alt="The invite card a chat app shows for a group's link: the group name, budget, date and how many have joined" width="492">
+  <img src="docs/screenshots/pick-person.jpg" alt="Picking Person 1 for a pair kept apart, from everyone's names A to Z" width="240">
 </p>
 <p>
   <img src="docs/screenshots/unwrap.jpg" alt="A wrapped gift waiting to be tapped" width="240">
@@ -42,7 +43,7 @@ The screenshots use a demo group with made-up names.
 - **One invite link** for the whole group, with Copy, Share (on phones) and a QR code. You never type a list of names.
 - **An invite card:** send the link in LINE, Messenger or WhatsApp and it shows a card with the group name, budget, date and how many have joined.
 - **Draw when you're ready:** see who has joined, then draw once at least 3 people are in.
-- **Exclusions:** keep couples or housemates from drawing each other. Pairs you've already kept apart are grayed out in the pickers.
+- **Exclusions:** keep couples or housemates from drawing each other. Names in the pickers and the pairs you've added are listed A to Z, and pairs you've already kept apart are grayed out.
 - **Budget, party date and a note** for everyone: a big budget field with shortcuts, the site's own calendar, and a live countdown.
 - **Change the group later:** add or remove people and everyone gets a new name. Renaming someone keeps the draw.
 - **See who's ready:** who has joined and who has opened their name, updating by itself every few seconds.
@@ -81,7 +82,7 @@ The screenshots use a demo group with made-up names.
 
 **What it can't prevent:**
 - Anyone with the link can join before the draw, so organisers should check the list and remove anyone unexpected.
-- An organiser could reset someone's PIN and log in as them.
+- An organiser could reset someone's PIN and log in as them, and nobody else would see that it happened.
 - Someone holding both the database and `SEAL_SECRET` could decrypt the results on purpose.
 - With exactly 3 people, your own result reveals the whole circle, so the site warns about it when people are added by hand.
 
