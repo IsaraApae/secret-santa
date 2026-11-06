@@ -292,8 +292,6 @@ async function memberView(g: Loaded, memberId: string) {
     guesses: group.guesses,
     // They'd opened an earlier draw, so the name they remember is out of date.
     redrawn: Boolean(g.raw[`o:${memberId}`]) && Number(g.raw[`o:${memberId}`]) !== g.meta.round,
-    // Unwrapped this round already, so the gift stays open.
-    opened: Number(g.raw[`o:${memberId}`] ?? 0) === g.meta.round,
     joined: g.ids.length,
     // Null until the organiser draws.
     person: receiver && { name: g.raw[`m:${receiver}`], wishes: wishesOf(g, receiver), about: aboutOf(g, receiver) },
