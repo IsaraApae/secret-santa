@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          # The tests run TypeScript directly, which needs Node 22.18 or later.
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Unit tests (draw, encryption, shop links, address checks)
+        run: npm test
+      - name: Build (includes the type check)
+        run: npm run build
+      - name: Smoke test the API against the dev server (in-memory store, no secrets needed)
+        run: |
+          npx next dev -p 3000 > dev.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:3000/ && break; sleep 2; done
+          node scripts/smoke.mjs http://localhost:3000
+      - name: Dev server log
+        if: failure()
+        run: cat dev.log || true
