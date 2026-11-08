@@ -6,6 +6,8 @@ Run a gift exchange from one link. Create a group, share the link, and everyone 
 
 **Live:** https://secretsanta-draw.vercel.app
 
+[![CI](https://github.com/IsaraApae/secret-santa/actions/workflows/ci.yml/badge.svg)](https://github.com/IsaraApae/secret-santa/actions/workflows/ci.yml)
+
 <p>
   <img src="docs/screenshots/animations.webp" alt="Three phone screens, animated: a group's page laying itself out on a first visit, everyone's name tag flying into a present that shakes and bursts into confetti when the organiser draws names, and a drawn name writing itself onto a gift tag" width="732">
   <img src="docs/screenshots/animations-2.webp" alt="Three more phone screens, animated: a new member's name tag dropping into Who's in, then another person's as they join; a wish dropping onto the list with a tick, then a reply flying off as an envelope; and the guess results flipping over one by one when the organiser shows them" width="732">
@@ -88,6 +90,8 @@ The screenshots use a demo group with made-up names.
 
 ## Run it locally
 
+You need Node.js 22.18 or later (the tests run TypeScript directly).
+
 ```bash
 npm install
 npm run dev
@@ -96,9 +100,11 @@ npm run dev
 Open http://localhost:3000. No setup is needed: data lives in memory until the server stops.
 
 ```bash
-npm test                                      # draw, encryption and shop-link tests
+npm test                                      # draw, encryption, shop-link and address tests
 node scripts/smoke.mjs http://localhost:3000  # full check against a running site
 ```
+
+GitHub Actions runs the tests, a production build and the smoke test on every push and pull request.
 
 ## Deploy your own
 
@@ -114,3 +120,7 @@ Groups expire 180 days after their last change.
 ## Built with
 
 Next.js, React, Tailwind CSS, Redis and Zod.
+
+## License
+
+[MIT](LICENSE)
