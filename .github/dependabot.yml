@@ -9,6 +9,11 @@ updates:
       # One pull request for the routine updates; major versions still come one at a time.
       minor-and-patch:
         update-types: [minor, patch]
+    ignore:
+      # Node's types follow the Node version the site runs on (24, as in CI), not the newest Node:
+      # newer types would accept APIs that don't exist at run time. Raise this with the runtime.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
