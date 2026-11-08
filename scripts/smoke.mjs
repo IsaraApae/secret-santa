@@ -75,7 +75,7 @@ assert.equal((await post(`${g}/admin`, { device: "another-phone-0123456", key, a
 const admin = await post(`${g}/admin`, { key, action: { type: "status" } });
 assert.equal(admin.status, 200);
 assert.ok(!leaks(admin.data));
-assert.deepEqual(Object.keys(admin.data.members[0]).sort(), ["claimed", "hasWishes", "id", "name", "opened", "resets"]);
+assert.deepEqual(Object.keys(admin.data.members[0]).sort(), ["claimed", "hasWishes", "id", "name", "opened"]);
 
 // The organiser key is not a member login
 assert.equal((await post(`${g}/me`, { memberId: ids.Ann, token: key, action: { type: "load" } })).status, 401);
@@ -192,12 +192,11 @@ assert.equal(chaiAfter.withSanta.length, 0);
 assert.equal(chaiAfter.myGuess, null);
 assert.equal(chaiAfter.guesses, null);
 
-// PIN reset cancels the old device token and is publicly visible
+// PIN reset cancels the old device token, and the person can choose a new PIN
 const reset = await post(`${g}/admin`, { key, action: { type: "resetPin", memberId: ids.Em } });
 assert.equal(reset.status, 200);
 assert.equal((await post(`${g}/me`, { ...sessions.Em, action: { type: "load" } })).status, 401);
 const pubAfter = await get(g);
-assert.equal(pubAfter.members.find((m) => m.name === "Em").resets, 1);
 assert.equal(pubAfter.members.find((m) => m.name === "Em").claimed, false);
 
 // A new round avoids every previous match and never exposes them
