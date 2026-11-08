@@ -8,11 +8,12 @@ export interface ConfirmRequest {
   title: string;
   message?: string;
   confirmLabel?: string;
-  /** destructive action: the confirm button is neutral ink, not the accent (red is kept for errors) */
+  /** Can't be taken back (delete, redraw, reset a PIN): the confirm button is the cream ticket with red
+      words, like the page's own Delete button, rather than the red ticket of an everyday main action. */
   destructive?: boolean;
 }
 
-type Pending = ConfirmRequest & { resolve: (ok: boolean) => void };
+export type Pending = ConfirmRequest & { resolve: (ok: boolean) => void };
 
 let listener: ((p: Pending | null) => void) | null = null;
 
