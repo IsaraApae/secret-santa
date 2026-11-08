@@ -4,7 +4,7 @@ import { Ban, Plus, X } from "lucide-react";
 import { useState } from "react";
 import { useT } from "@/lib/i18n";
 import { DateField } from "./DateField";
-import { Callout, Choice, ICON, Section } from "./ui";
+import { Callout, Choice, ICON, langOf, Section } from "./ui";
 
 export interface EditPerson {
   id: string;
@@ -47,6 +47,9 @@ export function PeopleEditor({
   }
 
   function removePerson(id: string) {
+    // Not left chosen in a pair picker, where they could still be added to a pair.
+    if (a === id) setA("");
+    if (b === id) setB("");
     onChange(
       people.filter((p) => p.id !== id),
       pairs.filter((pair) => !pair.includes(id)),
@@ -103,7 +106,8 @@ export function PeopleEditor({
           {people.length > 0 && (
             <ul className="mt-3 flex flex-wrap gap-2">
               {people.map((p) => (
-                <li key={p.id} className="tag inline-flex min-h-11 items-center gap-1 pr-1 pl-3 text-[15px] font-medium">
+                // The tag's border turns red while its name is being edited, as a field's does.
+                <li key={p.id} className="tag inline-flex min-h-11 items-center gap-1 pr-1 pl-3 text-[15px] font-medium has-[input:focus]:border-[var(--santa)] has-[input:focus]:shadow-[inset_0_0_0_1px_var(--santa)]">
                   {/* Sized by an invisible copy of the name in the same grid cell, so every letter fits: a width
                       counted in characters cut off wide letters like M, and Thai. */}
                   <span
@@ -115,7 +119,8 @@ export function PeopleEditor({
                       size={1}
                       maxLength={40}
                       value={p.name}
-                      aria-label={p.name}
+                      lang={langOf(p.name)}
+                      aria-label={t("personName")}
                       onChange={(e) => onChange(people.map((x) => (x.id === p.id ? { ...x, name: e.target.value } : x)), pairs)}
                     />
                   </span>
@@ -145,10 +150,15 @@ export function PeopleEditor({
               <ul className="flex flex-wrap gap-2">
                 {sortedPairs.map(({ pair, names }) => (
                   <li key={pair.join()} className="inline-flex min-h-11 items-center gap-1 rounded-lg bg-warn-soft pr-1 pl-3 text-[15px] font-medium">
-                    <span>{names[0]}</span>
+                    <span lang={langOf(names[0])}>{names[0]}</span>
                     <Ban size={15} {...ICON} aria-hidden className="text-warn" />
-                    <span>{names[1]}</span>
-                    <button type="button" className="press grid size-9 place-items-center rounded-full text-ink-2" aria-label={t("remove")} onClick={() => onChange(people, pairs.filter((p) => p !== pair))}>
+                    <span lang={langOf(names[1])}>{names[1]}</span>
+                    <button
+                      type="button"
+                      className="press grid size-9 place-items-center rounded-full text-ink-2"
+                      aria-label={`${t("remove")}: ${names[0]} / ${names[1]}`}
+                      onClick={() => onChange(people, pairs.filter((p) => p !== pair))}
+                    >
                       <X size={18} {...ICON} aria-hidden />
                     </button>
                   </li>
@@ -182,7 +192,8 @@ function BudgetField({ value, onChange }: { value: string; onChange: (v: string)
         <span className="flex items-baseline justify-center gap-1 font-bold text-[#2c2825]">
           <span className="text-[24px] text-ink-2">฿</span>
           <input
-            className="tnum bg-transparent text-center text-[44px] leading-tight outline-none placeholder:text-ink-3/50"
+            // A red line under the number while typing, as a field's border turns red.
+            className="tnum rounded-sm bg-transparent text-center text-[44px] leading-tight outline-none placeholder:text-ink-3/50 focus:shadow-[inset_0_-2px_0_var(--santa)]"
             style={{ width: `${Math.max(1, shown.length) + 0.4}ch` }}
             aria-label={t("budget")}
             inputMode="numeric"
