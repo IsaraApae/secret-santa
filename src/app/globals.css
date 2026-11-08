@@ -113,24 +113,35 @@ input,
 textarea {
   caret-color: var(--santa);
 }
-:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 2px;
-}
-.on-paper :focus-visible,
-dialog :focus-visible {
-  outline-color: var(--santa);
-}
-dialog:focus-visible,
-/* Text fields count as focus-visible on every tap, so the ring drew round a field the moment it was
-   touched; their own red border (see the input utility) shows where you're typing instead. */
-input:focus-visible,
-textarea:focus-visible,
-.input:focus-visible,
-/* The PIN keypad takes focus as its sheet opens, so a computer's number keys work at once; its dots
-   show the typing, and a ring round the whole pad looked like an error before anything was tapped. */
-.pin-pad:focus-visible {
-  outline: none;
+/* In the base layer, so a control's own focus style wins: the ticket buttons draw theirs inside the
+   ticket, because their punched-edge mask cuts away anything outside it, this ring included. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+  /* Gold is lost on cream paper (about 1.1:1), so on paper the ring is red. */
+  .on-paper :focus-visible,
+  .card :focus-visible,
+  dialog :focus-visible {
+    outline-color: var(--santa);
+  }
+  dialog:focus-visible,
+  /* Text fields count as focus-visible on every tap, so the ring drew round a field the moment it was
+     touched; their own red border (see the input utility) shows where you're typing instead. */
+  input:focus-visible,
+  textarea:focus-visible,
+  .input:focus-visible {
+    outline: none;
+  }
+  /* The PIN keypad takes focus as its sheet opens, so a computer's number keys work at once. A tap
+     doesn't count as focus-visible, so this faint dashed edge shows only to someone using the keyboard;
+     a solid ring round the whole pad looked like an error. */
+  .pin-pad:focus-visible {
+    outline: 2px dashed rgb(44 40 37 / 0.45);
+    outline-offset: 6px;
+    border-radius: 12px;
+  }
 }
 * {
   scrollbar-color: rgb(226 199 92 / 0.5) transparent;
