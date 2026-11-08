@@ -21,7 +21,6 @@ import { kv, sealSecret } from "./kv";
  *   w:<id>    their wish list
  *   a:<id>    their answers: what they like, sizes, what to avoid
  *   q:<id>    who they guess their Santa is, and in which round
- *   r:<id>    how many times the organiser has reset their PIN
  *   sp:<id>   prices read from the links in their wish list, by link. Only the server writes these.
  * One list per person for the anonymous chat with whoever drew them. It's kept
  * under the receiver, so nothing stored ever says who the Santa is.
@@ -145,6 +144,12 @@ function guessOf(g: Loaded, memberId: string): string | null {
 }
 
 const isDrawn = (g: Loaded) => g.meta.drawn !== false;
+
+/** Who this person drew, or null before a draw (or for anyone the draw somehow missed). */
+const drawnBy = (g: Loaded, giver: string): string | null => {
+  const sealed = g.raw[`s:${giver}`];
+  return isDrawn(g) && sealed ? unseal(sealSecret(), g.id, giver, sealed) : null;
+};
 const guessesOpen = (g: Loaded) => g.meta.guessesRound === g.meta.round;
 
 /**
@@ -153,7 +158,7 @@ const guessesOpen = (g: Loaded) => g.meta.guessesRound === g.meta.round;
  */
 function guessResults(g: Loaded) {
   if (!guessesOpen(g)) return null;
-  const santaOf = new Map(g.ids.map((giver) => [unseal(sealSecret(), g.id, giver, g.raw[`s:${giver}`]), giver]));
+  const santaOf = new Map(g.ids.map((giver) => [drawnBy(g, giver), giver]));
   return g.ids
     .map((id) => ({ name: g.raw[`m:${id}`], guessed: guessOf(g, id) !== null, correct: guessOf(g, id) === santaOf.get(id) }))
     .sort((a, b) => Number(b.correct) - Number(a.correct) || a.name.localeCompare(b.name));
@@ -173,7 +178,6 @@ function publicView(g: Loaded) {
         id,
         name: g.raw[`m:${id}`],
         claimed: Boolean(g.raw[`p:${id}`]),
-        resets: Number(g.raw[`r:${id}`] ?? 0),
       }))
       .sort((a, b) => a.name.localeCompare(b.name)),
   };
@@ -247,6 +251,13 @@ export async function join(id: string, name: string, pin: string) {
   const memberId = newId();
   const salt = newId(12);
   await kv().hset(groupKey(id), { [`m:${memberId}`]: name, [`p:${memberId}`]: JSON.stringify({ salt, hash: hashPin(pin, salt) }) });
+  // The organiser may have drawn between the read above and this write. A draw that didn't
+  // include this person would leave them with no name, so take the join back instead.
+  const after = await load(id);
+  if (after && isDrawn(after) && !after.raw[`s:${memberId}`]) {
+    await kv().hdel(groupKey(id), [`m:${memberId}`, `p:${memberId}`]);
+    return { error: "closed" as const };
+  }
   await touch(id);
   return { memberId, token: memberToken(sealSecret(), id, memberId, salt) };
 }
@@ -281,7 +292,7 @@ const readThread = async (id: string, receiver: string): Promise<Msg[]> =>
   (await kv().lrange(threadKey(id, receiver))).map((m) => JSON.parse(m));
 
 async function memberView(g: Loaded, memberId: string) {
-  const receiver = isDrawn(g) ? unseal(sealSecret(), g.id, memberId, g.raw[`s:${memberId}`]) : null;
+  const receiver = drawnBy(g, memberId);
   const [withPerson, withSanta] = await Promise.all([receiver ? readThread(g.id, receiver) : [], readThread(g.id, memberId)]);
   // The group page too, from the same read, so a signed-in page needs one request to stay current.
   const group = publicView(g);
@@ -344,7 +355,10 @@ export async function memberAction(id: string, memberId: string, token: string, 
     const valid = action.target === null || (action.target !== memberId && g.ids.includes(action.target));
     if (valid) await field(`q:${memberId}`, action.target ? JSON.stringify({ round: g.meta.round, target: action.target }) : "null");
   }
-  if (action.type === "ask") await post(g, unseal(sealSecret(), id, memberId, g.raw[`s:${memberId}`]), "santa", action.text);
+  if (action.type === "ask") {
+    const receiver = drawnBy(g, memberId);
+    if (receiver) await post(g, receiver, "santa", action.text);
+  }
   if (action.type === "reply") await post(g, memberId, "person", action.text);
   // Draws, guesses and messages all point at the id, so only the name itself changes. Two people
   // with one name would leave a Santa unsure who they drew, as when joining.
@@ -355,7 +369,8 @@ export async function memberAction(id: string, memberId: string, token: string, 
   if (action.type !== "load") await touch(id);
   const view = await memberView(g, memberId);
   // Their own list, and the list of the person they drew: the two this page shows.
-  refreshPrices(g, [memberId, ...(isDrawn(g) ? [unseal(sealSecret(), id, memberId, g.raw[`s:${memberId}`])] : [])]);
+  const receiver = drawnBy(g, memberId);
+  refreshPrices(g, receiver ? [memberId, receiver] : [memberId]);
   return view;
 }
 
@@ -421,8 +436,6 @@ export async function adminAction(id: string, key: string, device: string, actio
   if (action.type === "resetPin") {
     if (!g.ids.includes(action.memberId)) return { error: "not_found" as const };
     await store.hdel(groupKey(id), [`p:${action.memberId}`]);
-    // Public on the group page, so a reset can't quietly be used to peek at someone's name.
-    await store.hset(groupKey(id), { [`r:${action.memberId}`]: String(Number(g.raw[`r:${action.memberId}`] ?? 0) + 1) });
     return reload();
   }
 
@@ -456,7 +469,8 @@ export async function adminAction(id: string, key: string, device: string, actio
   if (plan.error) return plan;
   const removedFields = g.ids
     .filter((m) => !plan.ids.includes(m))
-    .flatMap((m) => ["m", "s", "p", "o", "w", "r", "a", "g", "q"].map((f) => `${f}:${m}`));
+    // r: is the reset count older groups still hold.
+    .flatMap((m) => ["m", "s", "p", "o", "w", "a", "q", "sp", "r"].map((f) => `${f}:${m}`));
 
   if (!isDrawn(g)) {
     // Still joining: nothing to redraw.
@@ -475,7 +489,13 @@ export async function adminAction(id: string, key: string, device: string, actio
 
   if (plan.ids.length < 3) return { error: "need_three" as const };
   // Opened only inside the server, to rule out last round's matches. Never returned.
-  const lastRound = action.type === "newRound" ? g.ids.map((m): [string, string] => [m, unseal(sealSecret(), id, m, g.raw[`s:${m}`])]) : [];
+  const lastRound =
+    action.type === "newRound"
+      ? g.ids.flatMap((m): [string, string][] => {
+          const r = drawnBy(g, m);
+          return r ? [[m, r]] : [];
+        })
+      : [];
   const sealed = sealedDraw(id, plan.ids, plan.pairs, lastRound);
   if (!sealed) return { error: "impossible" as const };
   await store.hset(groupKey(id), {
