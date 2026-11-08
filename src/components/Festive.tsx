@@ -5,7 +5,7 @@ import { useEffect, useLayoutEffect, useState, type CSSProperties, type RefCallb
 import { baht, formatDate } from "@/lib/client/store";
 import { useT } from "@/lib/i18n";
 import type { PublicGroup } from "@/lib/server/groups";
-import { Section } from "./ui";
+import { langOf, Section } from "./ui";
 
 const rand = (min: number, max: number) => min + Math.random() * (max - min);
 
@@ -14,9 +14,12 @@ const rand = (min: number, max: number) => min + Math.random() * (max - min);
  * tickets drop and the cards rise. A script in the layout starts it before the first paint on a full
  * load; this starts it on arriving from another page, and marks the room as seen.
  */
-export function useRoomEntrance() {
+export const useRoomEntrance = () => useFirstVisit("ss:seen:", "first-room", 4000);
+
+/** Plays a page's one-time show (a class on <html> for `ms`) the first time this phone sees it, and marks it seen. */
+function useFirstVisit(prefix: string, className: string, ms: number) {
   useLayoutEffect(() => {
-    const seen = `ss:seen:${location.pathname}`;
+    const seen = `${prefix}${location.pathname}`;
     try {
       if (localStorage.getItem(seen)) return;
       localStorage.setItem(seen, "1");
@@ -24,9 +27,9 @@ export function useRoomEntrance() {
       return;
     }
     const html = document.documentElement;
-    html.classList.add("first-room");
-    setTimeout(() => html.classList.remove("first-room"), 4000);
-  }, []);
+    html.classList.add(className);
+    setTimeout(() => html.classList.remove(className), ms);
+  }, [prefix, className, ms]);
 }
 
 /**
@@ -54,20 +57,7 @@ export function useArrivals<T extends HTMLElement>(ids: string[], motion: string
  * another. On a full load the layout's script starts it before the first paint; this starts it when they
  * appear while the page is open, or on arriving from another page, and marks them as seen.
  */
-function useResultsReveal() {
-  useLayoutEffect(() => {
-    const seen = `ss:results:${location.pathname}`;
-    try {
-      if (localStorage.getItem(seen)) return;
-      localStorage.setItem(seen, "1");
-    } catch {
-      return;
-    }
-    const html = document.documentElement;
-    html.classList.add("new-results");
-    setTimeout(() => html.classList.remove("new-results"), 6000);
-  }, []);
-}
+const useResultsReveal = () => useFirstVisit("ss:results:", "new-results", 6000);
 
 /** Names being drawn: everyone's tag flies into the present, it shakes, and confetti bursts out. Tap to skip. */
 export function DrawShow({ names, onDone }: { names: string[]; onDone: () => void }) {
@@ -194,7 +184,9 @@ export function GiftTag({ lead, name, foot }: { lead: string; name: string; foot
       <div className="card px-6 pt-12 pb-8 text-center">
         <span className="absolute top-3.5 left-1/2 size-5 -translate-x-1/2 rounded-full bg-[#2c2825] ring-[3px] ring-[var(--ribbon)]" aria-hidden />
         <p className="font-serif text-[17px] text-ink-2">{lead}</p>
-        <p className={`name-write mt-1 font-script text-[70px] leading-[1.1] break-words text-santa ${nameRoom(name)}`}>{name}</p>
+        <p lang={langOf(name)} className={`name-write mt-1 font-script text-[70px] leading-[1.1] break-words text-santa ${nameRoom(name)}`}>
+          {name}
+        </p>
         <p className="font-serif text-[15px] text-ink-2">{foot}</p>
       </div>
     </div>
@@ -272,7 +264,9 @@ export function GuessResults({ results }: { results: NonNullable<PublicGroup["gu
             >
               {r.correct ? <Check size={18} strokeWidth={2.5} /> : r.guessed ? <X size={17} strokeWidth={2} /> : <Minus size={17} strokeWidth={2} />}
             </span>
-            <span className="min-w-0 flex-1 truncate font-medium">{r.name}</span>
+            <span lang={langOf(r.name)} className="min-w-0 flex-1 truncate font-medium">
+              {r.name}
+            </span>
             <span className={`shrink-0 text-[14px] ${r.correct ? "font-semibold text-accent-strong" : "text-ink-2"}`}>
               {r.correct ? t("resultRight") : r.guessed ? t("resultWrong") : t("resultNone")}
             </span>

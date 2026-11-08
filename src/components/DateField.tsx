@@ -38,7 +38,9 @@ export function DateField({ value, onChange, label }: { value: string; onChange:
           <button type="button" className="icon-plain" aria-label={t("prevMonth")} onClick={() => month(-1)}>
             <ChevronLeft size={24} {...ICON} />
           </button>
-          <b className="font-calendar text-[20px] font-normal">{new Date(view.y, view.m, 1).toLocaleDateString("en-GB", { month: "long", year: "numeric" })}</b>
+          <b className="font-calendar text-[20px] font-normal" aria-live="polite">
+            {new Date(view.y, view.m, 1).toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
+          </b>
           <button type="button" className="icon-plain" aria-label={t("nextMonth")} onClick={() => month(1)}>
             <ChevronRight size={24} {...ICON} />
           </button>

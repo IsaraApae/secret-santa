@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { isPublicAddress, mayFetch } from "./address.ts";
 import { drawNames } from "./draw.ts";
 import { hashPin, memberToken, seal, unseal } from "./seal.ts";
 import { formatPrice, priceFromHtml } from "./price.ts";
@@ -171,4 +172,21 @@ test("prices in every standard place a shop puts them", () => {
   assert.deepEqual(priceFromHtml(ld({ "@type": "Product", offers: { price: "18000000", priceCurrency: "THB" } })), { amount: 18_000_000, currency: "THB" });
   // Empty tags, as a page that fills them in with JavaScript leaves them, give no price
   assert.equal(priceFromHtml('<meta itemprop="price" content=""><meta itemprop="priceCurrency" content="">'), null);
+});
+
+test("price checks never reach this machine, the private network or the metadata service", () => {
+  for (const ip of ["127.0.0.1", "10.1.2.3", "172.16.0.1", "192.168.1.1", "169.254.169.254", "100.64.0.1", "0.0.0.0", "255.255.255.255", "::1", "::", "fd00::1", "fe80::1"]) {
+    assert.equal(isPublicAddress(ip), false, ip);
+  }
+  // The IPv6 forms that carry an IPv4 address inside, the way URL writes them.
+  for (const link of ["http://[::ffff:127.0.0.1]/", "http://[::ffff:169.254.169.254]/", "http://[::127.0.0.1]/", "http://[64:ff9b::a9fe:a9fe]/", "http://[2002:7f00:1::]/", "http://0x7f.1/", "http://2130706433/"]) {
+    const url = new URL(link);
+    assert.equal(mayFetch(url), false, `${link} (${url.hostname})`);
+  }
+  for (const ip of ["8.8.8.8", "1.1.1.1", "2606:4700:4700::1111", "::ffff:8.8.8.8"]) assert.equal(isPublicAddress(ip), true, ip);
+  assert.equal(isPublicAddress("not-an-ip"), false);
+  // Names are checked at connection time; only scheme and port can be judged here.
+  assert.equal(mayFetch(new URL("https://www.ikea.com/th/en/p/x")), true);
+  assert.equal(mayFetch(new URL("https://shop.example:8443/")), false);
+  assert.equal(mayFetch(new URL("ftp://shop.example/")), false);
 });

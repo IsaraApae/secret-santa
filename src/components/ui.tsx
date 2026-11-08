@@ -2,11 +2,15 @@
 
 import { AlertTriangle, Check, CheckCircle2, ChevronDown, Delete, Info, X, XCircle } from "lucide-react";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { hasThai } from "@/lib/format";
 import { useT } from "@/lib/i18n";
 
 export function cx(...c: (string | false | null | undefined)[]) {
   return c.filter(Boolean).join(" ");
 }
+
+/** The page is in English, but names and wishes can be Thai: marked so screen readers say them in Thai. */
+export const langOf = (text: string | null | undefined) => (text && hasThai(text) ? "th" : undefined);
 
 /** One line-icon set everywhere: 2px stroke, round caps and joins. */
 export const ICON = { strokeWidth: 2 } as const;
@@ -23,8 +27,17 @@ export function Segmented<T extends string>({
   onChange: (v: T) => void;
   label: string;
 }) {
+  // Like the platform's own radio buttons: one Tab stop, and the arrow keys move between the options.
+  const step = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const by = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    if (!by) return;
+    e.preventDefault();
+    const i = (options.findIndex((o) => o.value === value) + by + options.length) % options.length;
+    onChange(options[i].value);
+    e.currentTarget.querySelectorAll<HTMLButtonElement>("[role=radio]")[i]?.focus();
+  };
   return (
-    <div role="radiogroup" aria-label={label} className="grid auto-cols-fr grid-flow-col gap-2.5">
+    <div role="radiogroup" aria-label={label} className="grid auto-cols-fr grid-flow-col gap-2.5" onKeyDown={step}>
       {options.map((o) => {
         const on = value === o.value;
         return (
@@ -33,6 +46,7 @@ export function Segmented<T extends string>({
             type="button"
             role="radio"
             aria-checked={on}
+            tabIndex={on ? 0 : -1}
             onClick={() => onChange(o.value)}
             className="tab-tag"
           >
@@ -160,12 +174,27 @@ export function Sheet({
   // dismissal while we still think the sheet is open (avoids races with a
   // sheet that was just reopened or swapped).
   const openRef = useRef(open);
+  // Where focus was before the sheet opened. Closing the dialog returns it there by itself, but many
+  // sheets are removed from the page while open instead, and focus would fall back to the top.
+  const returnTo = useRef<HTMLElement | null>(null);
+  // A tap outside closes the sheet, but not a press that started inside it (selecting text in a field
+  // and letting go past its edge) and ended outside.
+  const downOutside = useRef(false);
+
+  useEffect(
+    () => () => {
+      const el = returnTo.current;
+      if (openRef.current && el?.isConnected) el.focus({ preventScroll: true });
+    },
+    [],
+  );
 
   useEffect(() => {
     openRef.current = open;
     const d = ref.current;
     if (!d) return;
     if (open && !d.open) {
+      returnTo.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       d.showModal();
       // showModal focuses the close circle, which would show its focus ring on
       // every open; start on the sheet itself instead (Tab still reaches it),
@@ -202,7 +231,8 @@ export function Sheet({
         e.preventDefault();
         onClose();
       }}
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+      onPointerDown={(e) => (downOutside.current = e.target === e.currentTarget)}
+      onClick={(e) => e.target === e.currentTarget && downOutside.current && onClose()}
     >
       <div className="flex max-h-[inherit] flex-col">
         <div
@@ -276,12 +306,17 @@ export function PinPad({ value, onChange, label, autoFocus }: { value: string; o
       onKeyDown={(e) => {
         if (/^\d$/.test(e.key)) press(e.key);
         else if (e.key === "Backspace") press("del");
-        else if (e.key === "Enter") e.currentTarget.closest("form")?.requestSubmit();
-        else return;
+        else if (e.key === "Enter") {
+          // requestSubmit() alone ignores a disabled button: it would send three digits, or join twice.
+          const form = e.currentTarget.closest("form");
+          const submit = [...(form?.elements ?? [])].find((el): el is HTMLButtonElement => el instanceof HTMLButtonElement && el.type === "submit");
+          if (form && submit && !submit.disabled) form.requestSubmit(submit);
+        } else return;
         e.preventDefault();
       }}
     >
-      <div className="flex justify-center gap-5 py-1.5" role="status" aria-label={t("pinTyped", { n: value.length })}>
+      <div className="flex justify-center gap-5 py-1.5" role="status">
+        <span className="sr-only">{t("pinTyped", { n: value.length })}</span>
         {[0, 1, 2, 3].map((i) => (
           <span key={i} aria-hidden className={cx("size-4 rounded-full border-2 border-[#2c2825]/55", i < value.length && "pin-dot bg-[#2c2825]")} />
         ))}
@@ -341,7 +376,8 @@ export function Choice({
           {options.map((o) => {
             const on = o.value === value;
             return (
-              <li key={o.value || "none"}>
+              // Only options belong directly in a listbox, so the list item steps aside.
+              <li key={o.value || "none"} role="none">
                 <button
                   type="button"
                   role="option"

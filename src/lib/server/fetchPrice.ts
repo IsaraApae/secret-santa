@@ -1,6 +1,11 @@
 import "server-only";
-import { lookup } from "node:dns/promises";
-import { isIP } from "node:net";
+import { lookup as dnsLookup } from "node:dns";
+import http from "node:http";
+import https from "node:https";
+import type { LookupFunction } from "node:net";
+import type { Readable } from "node:stream";
+import zlib from "node:zlib";
+import { isPublicAddress, mayFetch } from "../address";
 import { priceFromHtml, type ShopPrice } from "../price";
 
 // Says what it is. A shop that keeps its prices from bots, like Shopee, gets no workaround: that wish
@@ -8,42 +13,59 @@ import { priceFromHtml, type ShopPrice } from "../price";
 const UA = "Mozilla/5.0 (compatible; SecretSantaPriceCheck/1.0; +https://secretsanta-draw.vercel.app)";
 const MAX_BYTES = 3_000_000;
 
-/** Addresses a link must never reach: this machine, the private network, and the cloud's metadata service. */
-function isPrivate(ip: string): boolean {
-  if (isIP(ip) === 4) {
-    const [a, b] = ip.split(".").map(Number);
-    return a === 0 || a === 10 || a === 127 || (a === 100 && b >= 64 && b <= 127) || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || a >= 224;
-  }
-  const v6 = ip.toLowerCase();
-  if (v6.startsWith("::ffff:")) return isPrivate(v6.slice(7));
-  return v6 === "::" || v6 === "::1" || v6.startsWith("fc") || v6.startsWith("fd") || v6.startsWith("fe8") || v6.startsWith("fe9") || v6.startsWith("fea") || v6.startsWith("feb") || v6.startsWith("ff");
+/**
+ * The lookup the connection itself uses, so the address checked is the address connected to. A
+ * separate lookup before fetching could be answered with a public address and then, a moment
+ * later, with a private one.
+ */
+const publicOnly: LookupFunction = (hostname, options, callback) => {
+  dnsLookup(hostname, options, (err, address, family) => {
+    if (err) return callback(err, address, family);
+    const all = Array.isArray(address) ? address.map((a) => a.address) : [address];
+    if (!all.length || !all.every(isPublicAddress)) {
+      return callback(Object.assign(new Error(`${hostname} is not a public address`), { code: "EBLOCKED" }), address, family);
+    }
+    callback(null, address, family);
+  });
+};
+
+function get(url: URL, signal: AbortSignal): Promise<http.IncomingMessage> {
+  return new Promise((resolve, reject) => {
+    const client = url.protocol === "https:" ? https : http;
+    const req = client.get(
+      url,
+      {
+        signal,
+        lookup: publicOnly,
+        headers: { "User-Agent": UA, "Accept-Language": "th,en;q=0.8", Accept: "text/html", "Accept-Encoding": "gzip, deflate, br" },
+      },
+      resolve,
+    );
+    req.on("error", reject);
+  });
 }
 
-async function isPublic(url: URL): Promise<boolean> {
-  if (url.protocol !== "https:" && url.protocol !== "http:") return false;
-  if (url.port && url.port !== "80" && url.port !== "443") return false;
-  const host = url.hostname.replace(/^\[|\]$/g, "");
-  try {
-    const addresses = isIP(host) ? [{ address: host }] : await lookup(host, { all: true });
-    return addresses.length > 0 && addresses.every((a) => !isPrivate(a.address));
-  } catch {
-    return false;
-  }
+function decoded(res: http.IncomingMessage): Readable {
+  const encoding = String(res.headers["content-encoding"] ?? "").toLowerCase();
+  if (encoding === "gzip" || encoding === "x-gzip") return res.pipe(zlib.createGunzip());
+  if (encoding === "br") return res.pipe(zlib.createBrotliDecompress());
+  if (encoding === "deflate") return res.pipe(zlib.createInflate());
+  return res;
 }
 
-async function readCapped(res: Response): Promise<string> {
-  const reader = res.body?.getReader();
-  if (!reader) return "";
-  const chunks: Uint8Array[] = [];
+async function readCapped(res: http.IncomingMessage): Promise<string> {
+  const chunks: Buffer[] = [];
   let size = 0;
-  while (size < MAX_BYTES) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    chunks.push(value);
-    size += value.length;
+  try {
+    for await (const chunk of decoded(res)) {
+      chunks.push(chunk);
+      size += chunk.length;
+      if (size >= MAX_BYTES) break;
+    }
+  } finally {
+    res.destroy();
   }
-  await reader.cancel().catch(() => {});
-  return new TextDecoder().decode(Buffer.concat(chunks));
+  return Buffer.concat(chunks).toString("utf8");
 }
 
 /**
@@ -61,18 +83,23 @@ export async function fetchPrice(link: string): Promise<ShopPrice | null> {
   const signal = AbortSignal.timeout(8000);
   try {
     for (let hop = 0; hop < 5; hop++) {
-      if (!(await isPublic(url))) return null;
-      const res = await fetch(url, { redirect: "manual", signal, headers: { "User-Agent": UA, "Accept-Language": "th,en;q=0.8", Accept: "text/html" } });
-      const next = res.headers.get("location");
-      if (res.status >= 300 && res.status < 400 && next) {
+      if (!mayFetch(url)) return null;
+      const res = await get(url, signal);
+      const status = res.statusCode ?? 0;
+      const next = res.headers.location;
+      if (status >= 300 && status < 400 && next) {
+        res.resume();
         url = new URL(next, url);
         continue;
       }
-      if (!res.ok || !(res.headers.get("content-type") ?? "").includes("html")) return null;
+      if (status < 200 || status >= 300 || !String(res.headers["content-type"] ?? "").includes("html")) {
+        res.resume();
+        return null;
+      }
       return priceFromHtml(await readCapped(res));
     }
   } catch {
-    // Timed out, refused or unreadable: no price, and the link still works.
+    // Timed out, refused, blocked or unreadable: no price, and the link still works.
   }
   return null;
 }

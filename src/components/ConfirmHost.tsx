@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { onConfirmRequest, type ConfirmRequest } from "@/lib/client/confirm";
+import { onConfirmRequest, type Pending } from "@/lib/client/confirm";
 import { useT } from "@/lib/i18n";
-
-type Pending = ConfirmRequest & { resolve: (ok: boolean) => void };
 
 /** Compact centred paper dialog for confirmations; scales in from 88%. */
 export function ConfirmHost() {
@@ -31,6 +29,7 @@ export function ConfirmHost() {
       ref={ref}
       className="alert"
       aria-labelledby="confirm-title"
+      aria-describedby={req?.message ? "confirm-message" : undefined}
       onCancel={(e) => {
         e.preventDefault();
         answer(false);
@@ -41,16 +40,20 @@ export function ConfirmHost() {
           <h2 id="confirm-title" className="font-serif text-[20px]">
             {req.title}
           </h2>
-          {req.message && <p className="mt-1.5 text-[15px] leading-snug text-ink-2">{req.message}</p>}
+          {req.message && (
+            <p id="confirm-message" className="mt-1.5 text-[15px] leading-snug text-ink-2">
+              {req.message}
+            </p>
+          )}
           <div className="mt-6 grid grid-cols-[auto_1fr] gap-2.5">
-            {/* Cancel takes only its word's room, so the action ("Draw names") sits clear of its notches on one line. */}
+            {/* Cancel takes only its word's room, so the action ("Draw names") sits clear of its notches on one line.
+                Opening the dialog focuses Cancel, the safe choice. */}
             <button type="button" className="btn-secondary h-12 px-4 whitespace-nowrap" onClick={() => answer(false)}>
               {t("cancel")}
             </button>
             <button
               type="button"
-              autoFocus
-              className="btn-primary h-12 px-5 whitespace-nowrap"
+              className={req.destructive ? "btn-secondary h-12 px-5 whitespace-nowrap !text-danger" : "btn-primary h-12 px-5 whitespace-nowrap"}
               onClick={() => answer(true)}
             >
               {req.confirmLabel ?? t("ok")}

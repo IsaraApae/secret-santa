@@ -34,9 +34,12 @@ export function ShareCard({ url, groupName }: { url: string; groupName: string }
 
   async function toggleQr() {
     if (qr) return setQr("");
-    // Loaded on first use: most visits never open the QR code.
-    const { toDataURL } = await import("qrcode");
-    setQr(await toDataURL(url, { width: 560, margin: 1 }));
+    // Loaded on first use: most visits never open the QR code. If it can't load (offline, or a new
+    // version of the site went live meanwhile), the button just stays as it is.
+    try {
+      const { toDataURL } = await import("qrcode");
+      setQr(await toDataURL(url, { width: 560, margin: 1 }));
+    } catch {}
   }
 
   return (

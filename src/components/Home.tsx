@@ -33,7 +33,8 @@ export function Home() {
             <Sticker name="tree" size={70} className="absolute bottom-1 left-[5%] -rotate-[8deg] md:left-0 md:h-[110px]!" />
             <Sticker name="ornament" size={40} className="absolute top-[42%] left-[2%] rotate-[-12deg] md:h-[60px]!" />
             <Sticker name="star" size={40} className="absolute top-[38%] right-[1%] rotate-[14deg] md:h-[58px]!" />
-            <GiftBox size={190} className="md:h-[320px] md:w-[320px]" />
+            {/* Up to 320px, but never wider than its column: at tablet widths a fixed 320 pushed the stickers off screen. */}
+            <GiftBox size={190} className="md:h-auto md:w-full md:max-w-[320px]" />
             <span className="absolute top-2 left-[6%] rotate-[-9deg] rounded-md bg-[var(--accent)] px-3 py-1 font-label text-[14px] text-[var(--paper-light)] shadow-[0_0_0_2.5px_var(--sticker),0_6px_12px_rgb(0_0_0/0.4)] md:left-0">
               {t("noSignUp")}
             </span>
