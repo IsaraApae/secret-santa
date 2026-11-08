@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, ExternalLink, EyeOff, Globe, Lock, Pencil, Plus, Search, Send, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api, baht, errorText, getSession, rememberGroup, setSession, type Session } from "@/lib/client/store";
 import { useT } from "@/lib/i18n";
 import type { AboutMe, WishItem } from "@/lib/schema";
@@ -10,9 +10,12 @@ import { hasThai } from "@/lib/format";
 import { formatPrice, type ShopPrice } from "@/lib/price";
 import { parseShopPaste, safeUrl, SHOP_LABEL, shopOf, siteOf, type Shop } from "@/lib/shop";
 import { Countdown, Fall, GiftBox, GroupFacts, GiftTag, GuessResults, useArrivals, useRoomEntrance } from "./Festive";
-import { Callout, Choice, cx, ICON, PinPad, Section, Segmented, Sheet, Sticker } from "./ui";
+import { Callout, Choice, cx, ICON, langOf, PinPad, Section, Segmented, Sheet, Sticker } from "./ui";
 
 type ActError = { error: string; name?: string };
+/** A change, or one worked out from the page as it stands when its turn comes (see `act`). */
+type Change = MeAction | ((v: MemberView) => MeAction);
+type Act = (change: Change, onError?: (e: ActError) => void) => Promise<boolean>;
 
 export function MemberApp({ id, initial }: { id: string; initial: PublicGroup }) {
   const t = useT();
@@ -23,19 +26,38 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
   // You, just after joining here: your tag drops into Who's in.
   const [joined, setJoined] = useState<string | null>(null);
 
+  // Answers can come back out of order: a check sent just before a save may be answered just after it,
+  // and would put the page from before the save back. Only the newest request's answer is shown, checks
+  // wait while a change is on its way, and changes go one at a time, each worked out from the page the
+  // one before it left (so deleting two wishes quickly deletes both).
+  const latest = useRef(0);
+  const changing = useRef(0);
+  const queue = useRef<Promise<unknown>>(Promise.resolve());
+  const viewRef = useRef<MemberView | null>(null);
+  const sessionRef = useRef<Session | null>(null);
+
   const signOut = useCallback(() => {
     setSession(id, null);
+    sessionRef.current = null;
+    viewRef.current = null;
+    latest.current++;
     setSess(null);
     setView(null);
-    api<PublicGroup>(`/api/g/${id}`).then((r) => r.ok && setGroup(r.data));
+    api<PublicGroup>(`/api/g/${id}`).then((r) => r.ok && !sessionRef.current && setGroup(r.data));
   }, [id]);
 
-  const act = useCallback(
+  const request = useCallback(
     async (s: Session, action: MeAction, onError?: (e: ActError) => void) => {
+      const n = ++latest.current;
       const res = await api<MemberView>(`/api/g/${id}/me`, { ...s, action });
+      // Signed out, or someone else signed in on this phone, while it was on its way.
+      if (sessionRef.current?.token !== s.token) return false;
       if (res.ok) {
-        setView(res.data);
-        setGroup(res.data.group);
+        if (n === latest.current) {
+          viewRef.current = res.data;
+          setView(res.data);
+          setGroup(res.data.group);
+        }
       } else if (res.error === "signed_out") signOut();
       else onError?.(res);
       return res.ok;
@@ -43,21 +65,54 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
     [id, signOut],
   );
 
+  /** Reloads this person's page, unless a change is on its way (its answer brings the page anyway). */
+  const load = useCallback(
+    (s: Session) => {
+      if (!changing.current) request(s, { type: "load" });
+    },
+    [request],
+  );
+
+  const act = useCallback(
+    (s: Session, change: Change, onError?: (e: ActError) => void) => {
+      const run = queue.current.then(async () => {
+        const v = viewRef.current;
+        if (sessionRef.current?.token !== s.token || (typeof change === "function" && !v)) return false;
+        changing.current++;
+        try {
+          return await request(s, typeof change === "function" ? change(v!) : change, onError);
+        } finally {
+          changing.current--;
+        }
+      });
+      queue.current = run.catch(() => {});
+      return run;
+    },
+    [request],
+  );
+
+  const signIn = useCallback(
+    (s: Session | null) => {
+      sessionRef.current = s;
+      setSess(s);
+      if (s) request(s, { type: "load" });
+    },
+    [request],
+  );
+
   useEffect(() => {
     rememberGroup({ id, name: initial.name });
-    const s = getSession(id);
-    setSess(s);
+    signIn(getSession(id));
     setReady(true);
-    if (s) act(s, { type: "load" });
-  }, [id, initial.name, act]);
+  }, [id, initial.name, signIn]);
 
   // Every few seconds while on screen, and straight away on coming back to the page.
   // Signed in, your own page brings the group with it, so that's one request, not two.
   useEffect(() => {
     const refresh = () => {
       if (document.hidden) return;
-      if (session) act(session, { type: "load" });
-      else api<PublicGroup>(`/api/g/${id}`).then((r) => r.ok && setGroup(r.data));
+      if (session) load(session);
+      else api<PublicGroup>(`/api/g/${id}`).then((r) => r.ok && !sessionRef.current && setGroup(r.data));
     };
     const i = setInterval(refresh, 5000);
     document.addEventListener("visibilitychange", refresh);
@@ -65,18 +120,18 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
       clearInterval(i);
       document.removeEventListener("visibilitychange", refresh);
     };
-  }, [id, session, act]);
+  }, [id, session, load]);
 
   useRoomEntrance();
 
   return (
     <div className="room space-y-6">
       <header className="space-y-3 px-1 pt-2 text-center">
-        <h1 className={cx("large-title break-words", hasThai(group.name) && "leading-[1.6]")}>{group.name}</h1>
+        <h1 lang={langOf(group.name)} className={cx("large-title break-words", hasThai(group.name) && "leading-[1.6]")}>{group.name}</h1>
         <GroupFacts budget={group.budget} date={group.date} />
       </header>
       {group.date && <Countdown date={group.date} />}
-      {group.note && <p className="card px-5 py-4 text-[15px] leading-snug whitespace-pre-wrap">{group.note}</p>}
+      {group.note && <p lang={langOf(group.note)} className="card px-5 py-4 text-[15px] leading-snug whitespace-pre-wrap">{group.note}</p>}
 
       {(view?.guesses ?? group.guesses) && <GuessResults results={(view?.guesses ?? group.guesses)!} />}
 
@@ -90,9 +145,8 @@ export function MemberApp({ id, initial }: { id: string; initial: PublicGroup })
           group={group}
           onSession={(s, isNew) => {
             setSession(id, s);
-            setSess(s);
             setJoined(isNew ? s.memberId : null);
-            act(s, { type: "load" });
+            signIn(s);
           }}
         />
       )}
@@ -116,6 +170,7 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
   const [busy, setBusy] = useState(false);
 
   async function joinGroup() {
+    if (joining || !newName.trim() || newPin.length !== 4) return;
     setJoining(true);
     setJoinError("");
     const res = await api<{ memberId: string; token: string }>(`/api/g/${id}/join`, { name: newName.trim(), pin: newPin });
@@ -125,7 +180,7 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
   }
 
   async function submit() {
-    if (!picked) return;
+    if (!picked || busy || pin.length !== 4) return;
     setBusy(true);
     setError("");
     const res = await api<{ token: string }>(`/api/g/${id}/claim`, { memberId: picked.id, pin });
@@ -225,7 +280,7 @@ function Signedin({
   joined,
 }: {
   view: MemberView;
-  act: (a: MeAction, onError?: (e: ActError) => void) => Promise<boolean>;
+  act: Act;
   signOut: () => void;
   budget: number | null;
   members: PublicGroup["members"];
@@ -248,13 +303,19 @@ function Signedin({
             label: (
               <span className="inline-flex items-center gap-1.5">
                 {t("tabMine")}
-                {unread && <span className="size-2 rounded-full bg-santa" aria-label={t("santaTitle")} />}
+                {unread && (
+                  <>
+                    <span aria-hidden className="size-2 rounded-full bg-santa" />
+                    <span className="sr-only">{t("newFromSanta")}</span>
+                  </>
+                )}
               </span>
             ),
           },
         ]}
       />
-      {tab === "person" ? <PersonTab view={view} act={act} budget={budget} /> : <MineTab view={view} act={act} members={members} />}
+      {/* A new round while the name is open wraps the new one up again, with the redrawn notice. */}
+      {tab === "person" ? <PersonTab key={view.round} view={view} act={act} budget={budget} /> : <MineTab view={view} act={act} members={members} />}
       <WhoIsIn members={members} meId={view.me.id} joined={joined} />
       <div className="flex flex-wrap justify-center">
         <button type="button" className="btn-ghost text-[15px]" onClick={() => setRenaming(true)}>
@@ -271,7 +332,7 @@ function Signedin({
 }
 
 /** Fixing your own name. Everyone sees the new one, your Santa included; nothing else changes. */
-function RenameSheet({ name, act, onClose }: { name: string; act: (a: MeAction, onError?: (e: ActError) => void) => Promise<boolean>; onClose: () => void }) {
+function RenameSheet({ name, act, onClose }: { name: string; act: Act; onClose: () => void }) {
   const t = useT();
   const [value, setValue] = useState(name);
   const [error, setError] = useState("");
@@ -317,7 +378,7 @@ function NameTag({ name, index, me, children }: { name: string; index: number; m
       )}
     >
       <span aria-hidden className={cx("size-2.5 shrink-0 rounded-full ring-[1.5px]", me ? "bg-[var(--santa-deep)] ring-[var(--ribbon)]" : "bg-[var(--paper)] ring-[rgb(44_40_37/0.35)]")} />
-      <span className="min-w-0 truncate font-medium">{name}</span>
+      <span lang={langOf(name)} className="min-w-0 truncate font-medium">{name}</span>
       {children}
     </span>
   );
@@ -349,7 +410,7 @@ function WhoIsIn({ members, meId, joined }: { members: PublicGroup["members"]; m
 }
 
 /** The gift stays wrapped on every visit, so the name is never on screen by surprise. */
-function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction) => Promise<boolean>; budget: number | null }) {
+function PersonTab({ view, act, budget }: { view: MemberView; act: Act; budget: number | null }) {
   const t = useT();
   const [stage, setStage] = useState<"wrapped" | "shake" | "open">("wrapped");
 
@@ -413,7 +474,7 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
                 value && (
                   <div key={label} className="flex gap-3 px-5 py-3">
                     <dt className="w-20 shrink-0 text-[15px] text-ink-2">{t(label)}</dt>
-                    <dd className="min-w-0 break-words">{value}</dd>
+                    <dd lang={langOf(value)} className="min-w-0 break-words">{value}</dd>
                   </div>
                 ),
             )}
@@ -445,26 +506,39 @@ function PersonTab({ view, act, budget }: { view: MemberView; act: (a: MeAction)
         mine="santa"
         theirLabel={person.name}
         placeholder={t("askPlaceholder")}
-        onSend={(text) => act({ type: "ask", text })}
+        onSend={(text, onError) => act({ type: "ask", text }, onError)}
       />
     </>
   );
 }
 
-function MineTab({ view, act, members }: { view: MemberView; act: (a: MeAction) => Promise<boolean>; members: PublicGroup["members"] }) {
+function MineTab({ view, act, members }: { view: MemberView; act: Act; members: PublicGroup["members"] }) {
   const t = useT();
   const [editing, setEditing] = useState<WishItem | "new" | null>(null);
   // The wish just saved shows a tick for a moment; a new one slips onto the list as well.
   const [ticked, setTicked] = useState<string | null>(null);
+  const [listError, setListError] = useState("");
   const wishes = view.me.wishes;
   const rows = useArrivals<HTMLUListElement>(wishes.map((w) => w.id), "slip-in");
 
-  async function save(wish: WishItem) {
-    const next = wishes.some((w) => w.id === wish.id) ? wishes.map((w) => (w.id === wish.id ? wish : w)) : [...wishes, wish];
+  /** The sheet stays open until the wish is saved, so nothing typed is lost if saving fails. */
+  async function save(wish: WishItem): Promise<string | null> {
+    let error = t("errGeneric");
+    const ok = await act(
+      // From the list as it stands when this save's turn comes, not as it was when the sheet opened.
+      ({ me }) => ({ type: "wishes", wishes: me.wishes.some((w) => w.id === wish.id) ? me.wishes.map((w) => (w.id === wish.id ? wish : w)) : [...me.wishes, wish] }),
+      (e) => (error = errorText(t, e)),
+    );
+    if (!ok) return error;
     setEditing(null);
-    if (!(await act({ type: "wishes", wishes: next }))) return;
     setTicked(wish.id);
     setTimeout(() => setTicked((id) => (id === wish.id ? null : id)), 1800);
+    return null;
+  }
+
+  async function remove(id: string) {
+    setListError("");
+    await act(({ me }) => ({ type: "wishes", wishes: me.wishes.filter((x) => x.id !== id) }), (e) => setListError(errorText(t, e)));
   }
 
   return (
@@ -489,10 +563,10 @@ function MineTab({ view, act, members }: { view: MemberView; act: (a: MeAction) 
                 ticked={ticked === w.id}
                 actions={
                   <>
-                    <button type="button" className="icon-plain" aria-label={t("editWish")} onClick={() => setEditing(w)}>
+                    <button type="button" className="icon-plain" aria-label={`${t("editWish")}: ${w.title}`} onClick={() => setEditing(w)}>
                       <Pencil size={18} {...ICON} aria-hidden />
                     </button>
-                    <button type="button" className="icon-plain" aria-label={t("remove")} onClick={() => act({ type: "wishes", wishes: wishes.filter((x) => x.id !== w.id) })}>
+                    <button type="button" className="icon-plain" aria-label={`${t("remove")}: ${w.title}`} onClick={() => remove(w.id)}>
                       <Trash2 size={18} {...ICON} aria-hidden />
                     </button>
                   </>
@@ -508,13 +582,23 @@ function MineTab({ view, act, members }: { view: MemberView; act: (a: MeAction) 
             </span>
           </p>
         )}
+        {listError && <Callout tone="error">{listError}</Callout>}
       </Section>
 
       {view.person && <GuessForm view={view} members={members} act={act} />}
 
-      <AboutForm about={view.me.about} onSave={(about) => act({ type: "about", about })} />
+      <AboutForm about={view.me.about} onSave={(about, onError) => act({ type: "about", about }, onError)} />
 
-      <Chat title={t("santaTitle")} hint={t("santaHint")} messages={view.withSanta} mine="person" theirLabel={t("yourSanta")} placeholder={t("replyPlaceholder")} empty={t("santaEmpty")} onSend={(text) => act({ type: "reply", text })} />
+      <Chat
+        title={t("santaTitle")}
+        hint={t("santaHint")}
+        messages={view.withSanta}
+        mine="person"
+        theirLabel={t("yourSanta")}
+        placeholder={t("replyPlaceholder")}
+        empty={t("santaEmpty")}
+        onSend={(text, onError) => act({ type: "reply", text }, onError)}
+      />
 
       {editing && <WishSheet wish={editing === "new" ? null : editing} onClose={() => setEditing(null)} onSave={save} />}
     </>
@@ -523,10 +607,11 @@ function MineTab({ view, act, members }: { view: MemberView; act: (a: MeAction) 
 
 // ---------- Getting to know your person ----------------------------------------------
 
-function GuessForm({ view, members, act }: { view: MemberView; members: PublicGroup["members"]; act: (a: MeAction) => Promise<boolean> }) {
+function GuessForm({ view, members, act }: { view: MemberView; members: PublicGroup["members"]; act: Act }) {
   const t = useT();
   const [choice, setChoice] = useState(view.myGuess ?? "");
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
   const closed = view.guesses !== null;
   const changed = choice !== (view.myGuess ?? "");
   return (
@@ -535,7 +620,8 @@ function GuessForm({ view, members, act }: { view: MemberView; members: PublicGr
         className="card tilt-r relative space-y-3 p-4"
         onSubmit={async (e) => {
           e.preventDefault();
-          if (await act({ type: "guess", target: choice || null })) setSaved(true);
+          setError("");
+          if (await act({ type: "guess", target: choice || null }, (err) => setError(errorText(t, err)))) setSaved(true);
         }}
       >
         <p className="px-1 text-[14px] leading-snug text-ink-2">{closed ? t("guessLocked") : t("guessHint")}</p>
@@ -553,21 +639,26 @@ function GuessForm({ view, members, act }: { view: MemberView; members: PublicGr
             setChoice(v);
           }}
         />
+        {error && <Callout tone="error">{error}</Callout>}
         {!closed && (
           <button type="submit" className="btn-green h-12 w-full" disabled={!changed}>
             {saved && !changed && <Check size={20} {...ICON} aria-hidden />}
             {saved && !changed ? t("saved") : t("guessSave")}
           </button>
         )}
+        <span role="status" className="sr-only">
+          {saved && !changed ? t("saved") : ""}
+        </span>
       </form>
     </Section>
   );
 }
 
-function AboutForm({ about, onSave }: { about: AboutMe; onSave: (a: AboutMe) => Promise<boolean> }) {
+function AboutForm({ about, onSave }: { about: AboutMe; onSave: (a: AboutMe, onError: (e: ActError) => void) => Promise<boolean> }) {
   const t = useT();
   const [value, setValue] = useState(about);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
   const changed = value.likes !== about.likes || value.sizes !== about.sizes || value.avoid !== about.avoid;
   const field = (key: keyof AboutMe, placeholder: string, max: number) => (
     <input
@@ -588,17 +679,22 @@ function AboutForm({ about, onSave }: { about: AboutMe; onSave: (a: AboutMe) => 
         className="card tilt-l space-y-3 p-4"
         onSubmit={async (e) => {
           e.preventDefault();
-          if (await onSave({ likes: value.likes.trim(), sizes: value.sizes.trim(), avoid: value.avoid.trim() })) setSaved(true);
+          setError("");
+          if (await onSave({ likes: value.likes.trim(), sizes: value.sizes.trim(), avoid: value.avoid.trim() }, (err) => setError(errorText(t, err)))) setSaved(true);
         }}
       >
         <p className="px-1 text-[13px] leading-snug text-ink-2">{t("aboutHint")}</p>
         {field("likes", t("aboutLikes"), 200)}
         {field("sizes", t("aboutSizes"), 120)}
         {field("avoid", t("aboutAvoid"), 200)}
+        {error && <Callout tone="error">{error}</Callout>}
         <button type="submit" className="btn-secondary h-12 w-full" disabled={!changed}>
           {saved && !changed && <Check size={20} {...ICON} aria-hidden />}
           {saved && !changed ? t("saved") : t("save")}
         </button>
+        <span role="status" className="sr-only">
+          {saved && !changed ? t("saved") : ""}
+        </span>
       </form>
     </Section>
   );
@@ -666,7 +762,7 @@ function WishRow({
   return (
     <li className={cx("flex items-start gap-1 py-3.5 pr-2 pl-5", className)}>
       <div className="min-w-0 flex-1 space-y-1">
-        <p className="font-medium break-words">
+        <p lang={langOf(wish.title)} className="font-medium break-words">
           {wish.title}
           {ticked && (
             <span className="saved-tick ml-2 inline-grid size-6 place-items-center rounded-full bg-accent align-[-5px] text-accent-ink" aria-hidden>
@@ -679,7 +775,7 @@ function WishRow({
         {wish.shopPrice && site && (
           <p className="tnum font-label text-[16px]">{t("priceAt", { price: formatPrice(wish.shopPrice), shop: shop ? SHOP_LABEL[shop] : site })}</p>
         )}
-        {wish.note && <p className="text-[15px] leading-snug break-words text-ink-2">{wish.note}</p>}
+        {wish.note && <p lang={langOf(wish.note)} className="text-[15px] leading-snug break-words text-ink-2">{wish.note}</p>}
         {url && (
           <a href={url} target="_blank" rel="noreferrer noopener" className="inline-flex min-h-9 items-center gap-1.5 font-semibold text-accent-strong">
             <ExternalLink size={16} {...ICON} aria-hidden />
@@ -692,8 +788,12 @@ function WishRow({
   );
 }
 
-function WishSheet({ wish, onClose, onSave }: { wish: WishItem | null; onClose: () => void; onSave: (w: WishItem) => void }) {
+function WishSheet({ wish, onClose, onSave }: { wish: WishItem | null; onClose: () => void; onSave: (w: WishItem) => Promise<string | null> }) {
   const t = useT();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  // One id for this wish, so trying again after a failed save doesn't add it twice.
+  const [id] = useState(() => wish?.id ?? crypto.randomUUID().slice(0, 12));
   const [link, setLink] = useState(wish?.url ?? "");
   const [url, setUrl] = useState<string | null>(wish?.url ?? null);
   const [title, setTitle] = useState(wish?.title ?? "");
@@ -713,15 +813,14 @@ function WishSheet({ wish, onClose, onSave }: { wish: WishItem | null; onClose: 
       open
       onClose={onClose}
       title={wish ? t("editWish") : t("addWish")}
-      confirmDisabled={!title.trim() || badLink}
-      onConfirm={() =>
-        onSave({
-          id: wish?.id ?? crypto.randomUUID().slice(0, 12),
-          title: title.trim(),
-          url,
-          note: note.trim(),
-        })
-      }
+      confirmDisabled={!title.trim() || badLink || busy}
+      onConfirm={async () => {
+        setBusy(true);
+        setError("");
+        const failed = await onSave({ id, title: title.trim(), url, note: note.trim() });
+        setBusy(false);
+        if (failed) setError(failed);
+      }}
     >
       <div className="space-y-3">
         <label className="block space-y-1">
@@ -733,6 +832,7 @@ function WishSheet({ wish, onClose, onSave }: { wish: WishItem | null; onClose: 
         </div>
         <input className="input" maxLength={120} value={title} placeholder={t("wishTitle")} aria-label={t("wishTitle")} onChange={(e) => setTitle(e.target.value)} />
         <input className="input" maxLength={200} value={note} placeholder={t("wishNote")} aria-label={t("wishNote")} onChange={(e) => setNote(e.target.value)} />
+        {error && <Callout tone="error">{error}</Callout>}
       </div>
     </Sheet>
   );
@@ -770,20 +870,22 @@ function Chat({
   theirLabel: string;
   placeholder: string;
   empty?: string;
-  onSend: (text: string) => Promise<boolean>;
+  onSend: (text: string, onError: (e: ActError) => void) => Promise<boolean>;
 }) {
   const t = useT();
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
   // Each sent message folds into an envelope that flies off; the number keys a fresh one per send.
   const [sent, setSent] = useState(0);
   const bubbles = useArrivals<HTMLUListElement>(messages.map((_, i) => String(i)), "msg-in");
 
   async function send() {
     const value = text.trim();
-    if (!value) return;
+    if (!value || busy) return;
     setBusy(true);
-    if (await onSend(value)) {
+    setError("");
+    if (await onSend(value, (e) => setError(errorText(t, e)))) {
       setText("");
       setSent((n) => n + 1);
     }
@@ -797,11 +899,12 @@ function Chat({
         <p className="px-1 pr-12 text-[14px] leading-snug text-ink-2">{hint}</p>
         {messages.length === 0 && empty && <p className="px-1 text-[15px] text-ink-2">{empty}</p>}
         {messages.length > 0 && (
-          <ul ref={bubbles.ref} className="space-y-2">
+          // New messages are read out as they arrive.
+          <ul ref={bubbles.ref} className="space-y-2" aria-live="polite" aria-relevant="additions">
             {messages.map((m, i) => (
               <li key={i} className={cx("flex flex-col", m.from === mine ? "items-end" : "items-start", bubbles.arrive(String(i)))}>
                 <span className="px-3 pb-0.5 text-[13px] text-ink-2">{m.from === mine ? t("you") : theirLabel}</span>
-                <span className={cx("max-w-[85%] rounded-xl px-4 py-2 leading-snug break-words whitespace-pre-wrap", m.from === mine ? "bg-accent text-accent-ink" : "tag text-ink")}>{m.text}</span>
+                <span lang={langOf(m.text)} className={cx("max-w-[85%] rounded-xl px-4 py-2 leading-snug break-words whitespace-pre-wrap", m.from === mine ? "bg-accent text-accent-ink" : "tag text-ink")}>{m.text}</span>
               </li>
             ))}
           </ul>
@@ -819,6 +922,7 @@ function Chat({
           </button>
           {sent > 0 && <Envelope key={sent} />}
         </form>
+        {error && <Callout tone="error">{error}</Callout>}
       </div>
     </Section>
   );

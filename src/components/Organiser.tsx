@@ -3,16 +3,16 @@
 import { Bell, Check, HelpCircle, Gift, KeyRound, Pencil, RefreshCw, ShieldCheck, Trash2, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { askConfirm } from "@/lib/client/confirm";
 import { api, deviceId, dropKey, errorText, forgetGroup, organiserKey, rememberGroup } from "@/lib/client/store";
 import { hasThai } from "@/lib/format";
 import { useT } from "@/lib/i18n";
-import type { AdminView } from "@/lib/server/groups";
+import type { AdminAction, AdminView } from "@/lib/server/groups";
 import { Countdown, DrawShow, GiftBox, GroupFacts, GuessResults, useRoomEntrance } from "./Festive";
 import { detailsBody, DetailsFields, PeopleEditor, type DetailValues, type EditPerson, type Pair } from "./PeopleEditor";
 import { ShareCard, useCopy } from "./ShareCard";
-import { Callout, ICON, Section, Sheet, Sticker } from "./ui";
+import { Callout, ICON, langOf, Section, Sheet, Sticker } from "./ui";
 
 export function Organiser({ id }: { id: string }) {
   const t = useT();
@@ -28,25 +28,40 @@ export function Organiser({ id }: { id: string }) {
   const [drawing, setDrawing] = useState<string[] | null>(null);
   useRoomEntrance();
 
+  // Only the newest answer is shown: a check sent just before a change and answered just after it would
+  // put the old lists back, and editing people from those would undo the change. Checks also wait while
+  // a change is on its way.
+  const latest = useRef(0);
+  const changing = useRef(0);
+
+  /** A change, or with `check` the regular look for news, which never shows or clears an error. */
   const send = useCallback(
-    async (k: string, action: object) => {
-      const res = await api<AdminView>(`/api/g/${id}/admin`, { key: k, device: deviceId(), action });
-      if (res.ok) {
-        setView(res.data);
-        setError("");
-        rememberGroup({ id, name: res.data.name, key: k });
-        return true;
-      }
-      if (res.error === "forbidden") {
-        // Another phone made this group (or manages it): this one's copy of the key is no use.
-        dropKey(id);
-        setView(null);
-        setKey(null);
-        setError(t("errNotOrganiser"));
+    async (k: string, action: AdminAction, check = false) => {
+      if (check && changing.current) return false;
+      const n = ++latest.current;
+      if (!check) changing.current++;
+      try {
+        const res = await api<AdminView>(`/api/g/${id}/admin`, { key: k, device: deviceId(), action });
+        if (res.ok) {
+          if (n === latest.current) setView(res.data);
+          if (!check) setError("");
+          rememberGroup({ id, name: res.data.name, key: k });
+          return true;
+        }
+        if (res.error === "forbidden") {
+          // Another phone made this group (or manages it): this one's copy of the key is no use.
+          dropKey(id);
+          setView(null);
+          setKey(null);
+          setError(t("errNotOrganiser"));
+          return false;
+        }
+        // A check that fails is simply tried again a few seconds later.
+        if (!check) setError(errorText(t, res));
         return false;
+      } finally {
+        if (!check) changing.current--;
       }
-      setError(errorText(t, res));
-      return false;
     },
     [id, t],
   );
@@ -66,7 +81,7 @@ export function Organiser({ id }: { id: string }) {
     // Keeps the lists current while the organiser watches, and catches up the
     // moment they come back to the page.
     // Stops once the server has refused this phone (its key is dropped then).
-    const refresh = () => !document.hidden && organiserKey(id) && send(k, { type: "status" });
+    const refresh = () => !document.hidden && organiserKey(id) && send(k, { type: "status" }, true);
     const i = setInterval(refresh, 5000);
     document.addEventListener("visibilitychange", refresh);
     return () => {
@@ -82,6 +97,11 @@ export function Organiser({ id }: { id: string }) {
 
   const opened = view.members.filter((m) => m.opened).length;
   const inviteUrl = `${origin}/g/${id}`;
+  // A sheet starts without the page's last error, so it only shows its own.
+  const openSheet = (which: "details" | "people") => {
+    setError("");
+    setSheet(which);
+  };
 
   function reminderText() {
     const names = (list: AdminView["members"]) => list.map((m) => m.name).join(", ");
@@ -131,10 +151,10 @@ export function Organiser({ id }: { id: string }) {
     <div className="room space-y-6">
       {drawing && <DrawShow names={drawing} onDone={() => setDrawing(null)} />}
       <header className="space-y-3 px-1 pt-2 text-center">
-        <h1 className={`large-title break-words ${hasThai(view.name) ? "leading-[1.6]" : ""}`}>{view.name}</h1>
+        <h1 lang={langOf(view.name)} className={`large-title break-words ${hasThai(view.name) ? "leading-[1.6]" : ""}`}>{view.name}</h1>
         <GroupFacts budget={view.budget} date={view.date} />
         {/* Below the facts, not on the title: script names swash past their box. */}
-        <button type="button" className="chip min-h-10" onClick={() => setSheet("details")}>
+        <button type="button" className="chip min-h-10" onClick={() => openSheet("details")}>
           <Pencil size={16} {...ICON} aria-hidden />
           {t("editDetails")}
         </button>
@@ -158,7 +178,7 @@ export function Organiser({ id }: { id: string }) {
       <Section
         title={view.drawn ? t("statusTitle") : t("joinedTitle")}
         action={
-          <button type="button" className="chip min-h-10 shrink-0 whitespace-nowrap" onClick={() => setSheet("people")}>
+          <button type="button" className="chip min-h-10 shrink-0 whitespace-nowrap" onClick={() => openSheet("people")}>
             <Users size={16} {...ICON} aria-hidden />
             {t("editPeople")}
           </button>
@@ -172,7 +192,7 @@ export function Organiser({ id }: { id: string }) {
           {view.members.map((m) => (
             <li key={m.id} className="flex items-center gap-3 py-2 pr-2 pl-5">
               <span className="min-w-0 flex-1">
-                <span className="block truncate font-medium">{m.name}</span>
+                <span lang={langOf(m.name)} className="block truncate font-medium">{m.name}</span>
                 <span className="block text-[13px] text-ink-2">
                   {[m.opened ? t("stOpened") : m.claimed ? t("stJoined") : t("stWaiting"), m.hasWishes && t("hasWishes")].filter(Boolean).join(" · ")}
                 </span>

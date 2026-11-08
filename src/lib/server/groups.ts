@@ -300,6 +300,8 @@ async function memberView(g: Loaded, memberId: string) {
     group,
     me: { id: memberId, name: g.raw[`m:${memberId}`], wishes: wishesOf(g, memberId), about: aboutOf(g, memberId) },
     myGuess: guessOf(g, memberId),
+    // Changes with every redraw, so an open name wraps itself up again when it's replaced.
+    round: g.meta.round,
     guesses: group.guesses,
     // They'd opened an earlier draw, so the name they remember is out of date.
     redrawn: Boolean(g.raw[`o:${memberId}`]) && Number(g.raw[`o:${memberId}`]) !== g.meta.round,
