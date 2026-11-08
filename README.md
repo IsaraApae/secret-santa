@@ -60,19 +60,21 @@ The screenshots use a demo group with made-up names.
 - **Change your name** any time, before or after the draw, to fix a typo or use a nickname. Everyone sees the new one, your Santa too; your PIN, wish list and messages stay.
 - **See who's in:** once you've joined, your page lists everyone in the group by name, with yours marked. Never who drew whom. Your tag drops in when you join, and so does anyone else's who joins while you're there.
 - **The first time you open a group,** its page lays itself out: the name writes itself in, the tickets drop and the cards rise.
-- **Unwrap a gift** to see who you drew: confetti bursts and the name writes itself onto a gift tag. It wraps itself again on each visit, so the name is never on screen by surprise.
-- **Wish lists:** paste a link from any shop. The site recognises Shopee, Lazada, TikTok Shop, Taobao, Tmall, JD, AliExpress, Temu, SHEIN, Amazon, eBay and Etsy, and fills in the product name when the link includes one. Every link shows the website it really goes to, so a link can't pass for a shop it isn't. A saved wish drops onto your list with a tick, like a name tag joining.
-- **Real prices:** there's no price box, so nobody can list an expensive gift as cheap. For shops that let price checkers in, like IKEA, Central and B2S, the site reads the price from the shop's own page, shows it as "฿39 at ikea.com", and checks it again every six hours. It says who it is when it asks, and many big shops turn away automated visitors from cloud servers (Shopee, Lazada, JIB, Banana, Power Buy, Watsons, Uniqlo, Amazon and Etsy among them), so their links show the website but no price.
+- **Unwrap a gift** to see who you drew: confetti bursts and the name writes itself onto a gift tag. It wraps itself again on each visit, so the name is never on screen by surprise, and again if the organiser redraws while it's open, with the new name inside.
+- **Wish lists:** paste a link from any shop. The site recognises Shopee, Lazada, TikTok Shop, Taobao, Tmall, JD, AliExpress, Temu, SHEIN, Amazon, eBay and Etsy, and fills in the product name when the link includes one. Every link shows the website it really goes to, so a link can't pass for a shop it isn't. A saved wish drops onto your list with a tick, like a name tag joining. If saving fails on a bad connection, the wish stays on its sheet to try again, so nothing typed is lost.
+- **Real prices:** there's no price box, so nobody can list an expensive gift as cheap. For shops that let price checkers in, like IKEA, Central and B2S, the site reads the price from the shop's own page, shows it as "฿39 at ikea.com", and checks it again every six hours. It says who it is when it asks, and many big shops turn away automated visitors from cloud servers (Shopee, Lazada, JIB, Banana, Power Buy, Watsons, Uniqlo, Amazon and Etsy among them), so their links show the website but no price. The price checker only ever connects to public websites, never to the server's own network.
 - **A few things about you:** likes, sizes and "please no", for people without links to add.
 - **Gift search:** search Shopee, Lazada, TikTok, Taobao, AliExpress and Temu, starting from what your person likes.
 - **Anonymous messages:** ask your person a question. They see "Your Santa" and can reply without learning who asked. A message you send flies off as an envelope.
 - **Guess your Santa:** pick who you think drew you, and change your mind until the organiser shows the results. The table shows only who was right, not who they named, and the first time you see it each row flips over like a card.
 
 **Everywhere**
-- An English interface. Names and wishes people type can be in Thai too, with matching Thai fonts.
+- An English interface. Names and wishes people type can be in Thai too, with matching Thai fonts, and marked as Thai so screen readers say them in Thai.
 - The Cultural Fest 2027 look: grainy blurred lights, gold script, stamp-edged cream cards, punched tickets and the CI's own die-cut stickers, recorded in [DESIGN.md](DESIGN.md).
 - Fast on phones: about 290 KB for the home page, and only the font weights and axes the site uses. An open page checks for changes with one request every few seconds, and stops while it's in the background. The animations move only position and transparency, so phones and LINE's browser play them without redrawing the page.
 - Reduced motion is respected.
+- Works from a keyboard: every control shows when it has focus, the tabs move with the arrow keys, and the PIN pad takes number keys, Backspace and Enter. Screen readers hear the digits typed, saves, new messages and what a confirmation will do.
+- Add it to your home screen: it has its own gift icon on the site's maroon and opens full screen.
 
 ## How the secret is kept
 
