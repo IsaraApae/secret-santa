@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api, deviceId, errorText, rememberGroup } from "@/lib/client/store";
 import { useT } from "@/lib/i18n";
-import { detailsBody, DetailsFields, type DetailValues } from "./PeopleEditor";
+import { detailsBody, DetailsFields, type DetailValues } from "./DetailsFields";
 import { Callout, Section } from "./ui";
 
 export function NewDraw() {

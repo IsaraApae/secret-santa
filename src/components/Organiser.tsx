@@ -10,7 +10,8 @@ import { hasThai } from "@/lib/format";
 import { useT } from "@/lib/i18n";
 import type { AdminAction, AdminView } from "@/lib/server/groups";
 import { Countdown, DrawShow, GiftBox, GroupFacts, GuessResults, useRoomEntrance } from "./Festive";
-import { detailsBody, DetailsFields, PeopleEditor, type DetailValues, type EditPerson, type Pair } from "./PeopleEditor";
+import { detailsBody, DetailsFields, type DetailValues } from "./DetailsFields";
+import { PeopleEditor, type EditPerson, type Pair } from "./PeopleEditor";
 import { ShareCard, useCopy } from "./ShareCard";
 import { Callout, ICON, langOf, Section, Sheet, Sticker } from "./ui";
 
