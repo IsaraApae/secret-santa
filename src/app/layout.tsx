@@ -4,7 +4,7 @@ import { preload } from "react-dom";
 import { ConfirmHost } from "@/components/ConfirmHost";
 import { Fall } from "@/components/Festive";
 import { TopBar } from "@/components/TopBar";
-import { siteUrl } from "@/lib/site";
+import { OPEN_GRAPH, siteUrl } from "@/lib/site";
 import "./globals.css";
 
 // The Cultural Fest CI's faces in its own roles, as the closest free fonts side by side with the CI's
@@ -23,8 +23,10 @@ const thai = Noto_Serif_Thai({ subsets: ["thai"], variable: "--font-thai", prelo
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
-  title: { default: "Secret Santa", template: "%s · Secret Santa" },
+  // The home page's title, in search results and link previews. Other pages put their own name first.
+  title: { default: "Secret Santa: draw names online with one link", template: "%s · Secret Santa" },
   description: "Draw names for your gift exchange. Share one link and everyone joins.",
+  openGraph: OPEN_GRAPH,
   applicationName: "Secret Santa",
   appleWebApp: { capable: true, title: "Secret Santa", statusBarStyle: "default" },
 };

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { MemberApp } from "@/components/MemberApp";
 import { getPublicGroup } from "@/lib/server/groups";
+import { OPEN_GRAPH } from "@/lib/site";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -14,7 +15,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!group) return { title: "Not found", robots: { index: false } };
   // Printed beside the invite card when the link is sent in a chat.
   const description = group.drawn ? "Names are drawn. Open the link to unwrap yours." : "You're invited. Add your name, then see who you draw.";
-  return { title: group.name, description, openGraph: { description }, twitter: { description }, robots: { index: false } };
+  // The large card, said outright: with its own description here, X would otherwise shrink the invite to a thumbnail.
+  return { title: group.name, description, openGraph: { ...OPEN_GRAPH, description }, twitter: { card: "summary_large_image", description }, robots: { index: false } };
 }
 
 export default async function Page({ params }: Props) {
