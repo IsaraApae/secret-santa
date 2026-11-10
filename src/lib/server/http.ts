@@ -6,8 +6,11 @@ export function jsonError(status: number, error: string, extra: object = {}) {
 }
 
 /**
- * Wraps a route handler so unexpected failures become clean JSON errors. Every answer is marked not to
- * be kept: they carry names, wish lists and messages, which have no place in a browser's or proxy's cache.
+ * Wraps a route handler so unexpected failures become clean JSON errors. Every answer is marked private:
+ * they carry names, wish lists and messages, which no cache between the server and the person's own
+ * browser should keep, and the browser must ask again rather than reuse one. Not "no-store": a page
+ * whose requests come back no-store is thrown away when the visitor leaves it, so coming back to a
+ * group with the back button would load it from scratch instead of showing it at once.
  */
 export async function safely(fn: () => Promise<Response>): Promise<Response> {
   let res: Response;
@@ -20,7 +23,7 @@ export async function safely(fn: () => Promise<Response>): Promise<Response> {
       res = jsonError(500, "server_error");
     }
   }
-  res.headers.set("Cache-Control", "no-store");
+  res.headers.set("Cache-Control", "private, no-cache");
   return res;
 }
 

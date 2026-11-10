@@ -83,7 +83,7 @@ The screenshots use a demo group with made-up names.
 - Anonymous messages are stored under the person receiving the gift, so nothing stored names their Santa.
 - Guesses get no feedback before the reveal, so guessing can't be used to find your Santa.
 - PINs are hashed with scrypt. A name locks for an hour after 8 wrong tries, and after 30 without a right one it stays locked until the organiser resets its PIN (or 30 days pass), so a 4-digit PIN can't be worked through by trying them all.
-- Pages load nothing from other sites and can't be framed by them (a content security policy), and the API's answers are never kept in a cache.
+- Pages load nothing from other sites and can't be framed by them (a content security policy), and the API's answers are marked private, so no cache between the server and your browser keeps them.
 
 Found a way around any of this? Please report it privately: see [SECURITY.md](SECURITY.md).
 
