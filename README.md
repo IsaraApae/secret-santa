@@ -36,6 +36,10 @@ Run a gift exchange from one link. Create a group, share the link, and everyone 
   <img src="docs/screenshots/status.jpg" alt="Organiser's list of who has opened their name" width="240">
   <img src="docs/screenshots/results.jpg" alt="Table of who guessed their Santa correctly" width="240">
 </p>
+<p>
+  <img src="docs/screenshots/pin-locked.jpg" alt="The PIN keypad for a name after too many wrong tries: it says to ask the organiser to reset the PIN, then choose a new one" width="240">
+  <img src="docs/screenshots/error.jpg" alt="The page shown when a page can't load: a paper card saying That didn't load, with Try again and Back to home" width="240">
+</p>
 
 The screenshots use a demo group with made-up names.
 
@@ -49,6 +53,7 @@ The screenshots use a demo group with made-up names.
 - **Budget, party date and a note** for everyone: a big budget field with shortcuts, the site's own calendar, and a live countdown.
 - **Change the group later:** add or remove people and everyone gets a new name. Renaming someone keeps the draw. Someone who joins while you're editing the list stays in the group when you save it.
 - **See who's ready:** who has joined and who has opened their name, updating by itself every few seconds.
+- **Reset a PIN:** for someone who forgot theirs, or whose name locked after too many wrong tries. They choose a new one straight away.
 - **Copy a reminder:** a ready-made message for your group chat naming anyone still to open their name.
 - **Draw again:** the same group for next year, avoiding last round's matches when the group is big enough.
 - **Delete the group:** removes every name, wish list and message.
@@ -56,7 +61,7 @@ The screenshots use a demo group with made-up names.
 - **Drawing is a show:** everyone's name tag flies into the present, which shakes and bursts into confetti.
 
 **Taking part**
-- **Join with your name and a 4-digit PIN,** tapped on the site's own keypad. The PIN opens your page on another phone.
+- **Join with your name and a 4-digit PIN,** tapped on the site's own keypad. The PIN opens your page on another phone. After too many wrong PINs a name locks, and the page says to ask the organiser to reset it.
 - **Change your name** any time, before or after the draw, to fix a typo or use a nickname. Everyone sees the new one, your Santa too; your PIN, wish list and messages stay.
 - **See who's in:** once you've joined, your page lists everyone in the group by name, with yours marked. Never who drew whom. Your tag drops in when you join, and so does anyone else's who joins while you're there.
 - **The first time you open a group,** its page lays itself out: the name writes itself in, the tickets drop and the cards rise.
@@ -75,6 +80,7 @@ The screenshots use a demo group with made-up names.
 - Reduced motion is respected.
 - Works from a keyboard: every control shows when it has focus, the tabs move with the arrow keys, and the PIN pad takes number keys, Backspace and Enter. Screen readers hear the digits typed, saves, new messages and what a confirmation will do.
 - Add it to your home screen: it has its own gift icon on the site's maroon and opens full screen.
+- If a page can't load, the site shows its own card with Try again and Back to home, not a bare error.
 
 ## How the secret is kept
 
