@@ -65,6 +65,9 @@ const en = {
   notFound: "This group doesn't exist",
   notFoundSub: "The link may be wrong, or the group has expired.",
   backHome: "Back to home",
+  pageError: "That didn't load",
+  pageErrorSub: "Something went wrong on our side. Please try again in a moment.",
+  tryAgain: "Try again",
 
   shareLink: "Invite link",
   shareBlurb: "Send this one link to everyone. It's the same for the whole group.",
