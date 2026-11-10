@@ -5,15 +5,23 @@ export function jsonError(status: number, error: string, extra: object = {}) {
   return Response.json({ error, ...extra }, { status });
 }
 
-/** Wraps a route handler so unexpected failures become clean JSON errors. */
+/**
+ * Wraps a route handler so unexpected failures become clean JSON errors. Every answer is marked not to
+ * be kept: they carry names, wish lists and messages, which have no place in a browser's or proxy's cache.
+ */
 export async function safely(fn: () => Promise<Response>): Promise<Response> {
+  let res: Response;
   try {
-    return await fn();
+    res = await fn();
   } catch (e) {
-    if (e instanceof StorageNotConfiguredError) return jsonError(503, "not_configured");
-    console.error(e);
-    return jsonError(500, "server_error");
+    if (e instanceof StorageNotConfiguredError) res = jsonError(503, "not_configured");
+    else {
+      console.error(e);
+      res = jsonError(500, "server_error");
+    }
   }
+  res.headers.set("Cache-Control", "no-store");
+  return res;
 }
 
 /** Reads a JSON body with a size cap. Returns undefined on bad/oversized input. */
