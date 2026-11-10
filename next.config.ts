@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: "/lights.webp", headers: [{ key: "Cache-Control", value: "public, max-age=604800" }] },
+      // Every page shows a few stickers. Without this a browser asks about each one again on every visit.
+      { source: "/stickers/:file", headers: [{ key: "Cache-Control", value: "public, max-age=604800" }] },
       {
         source: "/:path*",
         headers: [
