@@ -33,6 +33,13 @@ const nextConfig: NextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "same-origin" },
           { key: "X-Frame-Options", value: "DENY" },
+        ],
+      },
+      {
+        // On pages, not on the scripts, fonts and pictures a page loads: those have no use for these two,
+        // and thirty files each carrying them is thirty times the weight.
+        source: "/((?!_next/static/|stickers/|lights\\.webp$).*)",
+        headers: [
           { key: "Content-Security-Policy", value: contentSecurityPolicy },
           // The site uses none of these, so nothing running on it can ask for them.
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
