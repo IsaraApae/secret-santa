@@ -230,7 +230,9 @@ function Picker({ id, group, onSession }: { id: string; group: PublicGroup; onSe
               <li key={m.id} className={cx("max-w-full", tags.arrive(m.id))}>
                 <button
                   type="button"
-                  className="press block max-w-full rounded-lg"
+                  // The tag is 36px tall. The button takes taps 4px above and below it too (44px), inside the
+                  // gap between rows, so nothing moves and the tags look the same.
+                  className="press relative block max-w-full rounded-lg after:absolute after:inset-x-0 after:-inset-y-1"
                   aria-label={m.claimed ? `${m.name}, ${t("pinTaken")}` : m.name}
                   onClick={() => {
                     setPicked(m);

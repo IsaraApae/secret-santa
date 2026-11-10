@@ -212,10 +212,24 @@ for (const n of Object.keys(beforeRound)) assert.notEqual((await post(`${g}/me`,
 let last;
 for (let i = 0; i < 10; i++) last = await post(`${g}/claim`, { memberId: ids.Chai, pin: "0000" });
 assert.equal(last.data.error, "too_many");
+// The right PIN waits too, but the organiser's reset lifts the lock: a new PIN can be chosen straight away
+assert.equal((await post(`${g}/claim`, { memberId: ids.Chai, pin: "1234" })).data.error, "too_many");
+assert.equal((await post(`${g}/admin`, { key, action: { type: "resetPin", memberId: ids.Chai } })).status, 200);
+assert.equal((await post(`${g}/claim`, { memberId: ids.Chai, pin: "4321" })).data.first, true);
 
 // Only the organiser can delete, and deleting removes the group
 const doomed = await post("/api/g", { name: "Delete me", budget: null, date: null, note: "" });
 const dg = `/api/g/${doomed.data.id}`;
+
+// Saving the Edit people sheet keeps whoever joined, and any name someone fixed, while it was open
+const first = (await post(`${dg}/join`, { name: "Ann", pin: "1234" })).data;
+const sheet = (await get(dg)).members.map(({ id, name }) => ({ id, name }));
+const late = (await post(`${dg}/join`, { name: "Beam", pin: "1234" })).data;
+await post(`${dg}/me`, { ...first, action: { type: "rename", name: "Annie" } });
+const savedSheet = await post(`${dg}/admin`, { key: doomed.data.key, action: { type: "people", people: [...sheet, { id: "new-1", name: "Chai" }], pairs: [], seen: sheet } });
+assert.deepEqual(savedSheet.data.members.map((m) => m.name), ["Annie", "Beam", "Chai"]);
+assert.equal((await post(`${dg}/me`, { ...late, action: { type: "load" } })).status, 200);
+
 assert.equal((await post(`${dg}/admin`, { key: "wrong", action: { type: "delete" } })).status, 403);
 assert.equal((await post(`${dg}/admin`, { key: doomed.data.key, action: { type: "delete" } })).status, 200);
 assert.equal((await get(dg)).error, "not_found");

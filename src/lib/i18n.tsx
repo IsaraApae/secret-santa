@@ -57,6 +57,7 @@ const en = {
   errClosed: "Names have already been drawn. Ask the organiser to add you.",
   errFull: "This group is full.",
   errTooMany: "Too many tries. Please wait a while and try again.",
+  errLocked: "Too many wrong PINs for this name. Ask the organiser to reset its PIN, then choose a new one.",
   errNotConfigured: "The site's database isn't connected yet.",
   errGeneric: "Something went wrong. Please try again.",
   errForbidden: "This organiser link isn't valid.",
@@ -64,6 +65,9 @@ const en = {
   notFound: "This group doesn't exist",
   notFoundSub: "The link may be wrong, or the group has expired.",
   backHome: "Back to home",
+  pageError: "That didn't load",
+  pageErrorSub: "Something went wrong on our side. Please try again in a moment.",
+  tryAgain: "Try again",
 
   shareLink: "Invite link",
   shareBlurb: "Send this one link to everyone. It's the same for the whole group.",

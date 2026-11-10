@@ -264,7 +264,7 @@ export function Organiser({ id }: { id: string }) {
       </Section>
 
       {sheet === "details" && <DetailsSheet view={view} onClose={() => setSheet(null)} onSave={(body) => send(key!, { type: "details", ...body })} />}
-      {sheet === "people" && <PeopleSheet view={view} onClose={() => setSheet(null)} onSave={(people, pairs) => send(key!, { type: "people", people, pairs })} error={error} />}
+      {sheet === "people" && <PeopleSheet view={view} onClose={() => setSheet(null)} onSave={(people, pairs, seen) => send(key!, { type: "people", people, pairs, seen })} error={error} />}
     </div>
   );
 }
@@ -292,9 +292,12 @@ function DetailsSheet({ view, onClose, onSave }: { view: AdminView; onClose: () 
   );
 }
 
-function PeopleSheet({ view, onClose, onSave, error }: { view: AdminView; onClose: () => void; onSave: (p: EditPerson[], pairs: Pair[]) => Promise<boolean>; error: string }) {
+function PeopleSheet({ view, onClose, onSave, error }: { view: AdminView; onClose: () => void; onSave: (p: EditPerson[], pairs: Pair[], seen: EditPerson[]) => Promise<boolean>; error: string }) {
   const t = useT();
-  const [people, setPeople] = useState<EditPerson[]>(view.members.map(({ id, name }) => ({ id, name })));
+  // The group as it was when the sheet opened. It goes back with the save, so the server changes only
+  // what was changed here: someone who joins while the sheet is open isn't removed by saving it.
+  const [seen] = useState<EditPerson[]>(() => view.members.map(({ id, name }) => ({ id, name })));
+  const [people, setPeople] = useState<EditPerson[]>(seen);
   const [pairs, setPairs] = useState<Pair[]>(view.pairs as Pair[]);
 
   async function save() {
@@ -303,7 +306,7 @@ function PeopleSheet({ view, onClose, onSave, error }: { view: AdminView; onClos
     const key = (list: Pair[]) => list.map((p) => [...p].sort().join(">")).sort().join();
     const redraw = view.drawn && (!samePeople || key(pairs) !== key(view.pairs as Pair[]));
     if (redraw && !(await askConfirm({ title: t("redrawTitle"), message: t("redrawBody"), confirmLabel: t("redrawConfirm"), destructive: true }))) return;
-    if (await onSave(people.map((p) => ({ ...p, name: p.name.trim() })), pairs)) onClose();
+    if (await onSave(people.map((p) => ({ ...p, name: p.name.trim() })), pairs, seen)) onClose();
   }
 
   return (

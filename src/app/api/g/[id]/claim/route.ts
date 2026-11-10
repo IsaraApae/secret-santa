@@ -9,7 +9,7 @@ export function POST(req: Request, { params }: { params: Promise<{ id: string }>
     if (!body.success) return jsonError(400, "invalid");
     const result = await claim((await params).id, body.data.memberId, body.data.pin);
     if (result.error) {
-      const status = { not_found: 404, too_many: 429, wrong_pin: 403 }[result.error];
+      const status = { not_found: 404, too_many: 429, locked: 429, wrong_pin: 403 }[result.error];
       return jsonError(status, result.error);
     }
     return Response.json(result);

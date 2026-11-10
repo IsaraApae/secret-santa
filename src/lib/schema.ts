@@ -72,7 +72,8 @@ export const AdminBody = z.object({
   action: z.discriminatedUnion("type", [
     z.object({ type: z.literal("status") }),
     z.object({ type: z.literal("details"), ...Details.shape }),
-    z.object({ type: z.literal("people"), ...People.shape }),
+    /** `seen` is the list the organiser's sheet opened with, so a save changes only what they changed. */
+    z.object({ type: z.literal("people"), ...People.shape, seen: z.optional(People.shape.people) }),
     z.object({ type: z.literal("resetPin"), memberId: id() }),
     /** The same group, freshly drawn: for next year. */
     z.object({ type: z.literal("draw") }),

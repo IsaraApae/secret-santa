@@ -86,10 +86,20 @@ export type StickerName =
   | "bell" | "calendar" | "candle" | "flower" | "gift" | "gingerbread" | "info" | "megaphone" | "mitten" | "music" | "north-star"
   | "ornament" | "palette" | "question" | "snowflake" | "spark" | "stage" | "star" | "stocking" | "tree" | "warning";
 
+/** Each sticker's own width and height (its viewBox), so the page keeps its room before the file arrives. */
+const STICKER_SHAPE: Record<StickerName, [number, number]> = {
+  bell: [57, 76], calendar: [67, 73], candle: [56, 77], flower: [51, 53], gift: [58, 71], gingerbread: [62, 75], info: [65, 67],
+  megaphone: [63, 70], mitten: [54, 74], music: [52, 67], "north-star": [80, 80], ornament: [62, 72], palette: [68, 68], question: [54, 79],
+  snowflake: [72, 80], spark: [63, 94], stage: [72, 65], star: [74, 71], stocking: [54, 69], tree: [61, 76], warning: [75, 70],
+};
+
 export function Sticker({ name, size = 40, className, style }: { name: StickerName; size?: number; className?: string; style?: React.CSSProperties }) {
+  const [w, h] = STICKER_SHAPE[name];
   return (
+    // The attributes only tell the browser the sticker's shape, to hold its place: the size shown is the height
+    // in the style, and `w-auto` works the width out from it.
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={`/stickers/${name}.svg`} alt="" aria-hidden height={size} draggable={false} className={cx("pointer-events-none w-auto shrink-0 drop-shadow-[0_2px_2px_rgb(0_0_0/0.3)] select-none", className)} style={{ height: size, ...style }} />
+    <img src={`/stickers/${name}.svg`} alt="" aria-hidden width={w} height={h} draggable={false} className={cx("pointer-events-none w-auto shrink-0 drop-shadow-[0_2px_2px_rgb(0_0_0/0.3)] select-none", className)} style={{ height: size, ...style }} />
   );
 }
 
