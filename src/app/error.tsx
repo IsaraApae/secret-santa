@@ -11,6 +11,8 @@ export default function PageError({ retry }: { error: unknown; retry: () => void
   const t = useT();
   return (
     <div className="card mt-8 space-y-3 p-8 text-center" role="alert">
+      {/* The page's own title never arrived, and the tab would show the bare address. */}
+      <title>{`${t("pageError")} · Secret Santa`}</title>
       <h1 className="font-script text-[42px] leading-tight text-santa">{t("pageError")}</h1>
       <p className="text-ink-2">{t("pageErrorSub")}</p>
       <div className="flex flex-wrap justify-center gap-2.5 pt-1">
