@@ -3,6 +3,7 @@ import { test } from "node:test";
 import { isPublicAddress, mayFetch } from "./address.ts";
 import { drawNames } from "./draw.ts";
 import { organiserChanges } from "./people.ts";
+import { PIN_TRIES, pinLock } from "./pin.ts";
 import { hashPin, memberToken, seal, unseal } from "./seal.ts";
 import { formatPrice, priceFromHtml } from "./price.ts";
 import { parseShopPaste, safeUrl, shopOf, siteOf } from "./shop.ts";
@@ -75,6 +76,17 @@ test("a sealed name only opens for the same group and person, and hides the name
 test("PINs hash per salt, and a new salt cancels old device tokens", () => {
   assert.notEqual(hashPin("1234", "a"), hashPin("1234", "b"));
   assert.notEqual(memberToken("s", "g", "m", "a"), memberToken("s", "g", "m", "b"));
+});
+
+test("wrong PINs lock a name for the hour, then until the organiser resets it", () => {
+  assert.equal(pinLock(1, 1), null);
+  assert.equal(pinLock(PIN_TRIES.hour, PIN_TRIES.hour), null);
+  assert.equal(pinLock(PIN_TRIES.hour + 1, PIN_TRIES.hour + 1), "too_many");
+  // A new hour, the same thirty days.
+  assert.equal(pinLock(1, PIN_TRIES.month), null);
+  assert.equal(pinLock(1, PIN_TRIES.month + 1), "locked");
+  // Every PIN there is, at the most the thirty days allow: longer than any group lasts.
+  assert.ok((10_000 / PIN_TRIES.month) * 30 > 180 * 10);
 });
 
 test("saving the Edit people sheet changes only what the organiser changed", () => {

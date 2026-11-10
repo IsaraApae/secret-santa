@@ -4,6 +4,7 @@ import { after } from "next/server";
 import type * as z from "zod/mini";
 import { drawNames } from "../draw";
 import { organiserChanges } from "../people";
+import { HOUR, MONTH, pinLock } from "../pin";
 import type { AboutMe, Details, People, WishItem } from "../schema";
 import type { ShopPrice } from "../price";
 import { hashPin, memberToken, safeEqual, seal, sha256, unseal } from "../seal";
@@ -263,12 +264,17 @@ export async function join(id: string, name: string, pin: string) {
   return { memberId, token: memberToken(sealSecret(), id, memberId, salt) };
 }
 
+/** Where a name's PIN tries are counted: within the hour, and without a right one in thirty days (see pinLock). */
+const pinTries = (id: string, memberId: string) => ({ hour: `ss:pinfail:${id}:${memberId}`, month: `ss:pinlock:${id}:${memberId}` });
+
 /** First time sets the PIN, after that it checks it. Returns a device token. */
 export async function claim(id: string, memberId: string, pin: string) {
   const g = await load(id);
   if (!g || !g.ids.includes(memberId)) return { error: "not_found" as const };
-  const attempts = await kv().hit(`ss:pinfail:${id}:${memberId}`, 3600);
-  if (attempts > 8) return { error: "too_many" as const };
+  const tries = pinTries(id, memberId);
+  const [inHour, inMonth] = await Promise.all([kv().hit(tries.hour, HOUR), kv().hit(tries.month, MONTH)]);
+  const lock = pinLock(inHour, inMonth);
+  if (lock) return { error: lock };
   const salt = newId(12);
   const fresh = JSON.stringify({ salt, hash: hashPin(pin, salt) });
   const first = await kv().hsetnx(groupKey(id), `p:${memberId}`, fresh);
@@ -276,7 +282,7 @@ export async function claim(id: string, memberId: string, pin: string) {
     ? JSON.parse(fresh)
     : JSON.parse(g.raw[`p:${memberId}`] ?? (await kv().hgetall(groupKey(id)))[`p:${memberId}`]);
   if (!first && !safeEqual(hashPin(pin, rec.salt), rec.hash)) return { error: "wrong_pin" as const };
-  await kv().del([`ss:pinfail:${id}:${memberId}`]);
+  await kv().del([tries.hour, tries.month]);
   await touch(id);
   return { token: memberToken(sealSecret(), id, memberId, rec.salt), first };
 }
@@ -439,6 +445,8 @@ export async function adminAction(id: string, key: string, device: string, actio
   if (action.type === "resetPin") {
     if (!g.ids.includes(action.memberId)) return { error: "not_found" as const };
     await store.hdel(groupKey(id), [`p:${action.memberId}`]);
+    // The tries start again too: a name locked by wrong PINs can choose its new PIN straight away.
+    await store.del(Object.values(pinTries(id, action.memberId)));
     return reload();
   }
 

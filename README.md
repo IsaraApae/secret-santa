@@ -82,7 +82,7 @@ The screenshots use a demo group with made-up names.
 - The server only returns a result to the person who drew it, after their PIN. The organiser's page never receives results.
 - Anonymous messages are stored under the person receiving the gift, so nothing stored names their Santa.
 - Guesses get no feedback before the reveal, so guessing can't be used to find your Santa.
-- PINs are hashed with scrypt and lock for an hour after repeated wrong tries.
+- PINs are hashed with scrypt. A name locks for an hour after 8 wrong tries, and after 30 without a right one it stays locked until the organiser resets its PIN (or 30 days pass), so a 4-digit PIN can't be worked through by trying them all.
 
 **What it can't prevent:**
 - Anyone with the link can join before the draw, so organisers should check the list and remove anyone unexpected.

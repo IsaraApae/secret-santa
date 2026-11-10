@@ -212,6 +212,10 @@ for (const n of Object.keys(beforeRound)) assert.notEqual((await post(`${g}/me`,
 let last;
 for (let i = 0; i < 10; i++) last = await post(`${g}/claim`, { memberId: ids.Chai, pin: "0000" });
 assert.equal(last.data.error, "too_many");
+// The right PIN waits too, but the organiser's reset lifts the lock: a new PIN can be chosen straight away
+assert.equal((await post(`${g}/claim`, { memberId: ids.Chai, pin: "1234" })).data.error, "too_many");
+assert.equal((await post(`${g}/admin`, { key, action: { type: "resetPin", memberId: ids.Chai } })).status, 200);
+assert.equal((await post(`${g}/claim`, { memberId: ids.Chai, pin: "4321" })).data.first, true);
 
 // Only the organiser can delete, and deleting removes the group
 const doomed = await post("/api/g", { name: "Delete me", budget: null, date: null, note: "" });

@@ -67,6 +67,7 @@ export function errorText(t: T, e: { error: string; name?: string }): string {
   if (e.error === "need_three") return t("needThree");
   if (e.error === "duplicate_name") return t("errDuplicate", { name: e.name ?? "" });
   if (e.error === "too_many") return t("errTooMany");
+  if (e.error === "locked") return t("errLocked");
   if (e.error === "not_configured") return t("errNotConfigured");
   if (e.error === "forbidden") return t("errForbidden");
   if (e.error === "wrong_pin") return t("wrongPin");

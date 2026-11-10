@@ -57,6 +57,7 @@ const en = {
   errClosed: "Names have already been drawn. Ask the organiser to add you.",
   errFull: "This group is full.",
   errTooMany: "Too many tries. Please wait a while and try again.",
+  errLocked: "Too many wrong PINs for this name. Ask the organiser to reset its PIN, then choose a new one.",
   errNotConfigured: "The site's database isn't connected yet.",
   errGeneric: "Something went wrong. Please try again.",
   errForbidden: "This organiser link isn't valid.",

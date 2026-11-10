@@ -15,7 +15,10 @@ interface Kv {
   lrange(key: string): Promise<string[]>;
   expire(key: string, seconds: number): Promise<void>;
   del(keys: string[]): Promise<void>;
-  /** Counts hits in a fixed time window. */
+  /**
+   * Counts hits in a fixed time window. The count and its expiry are two commands, so a count found
+   * without an expiry (the second command was lost) is given one: it can't be left counting for good.
+   */
   hit(key: string, windowSec: number): Promise<number>;
 }
 
@@ -35,7 +38,7 @@ function upstashKv(r: Redis): Kv {
     del: async (k) => void (k.length && (await r.del(...k))),
     hit: async (k, s) => {
       const n = await r.incr(k);
-      if (n === 1) await r.expire(k, s);
+      if (n === 1 || (await r.ttl(k)) < 0) await r.expire(k, s);
       return n;
     },
   };
@@ -80,7 +83,7 @@ function tcpKv(url: string): Kv {
     hit: async (k, s) => {
       const c = await tcp(url);
       const n = await c.incr(k);
-      if (n === 1) await c.expire(k, s);
+      if (n === 1 || (await c.ttl(k)) < 0) await c.expire(k, s);
       return n;
     },
   };
