@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { isPublicAddress, mayFetch } from "./address.ts";
 import { drawNames } from "./draw.ts";
+import { organiserChanges } from "./people.ts";
 import { hashPin, memberToken, seal, unseal } from "./seal.ts";
 import { formatPrice, priceFromHtml } from "./price.ts";
 import { parseShopPaste, safeUrl, shopOf, siteOf } from "./shop.ts";
@@ -74,6 +75,20 @@ test("a sealed name only opens for the same group and person, and hides the name
 test("PINs hash per salt, and a new salt cancels old device tokens", () => {
   assert.notEqual(hashPin("1234", "a"), hashPin("1234", "b"));
   assert.notEqual(memberToken("s", "g", "m", "a"), memberToken("s", "g", "m", "b"));
+});
+
+test("saving the Edit people sheet changes only what the organiser changed", () => {
+  const ann = { id: "a", name: "Ann" };
+  const beam = { id: "b", name: "Beam" };
+  const chai = { id: "c", name: "Chai" };
+  // Chai joined, and Beam fixed their own name, while the sheet was open with Ann and Beam on it.
+  const now = [ann, { id: "b", name: "Beam S." }, chai];
+  assert.deepEqual(organiserChanges([ann, beam], [ann, beam], now), now);
+  // What the organiser did still happens: a rename, a removal, and a name added by hand.
+  const fresh = { id: "new-1", name: "Dao" };
+  assert.deepEqual(organiserChanges([{ id: "a", name: "Annie" }, fresh], [ann, beam], now), [{ id: "a", name: "Annie" }, fresh, chai]);
+  // Someone the organiser saw and removed stays removed, even if they changed their name meanwhile.
+  assert.deepEqual(organiserChanges([ann], [ann, beam], [ann, { id: "b", name: "Beam S." }]), [ann]);
 });
 
 test("shop links", () => {

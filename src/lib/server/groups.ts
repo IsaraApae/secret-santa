@@ -3,6 +3,7 @@ import { randomBytes } from "node:crypto";
 import { after } from "next/server";
 import type * as z from "zod/mini";
 import { drawNames } from "../draw";
+import { organiserChanges } from "../people";
 import type { AboutMe, Details, People, WishItem } from "../schema";
 import type { ShopPrice } from "../price";
 import { hashPin, memberToken, safeEqual, seal, sha256, unseal } from "../seal";
@@ -411,7 +412,7 @@ export type AdminView = ReturnType<typeof adminView>;
 export type AdminAction =
   | { type: "status" }
   | ({ type: "details" } & DetailFields)
-  | ({ type: "people" } & PeopleFields)
+  | ({ type: "people"; seen?: PeopleFields["people"] } & PeopleFields)
   | { type: "resetPin"; memberId: string }
   | { type: "draw" }
   | { type: "newRound" }
@@ -463,10 +464,14 @@ export async function adminAction(id: string, key: string, device: string, actio
 
   if (action.type === "newRound" && !isDrawn(g)) return { error: "not_drawn" as const };
 
+  const everyone = g.ids.map((m) => ({ id: m, name: g.raw[`m:${m}`] }));
   const people =
     action.type === "newRound"
-      ? { people: g.ids.map((m) => ({ id: m, name: g.raw[`m:${m}`] })), pairs: g.meta.pairs }
-      : action;
+      ? { people: everyone, pairs: g.meta.pairs }
+      : // Only what the organiser changed in the sheet: whoever joined while it was open stays.
+        // A page loaded before sheets sent `seen` still saves its list as it stands.
+        { people: action.seen ? organiserChanges(action.people, action.seen, everyone) : action.people, pairs: action.pairs };
+  if (people.people.length > MAX_PEOPLE) return { error: "full" as const };
   const plan = planNames(people, g.ids);
   if (plan.error) return plan;
   const removedFields = g.ids

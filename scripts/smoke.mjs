@@ -216,6 +216,16 @@ assert.equal(last.data.error, "too_many");
 // Only the organiser can delete, and deleting removes the group
 const doomed = await post("/api/g", { name: "Delete me", budget: null, date: null, note: "" });
 const dg = `/api/g/${doomed.data.id}`;
+
+// Saving the Edit people sheet keeps whoever joined, and any name someone fixed, while it was open
+const first = (await post(`${dg}/join`, { name: "Ann", pin: "1234" })).data;
+const sheet = (await get(dg)).members.map(({ id, name }) => ({ id, name }));
+const late = (await post(`${dg}/join`, { name: "Beam", pin: "1234" })).data;
+await post(`${dg}/me`, { ...first, action: { type: "rename", name: "Annie" } });
+const savedSheet = await post(`${dg}/admin`, { key: doomed.data.key, action: { type: "people", people: [...sheet, { id: "new-1", name: "Chai" }], pairs: [], seen: sheet } });
+assert.deepEqual(savedSheet.data.members.map((m) => m.name), ["Annie", "Beam", "Chai"]);
+assert.equal((await post(`${dg}/me`, { ...late, action: { type: "load" } })).status, 200);
+
 assert.equal((await post(`${dg}/admin`, { key: "wrong", action: { type: "delete" } })).status, 403);
 assert.equal((await post(`${dg}/admin`, { key: doomed.data.key, action: { type: "delete" } })).status, 200);
 assert.equal((await get(dg)).error, "not_found");
