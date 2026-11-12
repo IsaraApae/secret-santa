@@ -37,6 +37,9 @@ export function rememberGroup(g: SavedGroup) {
   write("ss:groups", [{ ...old, ...g }, ...all.filter((x) => x.id !== g.id)].slice(0, 30));
 }
 export const forgetGroup = (id: string) => write("ss:groups", myGroups().filter((g) => g.id !== id));
+/** Names you've crossed out while guessing your Santa. Kept on this phone only. */
+export const getCrossed = (memberId: string) => read<string[]>(`ss:crossed:${memberId}`, []);
+export const setCrossed = (memberId: string, ids: string[]) => write(`ss:crossed:${memberId}`, ids.length ? ids : null);
 export const organiserKey = (id: string) => myGroups().find((g) => g.id === id)?.key;
 /** This phone's own random id. The server ties each group's organiser key to the phone that made it. */
 export function deviceId() {
