@@ -33,10 +33,11 @@ Run a gift exchange from one link. Create a group, share the link, and everyone 
 </p>
 <p>
   <img src="docs/screenshots/wishes.jpg" alt="A wish list where every link shows its website, and the IKEA one its price from the shop" width="240">
-  <img src="docs/screenshots/status.jpg" alt="Organiser's list of who has opened their name" width="240">
+  <img src="docs/screenshots/cross-out.jpg" alt="Guess your Santa with two names crossed out, faded with a red line through them, and the rest still in play" width="240">
   <img src="docs/screenshots/results.jpg" alt="Table of who guessed their Santa correctly" width="240">
 </p>
 <p>
+  <img src="docs/screenshots/status.jpg" alt="Organiser's list of who has opened their name" width="240">
   <img src="docs/screenshots/pin-locked.jpg" alt="The PIN keypad for a name after too many wrong tries: it says to ask the organiser to reset the PIN, then choose a new one" width="240">
   <img src="docs/screenshots/error.jpg" alt="The page shown when a page can't load: a paper card saying That didn't load, with Try again and Back to home" width="240">
 </p>
@@ -71,7 +72,7 @@ The screenshots use a demo group with made-up names.
 - **A few things about you:** likes, sizes and "please no", for people without links to add.
 - **Gift search:** search Shopee, Lazada, TikTok, Taobao, AliExpress and Temu, starting from what your person likes.
 - **Anonymous messages:** ask your person a question. They see "Your Santa" and can reply without learning who asked. A message you send flies off as an envelope.
-- **Guess your Santa:** pick who you think drew you, and change your mind until the organiser shows the results. The table shows only who was right, not who they named, and the first time you see it each row flips over like a card.
+- **Guess your Santa:** pick who you think drew you, and change your mind until the organiser shows the results. Tap names to cross out the people you've ruled out; only you see that, on your own phone. The table shows only who was right, not who they named, and the first time you see it each row flips over like a card.
 
 **Everywhere**
 - An English interface. Names and wishes people type can be in Thai too, with matching Thai fonts, and marked as Thai so screen readers say them in Thai.

@@ -2,7 +2,7 @@
 
 import { Check, ExternalLink, EyeOff, Globe, Lock, Pencil, Plus, Search, Send, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { api, baht, errorText, getSession, rememberGroup, setSession, type Session } from "@/lib/client/store";
+import { api, baht, errorText, getCrossed, getSession, rememberGroup, setCrossed, setSession, type Session } from "@/lib/client/store";
 import { useT } from "@/lib/i18n";
 import type { AboutMe, WishItem } from "@/lib/schema";
 import type { MeAction, MemberView, Msg, PublicGroup } from "@/lib/server/groups";
@@ -370,17 +370,18 @@ function RenameSheet({ name, act, onClose }: { name: string; act: Act; onClose: 
 const TILTS = ["-rotate-2", "rotate-1", "-rotate-1", "rotate-2"];
 
 /** A person as a small paper gift tag, punched at one end and a little off true. Yours is the red one. */
-function NameTag({ name, index, me, children }: { name: string; index: number; me?: boolean; children?: React.ReactNode }) {
+function NameTag({ name, index, me, crossed, children }: { name: string; index: number; me?: boolean; crossed?: boolean; children?: React.ReactNode }) {
   return (
     <span
       className={cx(
         "flex max-w-full items-center gap-2 rounded-r-lg rounded-l-[14px] border-[1.5px] py-1.5 pr-3.5 pl-2 text-[15px] shadow-[0_3px_6px_rgb(0_0_0/0.14)]",
         me ? "border-transparent bg-[var(--santa)] text-[var(--paper-light)]" : "border-[rgb(44_40_37/0.25)] bg-[var(--paper-light)] text-[#2c2825]",
         TILTS[index % TILTS.length],
+        crossed && "opacity-55 shadow-none",
       )}
     >
       <span aria-hidden className={cx("size-2.5 shrink-0 rounded-full ring-[1.5px]", me ? "bg-[var(--santa-deep)] ring-[var(--ribbon)]" : "bg-[var(--paper)] ring-[rgb(44_40_37/0.35)]")} />
-      <span lang={langOf(name)} className="min-w-0 truncate font-medium">{name}</span>
+      <span lang={langOf(name)} className={cx("min-w-0 truncate font-medium", crossed && "line-through decoration-[var(--santa)] decoration-2")}>{name}</span>
       {children}
     </span>
   );
@@ -616,6 +617,15 @@ function GuessForm({ view, members, act }: { view: MemberView; members: PublicGr
   const [error, setError] = useState("");
   const closed = view.guesses !== null;
   const changed = choice !== (view.myGuess ?? "");
+  const others = members.filter((m) => m.id !== view.me.id);
+  // Read after the first render, since the server can't know what this phone saved.
+  const [crossed, setCrossedIds] = useState<string[]>([]);
+  useEffect(() => setCrossedIds(getCrossed(view.me.id)), [view.me.id]);
+  function toggleCrossed(id: string) {
+    const next = crossed.includes(id) ? crossed.filter((x) => x !== id) : [...crossed, id];
+    setCrossedIds(next);
+    setCrossed(view.me.id, next);
+  }
   return (
     <Section title={t("guessTitle")} sticker="question">
       <form
@@ -627,6 +637,20 @@ function GuessForm({ view, members, act }: { view: MemberView; members: PublicGr
         }}
       >
         <p className="px-1 text-[14px] leading-snug text-ink-2">{closed ? t("guessLocked") : t("guessHint")}</p>
+        {!closed && (
+          <>
+            <p className="px-1 text-[14px] leading-snug text-ink-2">{t("crossHint")}</p>
+            <ul className="flex flex-wrap justify-center gap-x-2.5 gap-y-3 py-1">
+              {others.map((m, i) => (
+                <li key={m.id} className="max-w-full">
+                  <button type="button" className="press block max-w-full" aria-pressed={crossed.includes(m.id)} onClick={() => toggleCrossed(m.id)}>
+                    <NameTag name={m.name} index={i} crossed={crossed.includes(m.id)} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
         <Choice
           value={choice}
           disabled={closed}
@@ -634,7 +658,7 @@ function GuessForm({ view, members, act }: { view: MemberView; members: PublicGr
           placeholder={t("guessPick")}
           options={[
             { value: "", label: t("guessPick") },
-            ...members.filter((m) => m.id !== view.me.id).map((m) => ({ value: m.id, label: m.name })),
+            ...others.map((m) => ({ value: m.id, label: m.name, note: crossed.includes(m.id) ? t("crossedOut") : undefined })),
           ]}
           onChange={(v) => {
             setSaved(false);

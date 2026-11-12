@@ -205,6 +205,8 @@ const en = {
   guessTitle: "Guess your Santa",
   guessHint: "Who do you think drew you? You can change your mind until the organiser shows the results. You won't find out if you're right before then.",
   guessPick: "Choose someone",
+  crossHint: "Tap a name to cross it out once you've ruled them out. Tap again to bring it back. Only you see this, on this phone.",
+  crossedOut: "crossed out",
   guessSave: "Save my guess",
   guessLocked: "Guessing has closed.",
   resultsTitle: "Who guessed right",
