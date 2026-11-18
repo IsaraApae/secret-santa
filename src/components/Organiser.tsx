@@ -188,7 +188,13 @@ export function Organiser({ id }: { id: string }) {
         <ul className="card rows taped relative tilt-r">
           <li className="flex items-center gap-3 px-5 pt-4 pb-3 font-serif text-[15px]">
             {!view.members.length && <Sticker name="megaphone" size={40} className="-rotate-6" />}
-            {view.drawn ? t("statusCount", { n: opened, total: view.members.length }) : view.members.length ? t(view.members.length === 1 ? "joinedOne" : "joinedCount", { n: view.members.length }) : t("joinedNone")}
+            {view.drawn
+              ? t("statusCount", { n: opened, total: view.members.length })
+              : !view.members.length
+                ? t("joinedNone")
+                : view.members.some((m) => !m.claimed)
+                  ? t("joinedOf", { n: view.members.filter((m) => m.claimed).length, total: view.members.length })
+                  : t(view.members.length === 1 ? "joinedOne" : "joinedCount", { n: view.members.length })}
           </li>
           {view.members.map((m) => (
             <li key={m.id} className="flex items-center gap-3 py-2 pr-2 pl-5">

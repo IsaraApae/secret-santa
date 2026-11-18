@@ -86,6 +86,7 @@ const en = {
   joinedTitle: "Who's joined",
   joinedOne: "1 person has joined",
   joinedCount: "{n} people have joined",
+  joinedOf: "{n} of {total} have joined",
   joinedNone: "Nobody yet. Send the invite link above.",
   drawNow: "Draw names",
   drawTitle: "Draw names now?",

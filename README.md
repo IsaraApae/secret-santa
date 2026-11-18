@@ -20,11 +20,14 @@ Run a gift exchange from one link. Create a group, share the link, and everyone 
 <p>
   <img src="docs/screenshots/invite.jpg" alt="Organiser page with the invite link" width="240">
   <img src="docs/screenshots/lobby.jpg" alt="Organiser's list of who has joined, with the Draw names button" width="240">
+  <img src="docs/screenshots/draw-waiting.jpg" alt="Draw names greyed out while a name the organiser typed in, Mint, waits to open the link and choose a PIN: 3 of 4 have joined" width="240">
+</p>
+<p>
   <img src="docs/screenshots/edit-people.jpg" alt="Edit people sheet: names A to Z, and two pairs kept apart, also A to Z" width="240">
+  <img src="docs/screenshots/pick-person.jpg" alt="Picking Person 1 for a pair kept apart, from everyone's names A to Z" width="240">
 </p>
 <p>
   <img src="docs/screenshots/link-card.jpg" alt="The invite card a chat app shows for a group's link: the group name, budget, date and how many have joined" width="492">
-  <img src="docs/screenshots/pick-person.jpg" alt="Picking Person 1 for a pair kept apart, from everyone's names A to Z" width="240">
 </p>
 <p>
   <img src="docs/screenshots/unwrap.jpg" alt="A wrapped gift waiting to be tapped" width="240">
