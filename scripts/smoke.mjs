@@ -176,13 +176,25 @@ const after = (await post(`${g}/me`, { ...sessions.Em, action: { type: "load" } 
 assert.equal(after === "Fah S." ? "Fah" : after, before);
 assert.equal((await post(`${g}/me`, { ...sessions.Ann, action: { type: "load" } })).data.redrawn, false);
 
-// Adding and removing someone redraws, keeps wishes and PINs, clears messages and opened
+// Adding someone by hand after the draw goes back to joining: their name has no PIN yet, and a
+// draw would hand their result to whoever claimed it first. Wishes and PINs stay; messages and opened go.
 const changed = [...round.filter((p) => p.name !== "Dao"), { id: "new-1", name: "Gift" }];
-const redraw = await post(`${g}/admin`, { key, action: { type: "people", people: changed, pairs: adminPairs } });
-assert.equal(redraw.status, 200);
-assert.equal(redraw.data.members.length, 6);
-assert.ok(redraw.data.members.every((m) => !m.opened));
+const reopened = await post(`${g}/admin`, { key, action: { type: "people", people: changed, pairs: adminPairs } });
+assert.equal(reopened.status, 200);
+assert.equal(reopened.data.drawn, false);
+assert.equal(reopened.data.members.length, 6);
+assert.ok(reopened.data.members.every((m) => !m.opened));
 assert.equal((await post(`${g}/me`, { ...sessions.Dao, action: { type: "load" } })).status, 401);
+assert.equal((await post(`${g}/me`, { ...sessions.Ann, action: { type: "load" } })).data.person, null);
+// No draw until the new name has a PIN
+const waitingDraw = await post(`${g}/admin`, { key, action: { type: "draw" } });
+assert.equal(waitingDraw.data.error, "no_pin");
+assert.equal(waitingDraw.data.name, "Gift");
+const giftId = reopened.data.members.find((m) => m.name === "Gift").id;
+assert.equal((await post(`${g}/claim`, { memberId: giftId, pin: "1234" })).data.first, true);
+const redraw = await post(`${g}/admin`, { key, action: { type: "draw" } });
+assert.equal(redraw.status, 200);
+assert.equal(redraw.data.drawn, true);
 const annAfter = (await post(`${g}/me`, { ...sessions.Ann, action: { type: "load" } })).data;
 assert.equal(annAfter.redrawn, true);
 const chaiAfter = (await post(`${g}/me`, { ...sessions.Chai, action: { type: "load" } })).data;
@@ -198,6 +210,8 @@ assert.equal(reset.status, 200);
 assert.equal((await post(`${g}/me`, { ...sessions.Em, action: { type: "load" } })).status, 401);
 const pubAfter = await get(g);
 assert.equal(pubAfter.members.find((m) => m.name === "Em").claimed, false);
+// Em chooses a new PIN, so everyone has one again for the new round
+sessions.Em = { memberId: ids.Em, token: (await post(`${g}/claim`, { memberId: ids.Em, pin: "2468" })).data.token };
 
 // A new round avoids every previous match and never exposes them
 const beforeRound = {};

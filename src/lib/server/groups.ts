@@ -146,6 +146,12 @@ function guessOf(g: Loaded, memberId: string): string | null {
 }
 
 const isDrawn = (g: Loaded) => g.meta.drawn !== false;
+/**
+ * People with no PIN yet, such as names the organiser typed in. Names are drawn only once everyone
+ * has one: a name without a PIN goes to whoever taps it first, and after a draw that would hand
+ * them its result.
+ */
+const withoutPin = (g: Loaded, ids: string[]) => ids.filter((m) => !g.raw[`p:${m}`]);
 
 /** Who this person drew, or null before a draw (or for anyone the draw somehow missed). */
 const drawnBy = (g: Loaded, giver: string): string | null => {
@@ -464,6 +470,8 @@ export async function adminAction(id: string, key: string, device: string, actio
   if (action.type === "draw") {
     if (isDrawn(g)) return { view: adminView(g) };
     if (g.ids.length < 3) return { error: "need_three" as const };
+    const waiting = withoutPin(g, g.ids);
+    if (waiting.length) return { error: "no_pin" as const, name: waiting.map((m) => g.raw[`m:${m}`]).join(", ") };
     const sealed = sealedDraw(id, g.ids, g.meta.pairs);
     if (!sealed) return { error: "impossible" as const };
     await store.hset(groupKey(id), { ...sealed, meta: JSON.stringify({ ...g.meta, drawn: true }) });
@@ -503,6 +511,18 @@ export async function adminAction(id: string, key: string, device: string, actio
   }
 
   if (plan.ids.length < 3) return { error: "need_three" as const };
+  // Someone here has no PIN yet (a name the organiser just typed in, say), so instead of
+  // redrawing, go back to joining. Old results and messages go, as with a redraw, and the
+  // organiser draws again once everyone has chosen a PIN.
+  if (withoutPin(g, plan.ids).length) {
+    await store.hset(groupKey(id), {
+      ...plan.names,
+      meta: JSON.stringify({ ...g.meta, pairs: plan.pairs, drawn: false, round: g.meta.round + 1 }),
+    });
+    await store.hdel(groupKey(id), [...removedFields, ...g.ids.map((m) => `s:${m}`)]);
+    await store.del([...new Set([...g.ids, ...plan.ids])].map((m) => threadKey(id, m)));
+    return reload();
+  }
   // Opened only inside the server, to rule out last round's matches. Never returned.
   const lastRound =
     action.type === "newRound"

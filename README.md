@@ -20,11 +20,14 @@ Run a gift exchange from one link. Create a group, share the link, and everyone 
 <p>
   <img src="docs/screenshots/invite.jpg" alt="Organiser page with the invite link" width="240">
   <img src="docs/screenshots/lobby.jpg" alt="Organiser's list of who has joined, with the Draw names button" width="240">
+  <img src="docs/screenshots/draw-waiting.jpg" alt="Draw names greyed out while a name the organiser typed in, Mint, waits to open the link and choose a PIN: 3 of 4 have joined" width="240">
+</p>
+<p>
   <img src="docs/screenshots/edit-people.jpg" alt="Edit people sheet: names A to Z, and two pairs kept apart, also A to Z" width="240">
+  <img src="docs/screenshots/pick-person.jpg" alt="Picking Person 1 for a pair kept apart, from everyone's names A to Z" width="240">
 </p>
 <p>
   <img src="docs/screenshots/link-card.jpg" alt="The invite card a chat app shows for a group's link: the group name, budget, date and how many have joined" width="492">
-  <img src="docs/screenshots/pick-person.jpg" alt="Picking Person 1 for a pair kept apart, from everyone's names A to Z" width="240">
 </p>
 <p>
   <img src="docs/screenshots/unwrap.jpg" alt="A wrapped gift waiting to be tapped" width="240">
@@ -49,10 +52,10 @@ The screenshots use a demo group with made-up names.
 **Running the draw**
 - **One invite link** for the whole group, with Copy, Share (on phones) and a QR code. You never type a list of names.
 - **An invite card:** send the link in LINE, Messenger or WhatsApp and it shows a card with the group name, budget, date and how many have joined.
-- **Draw when you're ready:** see who has joined, then draw once at least 3 people are in.
+- **Draw when you're ready:** see who has joined, then draw once at least 3 people are in and everyone has chosen a PIN. Names you type in yourself wait for their person to open the link first.
 - **Exclusions:** keep couples or housemates from drawing each other. Names in the pickers and the pairs you've added are listed A to Z, and pairs you've already kept apart are grayed out.
 - **Budget, party date and a note** for everyone: a big budget field with shortcuts, the site's own calendar, and a live countdown.
-- **Change the group later:** add or remove people and everyone gets a new name. Renaming someone keeps the draw. Someone who joins while you're editing the list stays in the group when you save it.
+- **Change the group later:** add or remove people and everyone gets a new name. Add someone after the draw and the group goes back to joining until they've chosen a PIN, then you draw again. Renaming someone keeps the draw. Someone who joins while you're editing the list stays in the group when you save it.
 - **See who's ready:** who has joined and who has opened their name, updating by itself every few seconds.
 - **Reset a PIN:** for someone who forgot theirs, or whose name locked after too many wrong tries. They choose a new one straight away.
 - **Copy a reminder:** a ready-made message for your group chat naming anyone still to open their name.
@@ -87,6 +90,7 @@ The screenshots use a demo group with made-up names.
 
 - Each person's result is encrypted (AES-256-GCM) before it reaches the database, and is bound to that person and group.
 - The server only returns a result to the person who drew it, after their PIN. The organiser's page never receives results.
+- Names are only drawn once everyone has chosen a PIN, so nobody can claim someone else's name and read their result.
 - Anonymous messages are stored under the person receiving the gift, so nothing stored names their Santa.
 - Guesses get no feedback before the reveal, so guessing can't be used to find your Santa.
 - PINs are hashed with scrypt. A name locks for an hour after 8 wrong tries, and after 30 without a right one it stays locked until the organiser resets its PIN (or 30 days pass), so a 4-digit PIN can't be worked through by trying them all.
@@ -96,7 +100,7 @@ Found a way around any of this? Please report it privately: see [SECURITY.md](SE
 
 **What it can't prevent:**
 - Anyone with the link can join before the draw, so organisers should check the list and remove anyone unexpected.
-- An organiser could reset someone's PIN and log in as them, and nobody else would see that it happened.
+- An organiser could reset someone's PIN and log in as them, and nobody else would see that it happened. Until that person chooses a new PIN, anyone with the link could too, so they should do it straight away.
 - Someone holding both the database and `SEAL_SECRET` could decrypt the results on purpose.
 - With exactly 3 people, your own result reveals the whole circle, so the site warns about it when people are added by hand.
 

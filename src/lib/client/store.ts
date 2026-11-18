@@ -68,6 +68,7 @@ export function errorText(t: T, e: { error: string; name?: string }): string {
   if (e.error === "closed") return t("errClosed");
   if (e.error === "full") return t("errFull");
   if (e.error === "need_three") return t("needThree");
+  if (e.error === "no_pin") return t("errNoPin", { name: e.name ?? "" });
   if (e.error === "duplicate_name") return t("errDuplicate", { name: e.name ?? "" });
   if (e.error === "too_many") return t("errTooMany");
   if (e.error === "locked") return t("errLocked");
