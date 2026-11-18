@@ -208,15 +208,21 @@ export function Organiser({ id }: { id: string }) {
         </ul>
       </Section>
 
-      {!view.drawn && (
+      {!view.drawn && (() => {
+        // Names typed in by the organiser can't be drawn until their person has chosen a PIN.
+        const waiting = view.members.filter((m) => !m.claimed).map((m) => m.name);
+        return (
         <div className="card relative space-y-2 p-4">
           <GiftBox state="still" size={58} className="pin-sticker" />
-          <button type="button" className="btn-primary h-14 w-full text-[20px]" disabled={view.members.length < 3} onClick={drawNow}>
+          <button type="button" className="btn-primary h-14 w-full text-[20px]" disabled={view.members.length < 3 || waiting.length > 0} onClick={drawNow}>
             {t("drawNow")}
           </button>
-          <p className="px-1 text-[14px] leading-snug text-ink-2">{view.members.length < 3 ? t("needThree") : t("drawHint")}</p>
+          <p className="px-1 text-[14px] leading-snug text-ink-2">
+            {view.members.length < 3 ? t("needThree") : waiting.length ? t("drawWaiting", { names: waiting.join(", ") }) : t("drawHint")}
+          </p>
         </div>
-      )}
+        );
+      })()}
 
       {view.drawn && (
       <div className="card relative tilt-l nudge-l space-y-2 p-4">
@@ -305,7 +311,13 @@ function PeopleSheet({ view, onClose, onSave, error }: { view: AdminView; onClos
     const samePeople = people.length === was.size && people.every((p) => was.has(p.id));
     const key = (list: Pair[]) => list.map((p) => [...p].sort().join(">")).sort().join();
     const redraw = view.drawn && (!samePeople || key(pairs) !== key(view.pairs as Pair[]));
-    if (redraw && !(await askConfirm({ title: t("redrawTitle"), message: t("redrawBody"), confirmLabel: t("redrawConfirm"), destructive: true }))) return;
+    // Anyone without a PIN (just added, say) sends the group back to joining instead of a redraw.
+    const claimed = new Set(view.members.filter((m) => m.claimed).map((m) => m.id));
+    const noPin = people.filter((p) => !claimed.has(p.id)).map((p) => p.name.trim());
+    const confirm = noPin.length
+      ? { title: t("reopenTitle"), message: t("reopenBody", { names: noPin.join(", ") }), confirmLabel: t("reopenConfirm") }
+      : { title: t("redrawTitle"), message: t("redrawBody"), confirmLabel: t("redrawConfirm") };
+    if (redraw && !(await askConfirm({ ...confirm, destructive: true }))) return;
     if (await onSave(people.map((p) => ({ ...p, name: p.name.trim() })), pairs, seen)) onClose();
   }
 
